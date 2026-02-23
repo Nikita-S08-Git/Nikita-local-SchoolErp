@@ -20,6 +20,14 @@ class AcademicSession extends Model
         'is_active' => 'boolean'
     ];
 
+    /**
+     * Accessor for backward compatibility - allows using $session->name
+     */
+    public function getNameAttribute(): string
+    {
+        return $this->session_name;
+    }
+
     public function students(): HasMany
     {
         return $this->hasMany(\App\Models\User\Student::class);

@@ -16,42 +16,86 @@ class AttendanceSeeder extends Seeder
         $divisions = Division::where('is_active', true)->get();
         $academicSession = AcademicSession::where('is_active', true)->first();
 
-        if ($divisions->isEmpty() || !$academicSession) {
-            $this->command->warn('No divisions or active academic session found.');
+        if ($divisions->isEmpty()) {
+            $this->command->warn('No divisions found. Please seed divisions first.');
             return;
         }
 
-        $startDate = Carbon::now()->subDays(30);
+        if (!$academicSession) {
+            $this->command->warn('No active academic session found.');
+            return;
+        }
+
+        // Get last 30 working days (excluding weekends)
+        $startDate = Carbon::now()->subDays(45);
         $endDate = Carbon::now();
 
-        foreach ($divisions->take(3) as $division) {
+        $attendanceData = [];
+        $count = 0;
+
+        foreach ($divisions as $division) {
             $students = Student::where('division_id', $division->id)
                 ->where('student_status', 'active')
                 ->get();
 
             if ($students->isEmpty()) {
+                $this->command->warn("No active students in division: {$division->division_name}");
                 continue;
             }
 
+            $this->command->info("Creating attendance for division: {$division->division_name} ({$students->count()} students)");
+
             for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
+                // Skip weekends
                 if ($date->isWeekend()) {
                     continue;
                 }
 
                 foreach ($students as $student) {
-                    $status = rand(1, 100) <= 85 ? 'present' : 'absent';
+                    // 85% attendance rate
+                    $rand = rand(1, 100);
+                    
+                    if ($rand <= 85) {
+                        $status = 'present';
+                    } elseif ($rand <= 92) {
+                        $status = 'absent';
+                    } else {
+                        $status = 'late';
+                    }
 
-                    Attendance::create([
+                    $attendanceData[] = [
                         'student_id' => $student->id,
                         'division_id' => $division->id,
                         'academic_session_id' => $academicSession->id,
                         'date' => $date->format('Y-m-d'),
                         'status' => $status,
-                    ]);
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+
+                    $count++;
                 }
             }
         }
 
-        $this->command->info('Attendance data seeded successfully for last 30 days!');
+        // Insert in batches of 500
+        if (!empty($attendanceData)) {
+            $existingCount = Attendance::count();
+            
+            if ($existingCount > 0) {
+                $this->command->info("⚠️  Found {$existingCount} existing attendance records. Clearing them...");
+                Attendance::truncate();
+            }
+
+            $batches = array_chunk($attendanceData, 500);
+            foreach ($batches as $batch) {
+                Attendance::insert($batch);
+            }
+
+            $this->command->info("✅ Created {$count} attendance records for {$divisions->count()} divisions!");
+            $this->command->info('Attendance covers last 45 days (weekdays only) with ~85% attendance rate.');
+        } else {
+            $this->command->warn('No attendance data created. Check if students are assigned to divisions.');
+        }
     }
 }

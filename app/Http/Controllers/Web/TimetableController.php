@@ -5,8 +5,6 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Models\Attendance\Timetable;
 use App\Models\Academic\Division;
-use App\Models\Academic\Department;
-use App\Models\Academic\Program;
 use App\Models\Result\Subject;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -18,25 +16,18 @@ class TimetableController extends Controller
      */
     public function index(Request $request)
     {
-        // Master Data Counts
-        $departmentsCount = Department::where('is_active', true)->count();
-        $programsCount = Program::where('is_active', true)->count();
-        $divisionsCount = Division::where('is_active', true)->count();
-        $subjectsCount = Subject::where('is_active', true)->count();
-        $teachersCount = User::role('teacher')->where('is_active', true)->count();
-        
-        // Get all timetables with relationships
+        // Get all divisions
         $divisions = Division::where('is_active', true)
-            ->with(['program.department', 'academicYear'])
+            ->with(['academicYear'])
             ->get();
-        
+
         $selectedDivision = null;
         $timetables = collect();
 
         if ($request->filled('division_id')) {
-            $selectedDivision = Division::with(['program.department', 'academicYear'])
+            $selectedDivision = Division::with(['academicYear'])
                 ->find($request->division_id);
-            $timetables = Timetable::with(['division.program.department', 'subject', 'teacher', 'room'])
+            $timetables = Timetable::with(['division.academicYear', 'subject', 'teacher'])
                 ->where('division_id', $request->division_id)
                 ->orderByRaw("FIELD(day_of_week, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday')")
                 ->orderBy('start_time')
@@ -44,14 +35,9 @@ class TimetableController extends Controller
         }
 
         return view('academic.timetable.index', compact(
-            'timetables', 
-            'divisions', 
-            'selectedDivision',
-            'departmentsCount',
-            'programsCount',
-            'divisionsCount',
-            'subjectsCount',
-            'teachersCount'
+            'timetables',
+            'divisions',
+            'selectedDivision'
         ));
     }
 
@@ -61,10 +47,10 @@ class TimetableController extends Controller
     public function table(Request $request)
     {
         $divisions = Division::where('is_active', true)
-            ->with(['program.department'])
+            ->with(['academicYear'])
             ->get();
 
-        $query = Timetable::with(['division.program.department', 'subject', 'teacher']);
+        $query = Timetable::with(['division.academicYear', 'subject', 'teacher']);
 
         if ($request->filled('division_id')) {
             $query->where('division_id', $request->division_id);
@@ -74,19 +60,11 @@ class TimetableController extends Controller
             $query->where('day_of_week', $request->day);
         }
 
-        if ($request->filled('department_id')) {
-            $query->whereHas('division.program', function($q) use ($request) {
-                $q->where('department_id', $request->department_id);
-            });
-        }
-
         $timetables = $query->orderByRaw("FIELD(day_of_week, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday')")
                            ->orderBy('start_time')
                            ->paginate(25);
 
-        $departments = Department::where('is_active', true)->get();
-
-        return view('academic.timetable.table', compact('timetables', 'divisions', 'departments'));
+        return view('academic.timetable.table', compact('timetables', 'divisions'));
     }
 
     /**
@@ -94,18 +72,14 @@ class TimetableController extends Controller
      */
     public function create()
     {
-        $departments = Department::where('is_active', true)->get();
-        $programs = Program::where('is_active', true)->get();
         $divisions = Division::where('is_active', true)
-            ->with(['program.department', 'academicYear'])
+            ->with(['academicYear'])
             ->get();
         $subjects = Subject::where('is_active', true)->get();
         $teachers = User::role('teacher')->where('is_active', true)->get();
         $rooms = $this->getAvailableRooms();
 
         return view('academic.timetable.create', compact(
-            'departments',
-            'programs',
             'divisions',
             'subjects',
             'teachers',
@@ -159,10 +133,8 @@ class TimetableController extends Controller
      */
     public function edit(Timetable $timetable)
     {
-        $departments = Department::where('is_active', true)->get();
-        $programs = Program::where('is_active', true)->get();
         $divisions = Division::where('is_active', true)
-            ->with(['program.department', 'academicYear'])
+            ->with(['academicYear'])
             ->get();
         $subjects = Subject::where('is_active', true)->get();
         $teachers = User::role('teacher')->where('is_active', true)->get();
@@ -170,8 +142,6 @@ class TimetableController extends Controller
 
         return view('academic.timetable.edit', compact(
             'timetable',
-            'departments',
-            'programs',
             'divisions',
             'subjects',
             'teachers',
