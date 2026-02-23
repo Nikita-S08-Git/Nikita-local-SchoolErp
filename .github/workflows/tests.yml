@@ -1,0 +1,32 @@
+name: Laravel Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  laravel-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+        extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv, imagick, mysql, pdo_mysql
+        coverage: none
+
+    - name: Install dependencies
+      run: |
+        composer install --prefer-dist --no-progress --no-suggest
+        npm install --if-present
+
+    - name: Generate app key
+      run: php artisan key:generate
+
+    - name: Execute tests (Unit and Feature tests) via PHPUnit
+      run: php artisan test
