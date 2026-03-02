@@ -26,7 +26,41 @@ class PaymentController extends Controller
             'amount' => 'required|numeric|min:1'
         ]);
 
-        $studentFee = StudentFee::with('student')->find($request->student_fee_id);
+        $studentFee = StudentFee::with('feeStructure')->find($request->student_fee_id);
+        
+        // Calculate installment restrictions
+        $totalInstallments = $studentFee->feeStructure->installments ?? 1;
+        $singleInstallmentAmount = $studentFee->final_amount / $totalInstallments;
+        
+        // Get current installment info
+        $paidInstallments = FeePayment::where('student_fee_id', $studentFee->id)->count();
+        $nextInstallmentNumber = $paidInstallments + 1;
+        
+        $currentInstallmentPaid = FeePayment::where('student_fee_id', $studentFee->id)
+            ->where('installment_number', $nextInstallmentNumber)
+            ->sum('amount');
+        
+        $remainingForCurrentInstallment = max(0, $singleInstallmentAmount - $currentInstallmentPaid);
+        $remaining = max(0, $studentFee->final_amount - $studentFee->paid_amount);
+        
+        // Validate amount based on installment structure
+        if ($totalInstallments > 1) {
+            // Multiple installments - can only pay one installment at a time
+            if ($request->amount > $remainingForCurrentInstallment) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Only the allowed installment amount can be collected.'
+                ], 422);
+            }
+        } else {
+            // Single installment - must pay full outstanding amount
+            if ($request->amount < $remaining) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Only the allowed installment amount can be collected.'
+                ], 422);
+            }
+        }
         
         $orderData = [
             'receipt' => 'fee_' . $studentFee->id . '_' . time(),
@@ -81,8 +115,21 @@ public function verifyPayment(Request $request): JsonResponse
             ]);
 
             // 🔒 Lock student_fee row (VERY IMPORTANT)
-            $studentFee = StudentFee::lockForUpdate()
+            $studentFee = StudentFee::with('feeStructure')->lockForUpdate()
                 ->findOrFail($request->student_fee_id);
+
+            // Calculate single installment amount based on fee structure
+            $totalInstallments = $studentFee->feeStructure->installments ?? 1;
+            $singleInstallmentAmount = $studentFee->final_amount / $totalInstallments;
+            $paidInstallments = FeePayment::where('student_fee_id', $studentFee->id)->count();
+            $nextInstallmentNumber = $paidInstallments + 1;
+
+            // Calculate remaining amount for current installment only
+            $currentInstallmentPaid = FeePayment::where('student_fee_id', $studentFee->id)
+                ->where('installment_number', $nextInstallmentNumber)
+                ->sum('amount');
+
+            $remainingForCurrentInstallment = max(0, $singleInstallmentAmount - $currentInstallmentPaid);
 
             // 🔢 Fresh remaining calculation (DB truth)
             $remaining = max(
@@ -102,10 +149,26 @@ public function verifyPayment(Request $request): JsonResponse
             $payment = $this->razorpay->payment
                 ->fetch($request->razorpay_payment_id);
 
-            // ✅ Accept only remaining amount
+            // Restrict to ONE installment per transaction
+            if ($totalInstallments > 1 && ($payment['amount'] / 100) > $remainingForCurrentInstallment) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Only the allowed installment amount can be collected.'
+                ], 422);
+            }
+
+            // No installments (or 1 installment) - must pay full outstanding amount
+            if ($totalInstallments <= 1 && ($payment['amount'] / 100) < $remaining) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Only the allowed installment amount can be collected.'
+                ], 422);
+            }
+
+            // ✅ Accept only remaining amount for current installment
             $payAmount = min(
                 $payment['amount'] / 100,
-                $remaining
+                $remainingForCurrentInstallment
             );
 
             // 🧾 Receipt number (safe)
@@ -119,6 +182,7 @@ public function verifyPayment(Request $request): JsonResponse
             // 💾 Save payment
             FeePayment::create([
                 'student_fee_id'  => $studentFee->id,
+                'installment_number' => $nextInstallmentNumber,
                 'receipt_number' => $receiptNumber,
                 'amount'         => $payAmount,
                 'payment_mode'   => 'online',

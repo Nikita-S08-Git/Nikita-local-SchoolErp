@@ -7,32 +7,85 @@
             ['name' => 'Dashboard', 'route' => 'dashboard.principal', 'icon' => 'speedometer2'],
             ['name' => 'Students', 'route' => 'dashboard.students.index', 'icon' => 'people-fill'],
             ['name' => 'Teachers', 'route' => 'dashboard.teachers.index', 'icon' => 'person-badge-fill'],
+            
+            // Academic Management Section
             ['name' => 'Programs', 'route' => 'academic.programs.index', 'icon' => 'mortarboard'],
             ['name' => 'Subjects', 'route' => 'academic.subjects.index', 'icon' => 'book'],
             ['name' => 'Divisions', 'route' => 'academic.divisions.index', 'icon' => 'diagram-3'],
-            ['name' => 'Attendance', 'route' => 'academic.attendance.index', 'icon' => 'check-square'],
-            ['name' => 'Timetable', 'route' => 'academic.timetable.index', 'icon' => 'calendar3'],
             ['name' => 'Academic Sessions', 'route' => 'web.academic.sessions.index', 'icon' => 'calendar-event'],
+            
+            // Timetable & Attendance Section
+            ['name' => 'Timetable', 'route' => 'academic.timetable.index', 'icon' => 'calendar-week'],
+            ['name' => 'Attendance', 'route' => 'academic.attendance.index', 'icon' => 'clipboard-check'],
+            ['name' => 'Holidays', 'route' => 'academic.holidays.index', 'icon' => 'calendar-event'],
+            
             ['name' => 'Reports', 'route' => 'principal.reports', 'icon' => 'graph-up'],
+        ],
+        'admin' => [
+            ['name' => 'Dashboard', 'route' => 'dashboard.admin', 'icon' => 'speedometer2'],
+            ['name' => 'Students', 'route' => 'dashboard.students.index', 'icon' => 'people-fill'],
+            ['name' => 'Teachers', 'route' => 'dashboard.teachers.index', 'icon' => 'person-badge-fill'],
+            
+            // Academic Management Section
+            ['name' => 'Programs', 'route' => 'academic.programs.index', 'icon' => 'mortarboard'],
+            ['name' => 'Subjects', 'route' => 'academic.subjects.index', 'icon' => 'book'],
+            ['name' => 'Divisions', 'route' => 'academic.divisions.index', 'icon' => 'diagram-3'],
+            ['name' => 'Academic Sessions', 'route' => 'web.academic.sessions.index', 'icon' => 'calendar-event'],
+            
+            // Timetable & Attendance Section
+            ['name' => 'Timetable', 'route' => 'academic.timetable.index', 'icon' => 'calendar-week'],
+            ['name' => 'Attendance', 'route' => 'academic.attendance.index', 'icon' => 'clipboard-check'],
+            ['name' => 'Holidays', 'route' => 'academic.holidays.index', 'icon' => 'calendar-event'],
+            
+            ['name' => 'Reports', 'route' => 'reports.index', 'icon' => 'graph-up'],
         ],
         'teacher' => [
             ['name' => 'Dashboard', 'route' => 'teacher.dashboard', 'icon' => 'speedometer2'],
             ['name' => 'Students', 'route' => 'teacher.students', 'icon' => 'people-fill'],
-            ['name' => 'Attendance', 'route' => 'teacher.attendance', 'icon' => 'check-square'],
             ['name' => 'Assignments', 'route' => 'teacher.assignments', 'icon' => 'clipboard-check'],
+            
+            // Timetable & Attendance Section
+            ['name' => 'Timetable', 'route' => 'academic.timetable.teacher', 'icon' => 'calendar-week'],
+            ['name' => 'Mark Attendance', 'route' => 'academic.attendance.create', 'icon' => 'clipboard-check'],
+            ['name' => 'Holidays', 'route' => 'academic.holidays.index', 'icon' => 'calendar-event'],
         ],
         'student' => [
             ['name' => 'Dashboard', 'route' => 'student.dashboard', 'icon' => 'speedometer2'],
             ['name' => 'Profile', 'route' => 'student.profile', 'icon' => 'person'],
             ['name' => 'Fees', 'route' => 'student.fees', 'icon' => 'cash-stack'],
-            ['name' => 'Attendance', 'route' => 'student.attendance', 'icon' => 'calendar-check'],
             ['name' => 'Library', 'route' => 'student.library', 'icon' => 'book'],
+            
+            // View Only Section
+            ['name' => 'My Timetable', 'route' => 'academic.timetable.index', 'icon' => 'calendar-week'],
+            ['name' => 'My Attendance', 'route' => 'academic.attendance.index', 'icon' => 'clipboard-check'],
+            ['name' => 'Holidays', 'route' => 'academic.holidays.index', 'icon' => 'calendar-event'],
         ],
         'accounts_staff' => [
             ['name' => 'Dashboard', 'route' => 'accountant.dashboard', 'icon' => 'speedometer2'],
             ['name' => 'Fee Collection', 'route' => 'accountant.fees', 'icon' => 'cash-stack'],
             ['name' => 'Expenses', 'route' => 'accountant.expenses', 'icon' => 'receipt'],
             ['name' => 'Reports', 'route' => 'accountant.reports', 'icon' => 'graph-up'],
+            
+            // View Only Section
+            ['name' => 'Holidays', 'route' => 'academic.holidays.index', 'icon' => 'calendar-event'],
+        ],
+        'office' => [
+            ['name' => 'Dashboard', 'route' => 'dashboard.office', 'icon' => 'speedometer2'],
+            ['name' => 'Admissions', 'route' => 'admissions.index', 'icon' => 'people-fill'],
+            ['name' => 'Students', 'route' => 'dashboard.students.index', 'icon' => 'people-fill'],
+            
+            // Timetable & Attendance Section
+            ['name' => 'Timetable', 'route' => 'academic.timetable.index', 'icon' => 'calendar-week'],
+            ['name' => 'Attendance', 'route' => 'academic.attendance.index', 'icon' => 'clipboard-check'],
+            ['name' => 'Holidays', 'route' => 'academic.holidays.index', 'icon' => 'calendar-event'],
+        ],
+        'librarian' => [
+            ['name' => 'Dashboard', 'route' => 'dashboard.librarian', 'icon' => 'speedometer2'],
+            ['name' => 'Books', 'route' => 'library.books.index', 'icon' => 'book'],
+            ['name' => 'Issues', 'route' => 'library.issues.index', 'icon' => 'clipboard-check'],
+            
+            // View Only Section
+            ['name' => 'Holidays', 'route' => 'academic.holidays.index', 'icon' => 'calendar-event'],
         ],
     ];
     

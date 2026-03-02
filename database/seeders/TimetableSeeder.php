@@ -3,101 +3,108 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\Attendance\Timetable;
+use App\Models\Academic\Timetable;
 use App\Models\Academic\Division;
 use App\Models\Result\Subject;
+use App\Models\Academic\TimeSlot;
+use App\Models\Academic\AcademicYear;
 use App\Models\User;
 
 class TimetableSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
+        $this->command->info('Seeding Timetables...');
+
+        // Get active academic year
+        $academicYear = AcademicYear::where('is_active', true)->first();
+        if (!$academicYear) {
+            $this->command->error('No active academic year found!');
+            return;
+        }
+
+        // Get teacher
+        $teacher = User::role('teacher')->first();
+        if (!$teacher) {
+            $this->command->error('No teacher found!');
+            return;
+        }
+
+        // Get divisions
         $divisions = Division::where('is_active', true)->get();
-        $teachers = User::role('teacher')->where('is_active', true)->get();
-        $subjects = Subject::where('is_active', true)->get();
-
         if ($divisions->isEmpty()) {
-            $this->command->warn('No divisions found. Please seed divisions first.');
+            $this->command->error('No divisions found!');
             return;
         }
 
-        if ($teachers->isEmpty()) {
-            $this->command->warn('No teachers found. Please seed teachers first.');
-            return;
-        }
-
+        // Get subjects
+        $subjects = Subject::where('is_active', true)->get();
         if ($subjects->isEmpty()) {
-            $this->command->warn('No subjects found. Please seed subjects first.');
+            $this->command->error('No subjects found!');
             return;
         }
 
-        $days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        // Get time slots
+        $timeSlots = TimeSlot::where('is_active', true)->orderBy('start_time')->get();
+        if ($timeSlots->isEmpty()) {
+            $this->command->error('No time slots found!');
+            return;
+        }
 
-        // Define unique time slots for each day to avoid conflicts
-        $timeSlots = [
-            ['09:00', '10:00'],
-            ['10:00', '11:00'],
-            ['11:00', '12:00'],
-            ['12:00', '13:00'],
-            ['14:00', '15:00'],
-            ['15:00', '16:00'],
-        ];
-
-        $rooms = ['101', '102', '103', '104', '105', '201', '202', 'Lab 1', 'Lab 2', 'Seminar Hall'];
+        // Days of the week
+        $days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
 
         $count = 0;
-        $existingCount = Timetable::count();
-
-        if ($existingCount > 0) {
-            $this->command->info("⚠️  Found {$existingCount} existing timetable entries. Clearing them...");
-            Timetable::truncate();
-            $count = 0;
-        }
+        $subjectIndex = 0;
 
         foreach ($divisions as $division) {
-            $this->command->info("Creating timetable for: {$division->division_name}");
+            $this->command->info("Creating timetable for Division {$division->division_name}...");
 
             foreach ($days as $day) {
-                // Use all 6 time slots for each day, no duplicates
-                $usedSlots = [];
+                $slotIndex = 0;
 
-                foreach ($timeSlots as $slot) {
-                    // Skip if this exact slot is already used for this division on this day
-                    $slotKey = $slot[0];
-                    if (in_array($slotKey, $usedSlots)) {
+                // Schedule 6 periods per day (skip lunch break at period 5)
+                for ($period = 1; $period <= 6; $period++) {
+                    // Skip period 5 (14:00-15:00) for lunch break
+                    if ($period == 5) {
                         continue;
                     }
-                    $usedSlots[] = $slotKey;
 
-                    $teacher = $teachers->random();
-                    $subject = $subjects->random();
-                    $room = $rooms[array_rand($rooms)];
-
-                    // Check if entry already exists before creating
-                    $exists = Timetable::where('division_id', $division->id)
-                        ->where('day_of_week', $day)
-                        ->where('start_time', $slot[0])
-                        ->exists();
-
-                    if (!$exists) {
-                        Timetable::create([
-                            'division_id' => $division->id,
-                            'teacher_id' => $teacher->id,
-                            'subject_id' => $subject->id,
-                            'day_of_week' => $day,
-                            'start_time' => $slot[0],
-                            'end_time' => $slot[1],
-                            'room' => $room,
-                            'is_active' => true,
-                        ]);
-
-                        $count++;
+                    $timeSlot = $timeSlots->get($slotIndex);
+                    if (!$timeSlot) {
+                        $slotIndex++;
+                        continue;
                     }
+
+                    // Get subject (cycle through subjects)
+                    $subject = $subjects->get($subjectIndex % $subjects->count());
+
+                    // Create timetable entry
+                    Timetable::firstOrCreate(
+                        [
+                            'division_id' => $division->id,
+                            'day_of_week' => $day,
+                            'start_time' => $timeSlot->start_time,
+                            'end_time' => $timeSlot->end_time,
+                        ],
+                        [
+                            'subject_id' => $subject->id,
+                            'teacher_id' => $teacher->id,
+                            'period_name' => 'Period ' . $period,
+                            'room_number' => 'Room ' . chr(64 + $division->id), // A, B, C, etc.
+                            'academic_year_id' => $academicYear->id,
+                            'is_break_time' => false,
+                            'is_active' => true,
+                        ]
+                    );
+
+                    $count++;
+                    $slotIndex++;
+                    $subjectIndex++;
                 }
             }
         }
 
-        $this->command->info("✅ Created {$count} timetable entries for {$divisions->count()} divisions!");
-        $this->command->info('Each division has 6 periods per day (9:00-16:00) with assigned teachers, subjects, and rooms.');
+        $this->command->info("Created {$count} timetable entries!");
     }
 }

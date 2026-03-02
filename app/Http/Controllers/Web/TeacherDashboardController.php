@@ -44,12 +44,27 @@ class TeacherDashboardController extends Controller
                    ->limit(5)
                    ->get() : collect();
         
-        // Teacher's Timetable Today
-        $todaySchedule = Timetable::where('teacher_id', $teacher->id)
-                                 ->where('day_of_week', Carbon::today()->format('l'))
-                                 ->with(['subject', 'division'])
-                                 ->orderBy('start_time')
-                                 ->get();
+        // Teacher's Timetable Today (both weekly and date-specific)
+        $today = now()->format('Y-m-d');
+        $todayDayOfWeek = strtolower(Carbon::today()->format('l'));
+        
+        // Get weekly schedule
+        $weeklySchedule = Timetable::where('teacher_id', $teacher->id)
+            ->where('day_of_week', $todayDayOfWeek)
+            ->whereNull('date')
+            ->with(['subject', 'division'])
+            ->orderBy('start_time')
+            ->get();
+        
+        // Get today's date-specific schedule
+        $dateSpecificSchedule = Timetable::where('teacher_id', $teacher->id)
+            ->whereDate('date', $today)
+            ->with(['subject', 'division'])
+            ->orderBy('start_time')
+            ->get();
+        
+        // Combine both
+        $todaySchedule = $dateSpecificSchedule->concat($weeklySchedule);
         
         return view('teacher.dashboard', compact(
             'teacher',

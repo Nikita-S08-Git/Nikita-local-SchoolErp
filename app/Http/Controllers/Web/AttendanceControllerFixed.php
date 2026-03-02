@@ -4,13 +4,28 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Models\Academic\Division;
+use App\Models\Academic\AcademicYear;
 use App\Models\User\Student;
 use App\Models\Attendance\Attendance;
+use App\Services\HolidayService;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
 class AttendanceController extends Controller
 {
+    /**
+     * Holiday service instance
+     */
+    protected HolidayService $holidayService;
+
+    /**
+     * Constructor
+     */
+    public function __construct(HolidayService $holidayService)
+    {
+        $this->holidayService = $holidayService;
+    }
+
     public function index()
     {
         $divisions = Division::where('is_active', true)->get();
@@ -21,13 +36,22 @@ class AttendanceController extends Controller
     {
         $validated = $request->validate([
             'division_id' => 'required|exists:divisions,id',
-            'attendance_date' => 'required|date',
+            'date' => 'required|date',
         ]);
 
         $division = Division::with('students')->findOrFail($validated['division_id']);
-        $attendanceDate = $validated['attendance_date'];
+        $attendanceDate = $validated['date'];
 
-        $existing = Attendance::where('attendance_date', $attendanceDate)
+        // Check if the date is a holiday
+        $academicYearId = $division->academic_year_id ?? AcademicYear::getCurrentAcademicYearId();
+        $holidayCheck = $this->holidayService->validateAttendanceDate($attendanceDate, $academicYearId);
+
+        if (!$holidayCheck['valid'] && $holidayCheck['is_holiday']) {
+            return redirect()->route('attendance.index')
+                ->with('error', 'Selected date is a holiday. Timetable and Attendance cannot be added.');
+        }
+
+        $existing = Attendance::where('date', $attendanceDate)
             ->whereIn('student_id', $division->students->pluck('id'))
             ->pluck('status', 'student_id')
             ->toArray();
@@ -39,18 +63,29 @@ class AttendanceController extends Controller
     {
         $validated = $request->validate([
             'division_id' => 'required|exists:divisions,id',
-            'attendance_date' => 'required|date',
+            'date' => 'required|date',
             'attendance' => 'required|array',
             'attendance.*.student_id' => 'required|exists:students,id',
             'attendance.*.status' => 'required|in:present,absent,late',
             'attendance.*.remarks' => 'nullable|string|max:255',
         ]);
 
+        // Check if the date is a holiday
+        $division = Division::find($validated['division_id']);
+        $academicYearId = $division?->academic_year_id ?? AcademicYear::getCurrentAcademicYearId();
+        $holidayCheck = $this->holidayService->validateAttendanceDate($validated['date'], $academicYearId);
+
+        if (!$holidayCheck['valid'] && $holidayCheck['is_holiday']) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Selected date is a holiday. Timetable and Attendance cannot be added.');
+        }
+
         foreach ($validated['attendance'] as $record) {
             Attendance::updateOrCreate(
                 [
                     'student_id' => $record['student_id'],
-                    'attendance_date' => $validated['attendance_date'],
+                    'date' => $validated['date'],
                 ],
                 [
                     'status' => $record['status'],
@@ -85,7 +120,7 @@ class AttendanceController extends Controller
         $report = [];
         foreach ($division->students as $student) {
             $records = Attendance::where('student_id', $student->id)
-                ->whereBetween('attendance_date', [$fromDate, $toDate])
+                ->whereBetween('date', [$fromDate, $toDate])
                 ->get();
 
             $present = $records->where('status', 'present')->count();

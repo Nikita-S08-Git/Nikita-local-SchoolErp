@@ -69,13 +69,34 @@ class RazorpayController extends Controller
         }
 
         $payment = $this->api->payment->fetch($request->razorpay_payment_id);
-        $studentFee = StudentFee::findOrFail($request->student_fee_id);
+        $studentFee = StudentFee::with('feeStructure')->findOrFail($request->student_fee_id);
+
+        // Calculate single installment amount based on fee structure
+        $totalInstallments = $studentFee->feeStructure->installments ?? 1;
+        $singleInstallmentAmount = $studentFee->final_amount / $totalInstallments;
+        $paidInstallments = FeePayment::where('student_fee_id', $studentFee->id)->count();
+        $nextInstallmentNumber = $paidInstallments + 1;
+
+        // Calculate remaining amount for current installment only
+        $currentInstallmentPaid = FeePayment::where('student_fee_id', $studentFee->id)
+            ->where('installment_number', $nextInstallmentNumber)
+            ->sum('amount');
+
+        $remainingForCurrentInstallment = max(0, $singleInstallmentAmount - $currentInstallmentPaid);
+        $payAmount = min($payment->amount / 100, $remainingForCurrentInstallment);
+
+        // Restrict to ONE installment per transaction
+        if ($totalInstallments > 1 && ($payment->amount / 100) > $remainingForCurrentInstallment) {
+            return response()->json([
+                'error' => 'Only one installment can be collected per transaction. Maximum allowed: ₹' . number_format($remainingForCurrentInstallment, 2)
+            ], 400);
+        }
 
         $feePayment = FeePayment::create([
             'student_fee_id' => $studentFee->id,
-            'installment_number' => FeePayment::where('student_fee_id', $studentFee->id)->count() + 1,
+            'installment_number' => $nextInstallmentNumber,
             'receipt_number' => 'RCP' . date('Y') . strtoupper(Str::random(6)),
-            'amount' => $payment->amount / 100,
+            'amount' => $payAmount,
             'payment_mode' => 'online',
             'transaction_id' => $request->razorpay_payment_id,
             'payment_date' => now(),

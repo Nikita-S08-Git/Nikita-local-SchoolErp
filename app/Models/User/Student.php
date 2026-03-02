@@ -13,7 +13,10 @@ use App\Models\Academic\Program;
 use App\Models\Academic\Division;
 use App\Models\Academic\AcademicSession;
 use App\Models\Fee\Scholarship;
-use App\Models\Academic\Admission; // ← Make sure this is the correct namespace
+use App\Models\Academic\Admission;
+use App\Models\StudentProfile;
+use App\Models\Attendance\Attendance;
+use App\Models\StudentNotification;
 
 
 class Student extends Model
@@ -129,7 +132,15 @@ class Student extends Model
     {
         return $this->belongsTo(User::class);
     }
-    
+
+    /**
+     * Get the student profile with additional information
+     */
+    public function studentProfile(): HasOne
+    {
+        return $this->hasOne(\App\Models\StudentProfile::class);
+    }
+
 
     /**
      * PROGRAM RELATIONSHIP - BelongsTo
@@ -168,6 +179,73 @@ class Student extends Model
     public function academicSession(): BelongsTo
     {
         return $this->belongsTo(AcademicSession::class);
+    }
+
+    /**
+     * STUDENT PROFILE RELATIONSHIP - HasOne
+     *
+     * Each student can have one profile with additional details
+     *
+     * DATABASE: student_profiles.student_id -> students.id
+     * USAGE: $student->profile->admission_number
+     */
+    public function profile(): HasOne
+    {
+        return $this->hasOne(StudentProfile::class);
+    }
+
+    /**
+     * ATTENDANCE RECORDS RELATIONSHIP - HasMany
+     *
+     * Each student can have many attendance records
+     *
+     * DATABASE: attendance.student_id -> students.id
+     * USAGE: $student->attendances (get all attendance records)
+     */
+    public function attendances(): HasMany
+    {
+        return $this->hasMany(\App\Models\Attendance\Attendance::class);
+    }
+
+    /**
+     * NOTIFICATIONS RELATIONSHIP - HasMany
+     *
+     * Each student can have many notifications
+     *
+     * DATABASE: student_notifications.student_id -> students.id
+     * USAGE: $student->notifications (get all notifications)
+     */
+    public function notifications(): HasMany
+    {
+        return $this->hasMany(StudentNotification::class);
+    }
+
+    /**
+     * Get unread notifications count
+     */
+    public function unreadNotificationsCount(): int
+    {
+        return $this->notifications()->where('is_read', false)->count();
+    }
+
+    /**
+     * Get attendance percentage by subject
+     */
+    public function getAttendancePercentageBySubject()
+    {
+        return $this->attendances()
+            ->select('subject_id', 
+                \DB::raw('COUNT(*) as total'),
+                \DB::raw('SUM(CASE WHEN status = "present" THEN 1 ELSE 0 END) as present'),
+                \DB::raw('SUM(CASE WHEN status = "absent" THEN 1 ELSE 0 END) as absent')
+            )
+            ->groupBy('subject_id')
+            ->with('subject')
+            ->get()
+            ->map(function($item) {
+                $item->percentage = $item->total > 0 ? round(($item->present / $item->total) * 100, 2) : 0;
+                return $item;
+            });
     }
 
     /**
@@ -335,6 +413,22 @@ public function scholarships()
     public function getFullNameAttribute(): string
     {
         return trim($this->first_name . ' ' . $this->middle_name . ' ' . $this->last_name);
+    }
+
+    /**
+     * Get student name (alias for full_name)
+     */
+    public function getNameAttribute(): string
+    {
+        return $this->full_name;
+    }
+
+    /**
+     * Get student email from user relationship
+     */
+    public function getEmailAttribute(): ?string
+    {
+        return $this->user?->email;
     }
 }
 

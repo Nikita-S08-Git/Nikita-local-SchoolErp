@@ -22,7 +22,10 @@ class AcademicYear extends Model
         'year_name',
         'semester_start',
         'semester_end',
-        'is_active'
+        'is_active',
+        'start_date',
+        'end_date',
+        'name',
     ];
 
     protected $casts = [
@@ -52,5 +55,32 @@ class AcademicYear extends Model
     public function scopeByProgram($query, $programId)
     {
         return $query->where('program_id', $programId);
+    }
+
+    /**
+     * Get the name attribute
+     */
+    public function getNameAttribute(): string
+    {
+        return $this->year_name ?? 'Year ' . $this->year_number;
+    }
+
+    /**
+     * Get current academic year ID
+     */
+    public static function getCurrentAcademicYearId(): ?int
+    {
+        $year = self::getCurrentAcademicYear();
+        return $year?->id;
+    }
+
+    /**
+     * Get current academic year
+     */
+    public static function getCurrentAcademicYear(): ?self
+    {
+        return self::where('is_active', true)
+            ->orderBy('year_number', 'desc')
+            ->first();
     }
 }

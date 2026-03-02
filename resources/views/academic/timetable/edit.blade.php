@@ -127,6 +127,8 @@
                         @csrf
                         @method('PUT')
 
+                        <input type="hidden" name="academic_year_id" value="{{ $timetable->academic_year_id }}">
+
                         <!-- Division Selection -->
                         <div class="form-section">
                             <div class="form-section-title">
@@ -199,23 +201,36 @@
                                 Schedule Details
                             </div>
                             <div class="row">
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <div class="mb-3">
                                         <label for="day_of_week" class="form-label">
                                             Day of Week <span class="required-mark">*</span>
                                         </label>
                                         <select name="day_of_week" id="day_of_week" class="form-select" required onchange="checkSlotAvailability()">
                                             <option value="">Select Day</option>
-                                            <option value="Monday" {{ $timetable->day_of_week == 'Monday' ? 'selected' : '' }}>Monday</option>
-                                            <option value="Tuesday" {{ $timetable->day_of_week == 'Tuesday' ? 'selected' : '' }}>Tuesday</option>
-                                            <option value="Wednesday" {{ $timetable->day_of_week == 'Wednesday' ? 'selected' : '' }}>Wednesday</option>
-                                            <option value="Thursday" {{ $timetable->day_of_week == 'Thursday' ? 'selected' : '' }}>Thursday</option>
-                                            <option value="Friday" {{ $timetable->day_of_week == 'Friday' ? 'selected' : '' }}>Friday</option>
-                                            <option value="Saturday" {{ $timetable->day_of_week == 'Saturday' ? 'selected' : '' }}>Saturday</option>
+                                            <option value="monday" {{ $timetable->day_of_week == 'monday' ? 'selected' : '' }}>Monday</option>
+                                            <option value="tuesday" {{ $timetable->day_of_week == 'tuesday' ? 'selected' : '' }}>Tuesday</option>
+                                            <option value="wednesday" {{ $timetable->day_of_week == 'wednesday' ? 'selected' : '' }}>Wednesday</option>
+                                            <option value="thursday" {{ $timetable->day_of_week == 'thursday' ? 'selected' : '' }}>Thursday</option>
+                                            <option value="friday" {{ $timetable->day_of_week == 'friday' ? 'selected' : '' }}>Friday</option>
+                                            <option value="saturday" {{ $timetable->day_of_week == 'saturday' ? 'selected' : '' }}>Saturday</option>
                                         </select>
+                                        <div class="form-text">
+                                            <i class="bi bi-info-circle"></i> For recurring weekly schedule
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label for="date" class="form-label">Specific Date (Optional)</label>
+                                        <input type="date" name="date" id="date" class="form-control"
+                                               value="{{ $timetable->date ? $timetable->date->format('Y-m-d') : old('date') }}">
+                                        <div class="form-text">
+                                            <i class="bi bi-info-circle"></i> For one-time schedule on specific date
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
                                     <div class="mb-3">
                                         <label for="start_time" class="form-label">
                                             Start Time <span class="required-mark">*</span>
@@ -224,7 +239,7 @@
                                                value="{{ substr($timetable->start_time, 0, 5) }}" required onchange="checkSlotAvailability()">
                                     </div>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <div class="mb-3">
                                         <label for="end_time" class="form-label">
                                             End Time <span class="required-mark">*</span>
@@ -260,7 +275,7 @@
                                     <div class="mb-3">
                                         <label for="custom_room" class="form-label">Custom Room</label>
                                         <input type="text" name="custom_room" id="custom_room" class="form-control"
-                                               placeholder="Enter custom room number" value="{{ $timetable->room && !in_array($timetable->room, $rooms) ? $timetable->room : '' }}">
+                                               placeholder="Enter custom room number" value="{{ $timetable->room && !$rooms->contains('room_number', $timetable->room) ? $timetable->room : '' }}">
                                         <div class="form-text">Leave room dropdown empty if using custom room</div>
                                     </div>
                                 </div>
@@ -369,6 +384,32 @@ document.getElementById('timetableForm').addEventListener('submit', function(e) 
 // Check availability on page load
 document.addEventListener('DOMContentLoaded', function() {
     checkSlotAvailability();
+    
+    // Auto-populate day_of_week when date is selected
+    const dateInput = document.getElementById('date');
+    const daySelect = document.getElementById('day_of_week');
+    
+    if (dateInput && daySelect) {
+        dateInput.addEventListener('change', function() {
+            const selectedDate = this.value;
+            if (selectedDate) {
+                const dateObj = new Date(selectedDate + 'T00:00:00'); // Fix timezone issue
+                const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+                
+                // Update day_of_week dropdown
+                daySelect.value = dayName;
+                
+                // Trigger change event for availability check
+                daySelect.dispatchEvent(new Event('change'));
+                
+                // Visual feedback
+                dateInput.classList.add('border-success');
+                setTimeout(() => {
+                    dateInput.classList.remove('border-success');
+                }, 2000);
+            }
+        });
+    }
 });
 </script>
 @endsection

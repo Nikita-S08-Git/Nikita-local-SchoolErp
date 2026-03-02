@@ -13,6 +13,14 @@ use App\Exports\AttendanceReportExport;
 
 class ReportController extends Controller
 {
+    /**
+     * Redirect to attendance reports
+     */
+    public function index()
+    {
+        return redirect()->route('reports.attendance');
+    }
+
     public function attendance(Request $request)
     {
         $divisions = Division::where('is_active', true)->get();

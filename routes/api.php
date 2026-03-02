@@ -37,6 +37,7 @@ use App\Http\Controllers\Api\Academic\DepartmentController;
 use App\Http\Controllers\Api\Academic\ProgramController;
 // use App\Http\Controllers\Api\Academic\SubjectController;  // commented out because controller file is missing
 use App\Http\Controllers\Api\Academic\AdmissionController;
+use App\Http\Controllers\Api\TimetableController;
 
 /*
 |--------------------------------------------------------------------------
@@ -326,7 +327,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
                 return [
                     'id' => $fee->id,
                     'fee_head_name' => $fee->feeStructure->feeHead->name,
-                    'outstanding_amount' => number_format($fee->outstanding_amount, 2)
+                    'outstanding_amount' => number_format($fee->outstanding_amount, 2),
+                    'installments' => $fee->feeStructure->installments ?? 1,
+                    'final_amount' => (float) $fee->final_amount
                 ];
             });
         return response()->json($fees);
@@ -421,18 +424,17 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // ========================================
     // Handles daily attendance and class scheduling
     // Database Tables: attendance, timetables
-    
 
-
-
-// Protected routes
-Route::middleware('auth:sanctum')->group(function () {
-    Route::post('attendance/mark', [AttendanceController::class, 'markAttendance']);
-    Route::get('attendance/report', [AttendanceController::class, 'getAttendanceReport']);
-    Route::get('attendance/defaulters', [AttendanceController::class, 'getDefaulters']);
-    Route::apiResource('timetables', \App\Http\Controllers\Api\Attendance\TimetableController::class);
-    Route::get('timetables/view', [\App\Http\Controllers\Api\Attendance\TimetableController::class, 'getTimetable']);
-});
+    // Protected routes
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('attendance/mark', [AttendanceController::class, 'markAttendance']);
+        Route::get('attendance/report', [AttendanceController::class, 'getAttendanceReport']);
+        Route::get('attendance/defaulters', [AttendanceController::class, 'getDefaulters']);
+        
+        // Timetable API Routes
+        Route::apiResource('timetables', TimetableController::class);
+        Route::get('timetables/view', [TimetableController::class, 'index']);
+    });
 
     
     // ========================================

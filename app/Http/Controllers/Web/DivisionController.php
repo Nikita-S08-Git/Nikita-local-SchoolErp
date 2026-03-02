@@ -17,7 +17,7 @@ class DivisionController extends Controller
 {
     public function index(Request $request): View
     {
-        $query = Division::with(['program', 'session', 'classTeacher'])
+        $query = Division::with(['program', 'session', 'classTeacher', 'teachers'])
             ->withCount(['students' => fn($q) => $q->where('student_status', 'active')])
             ->when($request->filled('program_id'), fn($q) => $q->where('program_id', $request->program_id))
             ->when($request->filled('session_id'), fn($q) => $q->where('session_id', $request->session_id))
@@ -46,11 +46,24 @@ class DivisionController extends Controller
         $validated = $request->validate([
             'program_id' => 'required|exists:programs,id',
             'session_id' => 'required|exists:academic_sessions,id',
-            'division_name' => 'required|string|max:10',
+            'division_name' => [
+                'required',
+                'string',
+                'max:10',
+                // Unique combination of program, session, and division name
+                \Illuminate\Validation\Rule::unique('divisions')
+                    ->where(function ($query) use ($request) {
+                        return $query->where('program_id', $request->program_id)
+                                    ->where('session_id', $request->session_id)
+                                    ->where('division_name', $request->division_name);
+                    })
+            ],
             'max_students' => 'required|integer|min:1|max:200',
             'class_teacher_id' => 'nullable|exists:users,id',
             'classroom' => 'nullable|string|max:50',
             'is_active' => 'boolean'
+        ], [
+            'division_name.unique' => 'This division name already exists for the selected program and session. Please choose a different name.'
         ]);
 
         Division::create($validated);
@@ -60,7 +73,7 @@ class DivisionController extends Controller
 
     public function show(Division $division): View
     {
-        $division->load(['program', 'session', 'classTeacher', 'students' => fn($q) => $q->where('student_status', 'active')]);
+        $division->load(['program', 'session', 'classTeacher', 'teachers', 'timetables' => fn($q) => $q->with('subject'), 'students' => fn($q) => $q->where('student_status', 'active')]);
         return view('academic.divisions.show', compact('division'));
     }
 
@@ -78,11 +91,25 @@ class DivisionController extends Controller
         $validated = $request->validate([
             'program_id' => 'required|exists:programs,id',
             'session_id' => 'required|exists:academic_sessions,id',
-            'division_name' => 'required|string|max:10',
+            'division_name' => [
+                'required',
+                'string',
+                'max:10',
+                // Unique combination, excluding current division
+                \Illuminate\Validation\Rule::unique('divisions')
+                    ->where(function ($query) use ($request, $division) {
+                        return $query->where('program_id', $request->program_id)
+                                    ->where('session_id', $request->session_id)
+                                    ->where('division_name', $request->division_name)
+                                    ->where('id', '!=', $division->id);
+                    })
+            ],
             'max_students' => 'required|integer|min:1|max:200',
             'class_teacher_id' => 'nullable|exists:users,id',
             'classroom' => 'nullable|string|max:50',
             'is_active' => 'boolean'
+        ], [
+            'division_name.unique' => 'This division name already exists for the selected program and session. Please choose a different name.'
         ]);
 
         $division->update($validated);

@@ -58,6 +58,41 @@ class Division extends Model
         return $this->belongsTo(\App\Models\User::class, 'class_teacher_id');
     }
 
+    /**
+     * Get all teachers assigned to this division via timetable
+     */
+    public function teachers(): \Illuminate\Database\Eloquent\Relations\HasManyThrough
+    {
+        return $this->hasManyThrough(
+            \App\Models\User::class,
+            \App\Models\Academic\Timetable::class,
+            'division_id',
+            'id',
+            'id',
+            'teacher_id'
+        )->distinct();
+    }
+
+    /**
+     * Get all subjects for this division via timetable
+     */
+    public function subjects(): \Illuminate\Database\Eloquent\Relations\HasManyThrough
+    {
+        return $this->hasManyThrough(
+            \App\Models\Academic\Subject::class,
+            \App\Models\Academic\Timetable::class,
+            'division_id',
+            'id',
+            'id',
+            'subject_id'
+        )->distinct();
+    }
+
+    public function timetables(): HasMany
+    {
+        return $this->hasMany(\App\Models\Academic\Timetable::class);
+    }
+
     // Scopes
     public function scopeActive($query)
     {

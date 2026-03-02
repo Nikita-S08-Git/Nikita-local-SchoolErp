@@ -71,6 +71,29 @@ class User extends Authenticatable
     }
 
     /**
+     * A user can have one teacher profile
+     */
+    public function teacherProfile(): HasOne
+    {
+        return $this->hasOne(TeacherProfile::class);
+    }
+
+    /**
+     * Get divisions assigned to this teacher
+     */
+    public function teacherDivisions()
+    {
+        return $this->belongsToMany(
+            \App\Models\Academic\Division::class,
+            'teacher_divisions',
+            'teacher_id',
+            'division_id'
+        )
+            ->withPivot(['is_class_teacher', 'is_active', 'academic_session_id'])
+            ->withTimestamps();
+    }
+
+    /**
      * A teacher can be assigned to one division as class teacher
      */
     public function assignedDivision(): HasOne

@@ -11,7 +11,8 @@ class DivisionSeeder extends Seeder
     {
         $divisions = ['A', 'B', 'C'];
         $academicYears = [1, 2]; // BCOM FY, BSC FY
-
+        $programId = 1; // Default program
+        
         $id = 1;
         foreach ($academicYears as $academicYearId) {
             foreach ($divisions as $divisionName) {
@@ -19,6 +20,8 @@ class DivisionSeeder extends Seeder
                     ['id' => $id],
                     [
                         'academic_year_id' => $academicYearId,
+                        'program_id' => $programId,
+                        'session_id' => $academicYearId, // Unique session per academic year
                         'division_name' => $divisionName,
                         'max_students' => 60,
                         'is_active' => true,

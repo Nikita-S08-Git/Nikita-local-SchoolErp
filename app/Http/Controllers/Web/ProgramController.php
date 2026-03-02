@@ -63,7 +63,7 @@ class ProgramController extends Controller
             'university_affiliation' => 'nullable|string|max:100',
             'university_program_code' => 'nullable|string|max:20',
             'default_grade_scale_name' => 'required|string|max:100',
-            'is_active' => 'boolean'
+            'is_active' => 'nullable|boolean'
         ]);
 
         Program::create([
@@ -120,7 +120,7 @@ class ProgramController extends Controller
             'university_affiliation' => 'nullable|string|max:100',
             'university_program_code' => 'nullable|string|max:20',
             'default_grade_scale_name' => 'required|string|max:100',
-            'is_active' => 'boolean'
+            'is_active' => 'nullable|boolean'
         ]);
 
         $program->update([

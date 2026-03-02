@@ -66,6 +66,7 @@
                             <th>Program</th>
                             <th>Session</th>
                             <th>Class Teacher</th>
+                            <th>Subject Teachers</th>
                             <th>Capacity</th>
                             <th>Utilization</th>
                             <th>Status</th>
@@ -78,7 +79,31 @@
                                 <td><strong>{{ $division->division_name }}</strong></td>
                                 <td>{{ $division->program->name }}</td>
                                 <td>{{ $division->session->session_name }}</td>
-                                <td>{{ $division->classTeacher->name ?? 'Not Assigned' }}</td>
+                                <td>
+                                    @if($division->classTeacher)
+                                        <span class="badge bg-primary">
+                                            <i class="bi bi-person-check"></i> {{ $division->classTeacher->name }}
+                                        </span>
+                                    @else
+                                        <span class="badge bg-secondary">Not Assigned</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($division->teachers->count() > 0)
+                                        <div class="d-flex flex-wrap gap-1">
+                                            @foreach($division->teachers->take(3) as $teacher)
+                                                <span class="badge bg-info" title="{{ $teacher->name }}">
+                                                    <i class="bi bi-person"></i> {{ explode(' ', $teacher->name)[0] }}
+                                                </span>
+                                            @endforeach
+                                            @if($division->teachers->count() > 3)
+                                                <span class="badge bg-secondary">+{{ $division->teachers->count() - 3 }} more</span>
+                                            @endif
+                                        </div>
+                                    @else
+                                        <span class="text-muted small">No teachers</span>
+                                    @endif
+                                </td>
                                 <td>
                                     <span class="badge bg-{{ $division->capacity_status }}">
                                         {{ $division->students_count }}/{{ $division->max_students }}
@@ -86,7 +111,7 @@
                                 </td>
                                 <td>
                                     <div class="progress" style="height: 20px;">
-                                        <div class="progress-bar bg-{{ $division->capacity_status }}" 
+                                        <div class="progress-bar bg-{{ $division->capacity_status }}"
                                              style="width: {{ $division->capacity_percentage }}%">
                                             {{ round($division->capacity_percentage) }}%
                                         </div>
@@ -107,7 +132,7 @@
                                 </td>
                             </tr>
                         @empty
-                            <tr><td colspan="8" class="text-center">No divisions found</td></tr>
+                            <tr><td colspan="9" class="text-center">No divisions found</td></tr>
                         @endforelse
                     </tbody>
                 </table>

@@ -28,8 +28,16 @@ class DatabaseSeeder extends Seeder
             FeeStructureSeeder::class,
             ScholarshipSeeder::class,
             
+            // Subjects and Grades
+            SubjectSeeder::class,
+            GradeSeeder::class,
+            
+            // Examinations
+            ExaminationSeeder::class,
+            
             // Students
             StudentSeeder::class,
+            TestStudentSeeder::class,
         ]);
     }
 }
