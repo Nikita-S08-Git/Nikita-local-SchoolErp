@@ -64,8 +64,13 @@ class DashboardController extends Controller
     public function profile()
     {
         $student = Auth::guard('student')->user();
+        
+        // Calculate attendance percentage
+        $totalLectures = $student->attendances()->count();
+        $presentDays = $student->attendances()->where('status', 'present')->count();
+        $attendancePercentage = $totalLectures > 0 ? round(($presentDays / $totalLectures) * 100, 2) : 0;
 
-        return view('student.profile.index', compact('student'));
+        return view('student.profile.index', compact('student', 'attendancePercentage'));
     }
 
     /**
@@ -296,10 +301,84 @@ class DashboardController extends Controller
     }
 
     /**
+     * Display student fees
+     */
+    public function fees()
+    {
+        $student = Auth::guard('student')->user();
+        
+        // Get fee records for the student
+        $feeRecords = \App\Models\Fee\StudentFee::where('student_id', $student->id)
+            ->with(['feeStructure'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+        
+        // Calculate totals
+        $totalFees = $feeRecords->sum('total_amount');
+        $totalPaid = $feeRecords->sum('paid_amount');
+        $totalOutstanding = $totalFees - $totalPaid;
+        
+        return view('student.fees.index', compact(
+            'student',
+            'feeRecords',
+            'totalFees',
+            'totalPaid',
+            'totalOutstanding'
+        ));
+    }
+
+    /**
+     * Display student results
+     */
+    public function results()
+    {
+        $student = Auth::guard('student')->user();
+        
+        // Get exam results for the student
+        $results = \App\Models\Result\StudentMark::where('student_id', $student->id)
+            ->with(['subject', 'examination'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+        
+        return view('student.results.index', compact('student', 'results'));
+    }
+
+    /**
+     * Display student library
+     */
+    public function library()
+    {
+        $student = Auth::guard('student')->user();
+        
+        // Get issued books for the student
+        $issuedBooks = \App\Models\Library\BookIssue::where('student_id', $student->id)
+            ->with(['book'])
+            ->orderBy('issue_date', 'desc')
+            ->get();
+        
+        return view('student.library.index', compact('student', 'issuedBooks'));
+    }
+
+    /**
+     * Display fee payment page
+     */
+    public function feesPayment($studentFee)
+    {
+        $student = Auth::guard('student')->user();
+        
+        $fee = \App\Models\Fee\StudentFee::where('id', $studentFee)
+            ->where('student_id', $student->id)
+            ->with(['feeStructure'])
+            ->firstOrFail();
+        
+        return view('student.fees.payment', compact('student', 'fee'));
+    }
+
+    /**
      * Get time slots
      */
-    private function getTimeSlots()
-    {
-        return \App\Models\Academic\TimeSlot::orderBy('start_time')->get();
-    }
+     private function getTimeSlots()
+     {
+         return \App\Models\Academic\TimeSlot::orderBy('start_time')->get();
+     }
 }

@@ -63,10 +63,23 @@
     <div class="row mt-4">
         <div class="col-12">
             <div class="card shadow-sm">
-                <div class="card-header bg-success text-white">
+                <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
                     <h6 class="mb-0">
                         <i class="bi bi-calendar-range me-2"></i>Attendance Report Results
                     </h6>
+                    <div class="d-flex gap-2">
+                        @if(request('division_id'))
+                        <button type="button" class="btn btn-light btn-sm" onclick="openStudentsModal()">
+                            <i class="bi bi-people me-1"></i>View All Students
+                        </button>
+                        <a href="{{ route('academic.attendance.report.excel', ['division_id' => request('division_id'), 'start_date' => request('start_date'), 'end_date' => request('end_date')]) }}" class="btn btn-success btn-sm">
+                            <i class="bi bi-file-earmark-excel me-1"></i>Download Excel
+                        </a>
+                        <a href="{{ route('academic.attendance.report.download', ['division_id' => request('division_id'), 'start_date' => request('start_date'), 'end_date' => request('end_date')]) }}" class="btn btn-danger btn-sm">
+                            <i class="bi bi-file-earmark-pdf me-1"></i>Download PDF
+                        </a>
+                        @endif
+                    </div>
                 </div>
                 <div class="card-body">
                     @if($attendanceData->count() > 0)
@@ -364,4 +377,90 @@
     }
 }
 </style>
+
+<!-- Students Modal -->
+<div class="modal fade" id="studentsListModal" tabindex="-1" aria-labelledby="studentsListModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="studentsListModalLabel">
+                    <i class="bi bi-people me-2"></i>Students in Division
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover" id="studentsTable">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Roll No</th>
+                                <th>Student Name</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentsTableBody">
+                            <tr>
+                                <td colspan="2" class="text-center">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div id="noStudentsMessage" class="text-center py-4" style="display: none;">
+                    <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+                    <p class="text-muted mt-2">No students found</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-1"></i>Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function openStudentsModal() {
+    const divisionId = document.querySelector('select[name="division_id"]').value;
+    if (!divisionId) {
+        alert('Please select a division first');
+        return;
+    }
+    
+    const modal = new bootstrap.Modal(document.getElementById('studentsListModal'));
+    const tbody = document.getElementById('studentsTableBody');
+    const noStudentsMsg = document.getElementById('noStudentsMessage');
+    
+    // Show loading state
+    tbody.innerHTML = '<tr><td colspan="2" class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></td></tr>';
+    noStudentsMsg.style.display = 'none';
+    document.getElementById('studentsTable').style.display = 'table';
+    
+    modal.show();
+    
+    // Fetch students via AJAX
+    fetch(`{{ route('academic.attendance.division.students', ['division' => ':divisionId']) }}`.replace(':divisionId', divisionId))
+        .then(response => response.json())
+        .then(data => {
+            if (data.status && data.data.length > 0) {
+                tbody.innerHTML = data.data.map(student => `
+                    <tr>
+                        <td>${student.roll_no || 'N/A'}</td>
+                        <td>${student.name}</td>
+                    </tr>
+                `).join('');
+            } else {
+                document.getElementById('studentsTable').style.display = 'none';
+                noStudentsMsg.style.display = 'block';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            tbody.innerHTML = '<tr><td colspan="2" class="text-center text-danger">Error loading students</td></tr>';
+        });
+}
+</script>
 @endsection

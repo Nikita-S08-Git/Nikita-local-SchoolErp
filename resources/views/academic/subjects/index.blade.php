@@ -53,7 +53,22 @@
     <div class="card shadow-sm">
         <div class="card-header bg-white d-flex justify-content-between align-items-center">
             <h6 class="mb-0"><i class="bi bi-table me-2"></i>Subjects List</h6>
-            <small class="text-muted">{{ $subjects->total() }} subjects</small>
+            <div class="d-flex align-items-center gap-3">
+                <small class="text-muted">
+                    Showing {{ $subjects->firstItem() ?? 0 }} - {{ $subjects->lastItem() ?? 0 }} of {{ $subjects->total() }} subjects
+                </small>
+                <form method="GET" class="d-flex align-items-center">
+                    <input type="hidden" name="search" value="{{ request('search') }}">
+                    <input type="hidden" name="program_id" value="{{ request('program_id') }}">
+                    <label class="me-2 mb-0 small text-muted">Show:</label>
+                    <select name="per_page" class="form-select form-select-sm" style="width: auto;" onchange="this.form.submit()">
+                        <option value="10" {{ $perPage == 10 ? 'selected' : '' }}>10</option>
+                        <option value="15" {{ $perPage == 15 ? 'selected' : '' }}>15</option>
+                        <option value="25" {{ $perPage == 25 ? 'selected' : '' }}>25</option>
+                        <option value="50" {{ $perPage == 50 ? 'selected' : '' }}>50</option>
+                    </select>
+                </form>
+            </div>
         </div>
         <div class="card-body p-0">
             <div class="table-responsive">
@@ -129,7 +144,14 @@
 
             @if($subjects->hasPages())
                 <div class="card-footer bg-light">
-                    {{ $subjects->appends(request()->query())->links() }}
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="pagination-info small text-muted">
+                            Page {{ $subjects->currentPage() }} of {{ $subjects->lastPage() }}
+                        </div>
+                        <nav aria-label="Subjects pagination">
+                            {{ $subjects->appends(request()->query())->links() }}
+                        </nav>
+                    </div>
                 </div>
             @endif
         </div>

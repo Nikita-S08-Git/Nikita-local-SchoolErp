@@ -92,16 +92,16 @@ class DashboardController extends Controller
             ->pluck('id');
 
         // Get attendance for this month (regardless of who marked it)
-        $totalMarked = \App\Models\Attendance\Attendance::whereIn('student_id', $studentIds)
+        $totalMarked = Attendance::whereIn('student_id', $studentIds)
             ->where('date', '>=', now()->startOfMonth())
             ->count();
 
-        $presentCount = \App\Models\Attendance\Attendance::whereIn('student_id', $studentIds)
+        $presentCount = Attendance::whereIn('student_id', $studentIds)
             ->where('status', 'present')
             ->where('date', '>=', now()->startOfMonth())
             ->count();
 
-        $absentCount = \App\Models\Attendance\Attendance::whereIn('student_id', $studentIds)
+        $absentCount = Attendance::whereIn('student_id', $studentIds)
             ->where('status', 'absent')
             ->where('date', '>=', now()->startOfMonth())
             ->count();
@@ -259,7 +259,7 @@ class DashboardController extends Controller
             ->where('student_status', 'active')
             ->with(['user', 'studentProfile'])
             ->orderBy('first_name')
-            ->get();
+            ->paginate(15);
 
         // Calculate attendance percentage for each student
         $students->each(function ($student) {
@@ -308,5 +308,120 @@ class DashboardController extends Controller
             ->get();
 
         return view('teacher.students.details', compact('student', 'attendancePercentage', 'recentAttendance'));
+    }
+
+    /**
+     * Display attendance report for teacher's divisions
+     */
+    public function attendanceReport(Request $request)
+    {
+        $teacher = Auth::user();
+
+        // Get assigned divisions
+        $divisionIds = \App\Models\TeacherAssignment::where('teacher_id', $teacher->id)
+            ->where('assignment_type', 'division')
+            ->pluck('division_id');
+        
+        $divisions = Division::whereIn('id', $divisionIds)
+            ->where('is_active', true)
+            ->with(['program', 'session'])
+            ->get();
+
+        $attendanceData = null;
+        $selectedDivision = null;
+        
+        if ($request->filled(['division_id', 'start_date', 'end_date'])) {
+            $validated = $request->validate([
+                'division_id' => 'required|exists:divisions,id',
+                'start_date' => 'required|date',
+                'end_date' => 'required|date|after_or_equal:start_date'
+            ]);
+
+            // Verify teacher has access to this division
+            if (!$divisionIds->contains($validated['division_id'])) {
+                abort(403, 'You do not have access to this division.');
+            }
+
+            $selectedDivision = Division::find($validated['division_id']);
+            
+            // Get attendance records
+            $attendanceRecords = Attendance::with(['student.user'])
+                ->where('division_id', $validated['division_id'])
+                ->whereBetween('date', [$validated['start_date'], $validated['end_date']])
+                ->orderBy('date')
+                ->get();
+
+            // Group by date
+            $attendanceData = $attendanceRecords->groupBy('date');
+        }
+
+        return view('teacher.attendance.report', compact('divisions', 'attendanceData', 'selectedDivision'));
+    }
+
+    /**
+     * Mark attendance for a division (quick access)
+     */
+    public function markAttendance(Request $request)
+    {
+        $teacher = Auth::user();
+        $divisionId = $request->get('division_id');
+        $date = $request->get('date', now()->format('Y-m-d'));
+
+        // Get assigned divisions
+        $divisionIds = \App\Models\TeacherAssignment::where('teacher_id', $teacher->id)
+            ->where('assignment_type', 'division')
+            ->pluck('division_id');
+
+        if ($divisionId) {
+            // Verify teacher has access
+            if (!$divisionIds->contains($divisionId)) {
+                abort(403, 'You do not have access to this division.');
+            }
+
+            // Redirect to academic attendance mark page
+            return redirect()->route('academic.attendance.mark', [
+                'division_id' => $divisionId,
+                'date' => $date
+            ]);
+        }
+
+        $divisions = Division::whereIn('id', $divisionIds)
+            ->where('is_active', true)
+            ->with(['program', 'session'])
+            ->get();
+
+        return view('teacher.attendance.select-division', compact('divisions', 'date'));
+    }
+
+    /**
+     * Get attendance statistics for teacher's divisions
+     */
+    public function getAttendanceStatsJson(Request $request)
+    {
+        $teacher = Auth::user();
+        
+        $divisionIds = \App\Models\TeacherAssignment::where('teacher_id', $teacher->id)
+            ->where('assignment_type', 'division')
+            ->pluck('division_id');
+
+        $startDate = $request->get('start_date', now()->startOfMonth()->format('Y-m-d'));
+        $endDate = $request->get('end_date', now()->endOfMonth()->format('Y-m-d'));
+
+        // Get stats by division
+        $stats = [];
+        foreach ($divisionIds as $divisionId) {
+            $division = Division::find($divisionId);
+            $stats[] = [
+                'division' => $division->division_name,
+                'data' => Attendance::getDivisionStats($divisionId, $startDate, $endDate)
+            ];
+        }
+
+        return response()->json([
+            'success' => true,
+            'stats' => $stats,
+            'start_date' => $startDate,
+            'end_date' => $endDate
+        ]);
     }
 }

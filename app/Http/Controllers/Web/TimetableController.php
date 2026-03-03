@@ -145,8 +145,8 @@ class TimetableController extends Controller
     }
 
     /**
-     * Grid View - Weekly timetable per division
-     *
+     * Grid View - Shows all timetable entries as a list
+     * 
      * @param Request $request
      * @return \Illuminate\View\View
      */
@@ -154,98 +154,70 @@ class TimetableController extends Controller
     {
         $divisionId = $request->get('division_id');
         $academicYearId = $request->get('academic_year_id', AcademicYear::getCurrentAcademicYearId());
-        $selectedDate = $request->get('date') ? Carbon::parse($request->get('date'))->format('Y-m-d') : null;
+        $status = $request->get('status', 'active');
+        $dayOfWeek = $request->get('day_of_week');
+        $teacherId = $request->get('teacher_id');
+        $search = $request->get('search');
+        // Default to today's date if no date is selected
+        $selectedDate = $request->get('date', date('Y-m-d'));
 
         // Get all divisions for the dropdown
         $divisions = $this->getAccessibleDivisions();
-
-        $timetables = collect();
-        $selectedDivision = null;
-        $totalClasses = 0;
-        $totalHours = 0;
-        $isHoliday = false;
-        $holidayTitle = null;
-
+        
+        // Build the query - show all entries by default
+        $query = Timetable::withRelationships()
+            ->byAcademicYear($academicYearId)
+            ->notBreakTime()
+            ->ordered();
+        
+        // Apply filters if provided
         if ($divisionId) {
-            $selectedDivision = Division::find($divisionId);
-
-            // Check if selected date is a holiday
-            if ($selectedDate) {
-                $holidayCheck = $this->holidayService->checkTimetableAvailability($selectedDate, $academicYearId);
-                if ($holidayCheck['status'] === 'holiday') {
-                    $isHoliday = true;
-                    $holidayTitle = $holidayCheck['holiday_title'];
-                }
-                
-                // Get timetable for specific date
-                $allTimetables = Timetable::withRelationships()
-                    ->byDivision($divisionId)
-                    ->byAcademicYear($academicYearId)
-                    ->byStatus('active')
-                    ->notBreakTime()
-                    ->where(function ($q) use ($selectedDate) {
-                        $q->whereDate('date', $selectedDate)
-                          ->orWhere('day_of_week', strtolower(Carbon::parse($selectedDate)->format('l')));
-                    })
-                    ->ordered()
-                    ->get();
-            } else {
-                $allTimetables = Timetable::withRelationships()
-                    ->byDivision($divisionId)
-                    ->byAcademicYear($academicYearId)
-                    ->byStatus('active')
-                    ->notBreakTime()
-                    ->ordered()
-                    ->get();
-            }
-
-            $timetables = $allTimetables->groupBy('day_of_week');
-
-            // Calculate stats
-            $totalClasses = $allTimetables->count();
-
-            // Calculate total hours per week
-            $totalMinutes = 0;
-            foreach ($allTimetables as $timetable) {
-                $start = \Carbon\Carbon::parse($timetable->start_time);
-                $end = \Carbon\Carbon::parse($timetable->end_time);
-                $totalMinutes += $start->diffInMinutes($end);
-            }
-            $totalHours = round($totalMinutes / 60, 1);
+            $query->byDivision($divisionId);
+        }
+        
+        if ($status) {
+            $query->byStatus($status);
+        }
+        
+        if ($dayOfWeek) {
+            $query->byDay($dayOfWeek);
+        }
+        
+        if ($teacherId) {
+            $query->byTeacher($teacherId);
+        }
+        
+        if ($search) {
+            $query->search($search);
         }
 
-        // Get time slots for the grid
-        $timeSlots = TimeSlot::orderBy('start_time')->get();
+        if ($selectedDate) {
+            // Get the day of week from the date using Carbon
+            $dayOfWeek = \Carbon\Carbon::parse($selectedDate)->format('l');
+            $query->byDateOrDay($selectedDate, strtolower($dayOfWeek));
+        }
+
+        // Get paginated results
+        $timetables = $query->paginate(20)->appends($request->query());
         
-        // Load subjects and teachers for modal forms
-        $subjects = Subject::where('is_active', true)
-            ->orderBy('name')
-            ->get();
-        $teachers = User::role('teacher')
-            ->where('is_active', true)
-            ->orderBy('name')
-            ->get();
-        $academicYears = AcademicYear::where('is_active', true)
-            ->orderBy('year_number', 'desc')
-            ->get();
-        $rooms = Room::where('status', Room::STATUS_AVAILABLE)
-            ->orderBy('room_number')
-            ->get();
+        // Get selected division if any
+        $selectedDivision = $divisionId ? Division::find($divisionId) : null;
+
+        // Get filter options
+        $teachers = User::role('teacher')->where('is_active', true)->orderBy('name')->get();
+        $academicYears = AcademicYear::orderBy('year_number', 'desc')->get();
+        $subjects = Subject::where('is_active', true)->orderBy('name')->get();
+        $programs = \App\Models\Academic\Program::where('is_active', true)->get();
 
         return view('academic.timetable.grid', compact(
             'timetables',
             'divisions',
             'selectedDivision',
-            'timeSlots',
-            'totalClasses',
-            'totalHours',
             'selectedDate',
-            'isHoliday',
-            'holidayTitle',
-            'subjects',
             'teachers',
             'academicYears',
-            'rooms'
+            'subjects',
+            'programs'
         ));
     }
 
@@ -391,8 +363,17 @@ class TimetableController extends Controller
                 }
             }
 
-            // Get time values
-            $timeSlot = TimeSlot::find($request->time_slot_id);
+            // Get time values from time_slot_id or direct input
+            $startTime = $request->start_time;
+            $endTime = $request->end_time;
+            
+            if ($request->filled('time_slot_id')) {
+                $timeSlot = TimeSlot::find($request->time_slot_id);
+                if ($timeSlot) {
+                    $startTime = $timeSlot->start_time;
+                    $endTime = $timeSlot->end_time;
+                }
+            }
 
             // If date is provided but day_of_week is not, derive day_of_week from it
             $dayOfWeek = $request->day_of_week;
@@ -401,6 +382,20 @@ class TimetableController extends Controller
             }
             $dayOfWeek = strtolower($dayOfWeek);
 
+            // Validate we have either day_of_week or date
+            if (empty($dayOfWeek) && empty($date)) {
+                return back()
+                    ->withInput()
+                    ->with('error', 'Please select either a day of the week or a specific date.');
+            }
+
+            // Validate we have the required time values
+            if (empty($startTime) || empty($endTime)) {
+                return back()
+                    ->withInput()
+                    ->with('error', 'Please provide either a time slot or start/end times.');
+            }
+
             // Check for conflicts before creating
             $conflicts = $this->checkTimetableConflicts(
                 $request->division_id,
@@ -408,8 +403,8 @@ class TimetableController extends Controller
                 $request->room_id,
                 $date,
                 strtolower($dayOfWeek),
-                $request->start_time,
-                $request->end_time
+                $startTime,
+                $endTime
             );
 
             if ($conflicts['has_conflicts']) {
@@ -426,8 +421,8 @@ class TimetableController extends Controller
                 'room_id' => $request->room_id,
                 'day_of_week' => strtolower($dayOfWeek),
                 'date' => $date,
-                'start_time' => $timeSlot?->start_time ?? $request->start_time,
-                'end_time' => $timeSlot?->end_time ?? $request->end_time,
+                'start_time' => $startTime,
+                'end_time' => $endTime,
                 'period_name' => $request->period_name,
                 'room_number' => $request->room_number,
                 'academic_year_id' => $request->academic_year_id,
@@ -442,10 +437,33 @@ class TimetableController extends Controller
         } catch (\Illuminate\Validation\ValidationException $e) {
             DB::rollBack();
             return back()->withErrors($e->errors())->withInput();
+        } catch (\Illuminate\Database\QueryException $e) {
+            DB::rollBack();
+            Log::error('Timetable creation failed (Database): ' . $e->getMessage());
+            
+            // Provide more helpful error messages for common issues
+            $errorMessage = 'Failed to create timetable entry. Please check your input and try again.';
+            
+            if ($e->getCode() === '23000') {
+                // Foreign key constraint violation
+                if (str_contains($e->getMessage(), 'division_id')) {
+                    $errorMessage = 'Invalid division selected. Please refresh the page and try again.';
+                } elseif (str_contains($e->getMessage(), 'subject_id')) {
+                    $errorMessage = 'Invalid subject selected. Please refresh the page and try again.';
+                } elseif (str_contains($e->getMessage(), 'teacher_id')) {
+                    $errorMessage = 'Invalid teacher selected. Please refresh the page and try again.';
+                } elseif (str_contains($e->getMessage(), 'room_id')) {
+                    $errorMessage = 'Invalid room selected. Please refresh the page and try again.';
+                } elseif (str_contains($e->getMessage(), 'academic_year_id')) {
+                    $errorMessage = 'Invalid academic year. Please refresh the page and try again.';
+                }
+            }
+            
+            return back()->with('error', $errorMessage)->withInput();
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Timetable creation failed: ' . $e->getMessage());
-            return back()->with('error', 'Failed to create timetable entry.')->withInput();
+            Log::error('Timetable creation failed: ' . $e->getMessage() . ' | Trace: ' . $e->getTraceAsString());
+            return back()->with('error', 'Failed to create timetable entry: ' . $e->getMessage())->withInput();
         }
     }
 
@@ -649,7 +667,7 @@ class TimetableController extends Controller
 
             DB::commit();
 
-            return redirect()->route('academic.timetable.index')
+            return redirect()->route('academic.timetable.grid')
                 ->with('success', 'Timetable entry updated successfully!');
         } catch (\Illuminate\Validation\ValidationException $e) {
             DB::rollBack();
@@ -671,16 +689,31 @@ class TimetableController extends Controller
     {
         // Check permission
         if (!Auth::user()->hasAnyRole(['admin', 'principal'])) {
-            return response()->json(['error' => 'Unauthorized'], 403);
+            if (request()->ajax()) {
+                return response()->json(['error' => 'Unauthorized'], 403);
+            }
+            return back()->with('error', 'Unauthorized to delete timetable entries.');
         }
 
         try {
+            $timetableName = $timetable->subject->name ?? 'Entry';
             $timetable->delete();
 
-            return redirect()->route('academic.timetable.index')
-                ->with('success', 'Timetable entry deleted successfully!');
+            // Check if request is AJAX
+            if (request()->ajax()) {
+                return response()->json(['success' => true, 'message' => 'Timetable entry deleted successfully!']);
+            }
+
+            // Redirect back to grid view if that's where the request came from
+            return redirect()->route('academic.timetable.grid')
+                ->with('success', $timetableName . ' deleted successfully!');
         } catch (\Exception $e) {
             Log::error('Timetable deletion failed: ' . $e->getMessage());
+            
+            if (request()->ajax()) {
+                return response()->json(['error' => 'Failed to delete timetable entry.'], 500);
+            }
+            
             return back()->with('error', 'Failed to delete timetable entry.');
         }
     }

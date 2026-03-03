@@ -218,20 +218,20 @@ class AttendanceController extends Controller
         }
 
         DB::transaction(function () use ($validated) {
-            // Delete existing attendance for this date and division
-            Attendance::where('division_id', $validated['division_id'])
-                     ->whereDate('date', $validated['date'])
-                     ->delete();
-
-            // Insert new attendance records
+            // Use updateOrCreate for each student - ensures unique constraint
             foreach ($validated['students'] as $studentData) {
-                Attendance::create([
-                    'student_id' => $studentData['student_id'],
-                    'division_id' => $validated['division_id'],
-                    'academic_session_id' => $validated['academic_session_id'],
-                    'date' => $validated['date'],
-                    'status' => $studentData['status']
-                ]);
+                Attendance::updateOrCreate(
+                    [
+                        'student_id' => $studentData['student_id'],
+                        'division_id' => $validated['division_id'],
+                        'date' => $validated['date'],
+                    ],
+                    [
+                        'academic_session_id' => $validated['academic_session_id'],
+                        'status' => $studentData['status'],
+                        'marked_by' => auth()->id(),
+                    ]
+                );
             }
         });
 
@@ -301,5 +301,107 @@ class AttendanceController extends Controller
         }
 
         return view('academic.attendance.report', compact('divisions', 'attendanceData', 'holidayDates'));
+    }
+
+    /**
+     * Get students by division for AJAX request
+     */
+    public function getStudentsByDivision(Division $division): JsonResponse
+    {
+        $students = Student::where('division_id', $division->id)
+            ->where('student_status', 'active')
+            ->orderBy('roll_number', 'asc')
+            ->get()
+            ->map(function ($student) {
+                return [
+                    'name' => $student->full_name,
+                    'roll_no' => $student->roll_number
+                ];
+            });
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Students fetched successfully',
+            'data' => $students
+        ]);
+    }
+
+    /**
+     * Download attendance report as PDF
+     */
+    public function downloadReport(Request $request)
+    {
+        $request->validate([
+            'division_id' => 'required|exists:divisions,id',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date'
+        ]);
+
+        $division = Division::with(['academicYear', 'program'])->findOrFail($request->division_id);
+        
+        $attendanceRecords = Attendance::with(['student', 'student.studentProfile', 'markedBy', 'division'])
+            ->where('division_id', $request->division_id)
+            ->whereBetween('date', [$request->start_date, $request->end_date])
+            ->get();
+
+        $html = view('pdf.attendance-report', [
+            'division' => $division,
+            'attendanceRecords' => $attendanceRecords,
+            'startDate' => $request->start_date,
+            'endDate' => $request->end_date
+        ])->render();
+
+        $pdf = \PDF::loadHTML($html)->setPaper('a4', 'landscape');
+        return $pdf->download('attendance-report-' . $division->division_name . '-' . date('Y-m-d') . '.pdf');
+    }
+
+    /**
+     * Download attendance report as Excel
+     */
+    public function downloadExcel(Request $request)
+    {
+        $request->validate([
+            'division_id' => 'required|exists:divisions,id',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date'
+        ]);
+
+        $division = Division::findOrFail($request->division_id);
+        
+        $attendanceRecords = Attendance::with(['student', 'student.studentProfile', 'markedBy', 'division'])
+            ->where('division_id', $request->division_id)
+            ->whereBetween('date', [$request->start_date, $request->end_date])
+            ->get();
+
+        $data = [];
+        $data[] = ['Date', 'Division', 'Roll No', 'Student Name', 'DOB', 'Gender', 'Father Name', 'Father Phone', 'Mother Name', 'Guardian Name', 'Guardian Phone', 'Status', 'Teacher Name'];
+
+        foreach ($attendanceRecords as $record) {
+            $data[] = [
+                $record->date,
+                $record->division->division_name ?? 'N/A',
+                $record->student->roll_number ?? 'N/A',
+                $record->student->full_name ?? 'N/A',
+                $record->student->date_of_birth ?? 'N/A',
+                ucfirst($record->student->gender ?? 'N/A'),
+                $record->student->studentProfile->father_name ?? 'N/A',
+                $record->student->studentProfile->father_phone ?? 'N/A',
+                $record->student->studentProfile->mother_name ?? 'N/A',
+                $record->student->studentProfile->guardian_name ?? 'N/A',
+                $record->student->studentProfile->guardian_phone ?? 'N/A',
+                ucfirst($record->status),
+                $record->markedBy->name ?? 'N/A'
+            ];
+        }
+
+        return response()->streamDownload(function () use ($data) {
+            $handle = fopen('php://output', 'w');
+            foreach ($data as $row) {
+                fputcsv($handle, $row);
+            }
+            fclose($handle);
+        }, 'attendance-report-' . date('Y-m-d') . '.csv', [
+            'Content-Type' => 'text/csv',
+        ]);
     }
 }

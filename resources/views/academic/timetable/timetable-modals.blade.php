@@ -73,38 +73,19 @@
                             @enderror
                         </div>
 
-                        <!-- Day -->
-                        <div class="col-md-6">
-                            <label for="addDayOfWeek" class="form-label fw-semibold">
-                                Day <span class="text-danger">*</span>
-                            </label>
-                            <select name="day_of_week" id="addDayOfWeek" class="form-select @error('day_of_week') is-invalid @enderror" required>
-                                <option value="">-- Select Day --</option>
-                                <option value="monday" {{ old('day_of_week') == 'monday' ? 'selected' : '' }}>Monday</option>
-                                <option value="tuesday" {{ old('day_of_week') == 'tuesday' ? 'selected' : '' }}>Tuesday</option>
-                                <option value="wednesday" {{ old('day_of_week') == 'wednesday' ? 'selected' : '' }}>Wednesday</option>
-                                <option value="thursday" {{ old('day_of_week') == 'thursday' ? 'selected' : '' }}>Thursday</option>
-                                <option value="friday" {{ old('day_of_week') == 'friday' ? 'selected' : '' }}>Friday</option>
-                                <option value="saturday" {{ old('day_of_week') == 'saturday' ? 'selected' : '' }}>Saturday</option>
-                            </select>
-                            <div class="form-text">Select a day for recurring weekly schedule</div>
-                            @error('day_of_week')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
                         <!-- Specific Date -->
                         <div class="col-md-6">
                             <label for="addDate" class="form-label fw-semibold">
-                                Specific Date (Optional)
+                                Specific Date <span class="text-danger">*</span>
                             </label>
                             <input type="date" 
                                    name="date" 
                                    id="addDate" 
                                    class="form-control @error('date') is-invalid @enderror" 
                                    value="{{ old('date') }}" 
-                                   min="{{ date('Y-m-d') }}">
-                            <div class="form-text">Leave empty for recurring schedule, or select a specific date</div>
+                                   min="{{ date('Y-m-d') }}"
+                                   required>
+                            <div class="form-text">Select a date - day will be auto-detected</div>
                             @error('date')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -113,6 +94,9 @@
                                 <span id="holidayWarningText"></span>
                             </div>
                         </div>
+
+                        <!-- Hidden Day Field (auto-calculated from date) -->
+                        <input type="hidden" name="day_of_week" id="addDayOfWeek" value="">
 
                         <!-- Time Slot -->
                         <!-- <div class="col-md-6">

@@ -41,7 +41,7 @@ Route::middleware(['auth', 'role:teacher|class_teacher|subject_teacher|hod_comme
         // Attendance Dashboard
         Route::get('/', [AttendanceController::class, 'index'])->name('index');
 
-        // Mark Attendance (for specific timetable)
+        // Mark Attendance (for specific timetable) - must be before wildcard routes
         Route::get('/create/{timetableId}', [AttendanceController::class, 'create'])->name('create');
         Route::post('/store/{timetableId}', [AttendanceController::class, 'store'])->name('store');
 
@@ -51,7 +51,7 @@ Route::middleware(['auth', 'role:teacher|class_teacher|subject_teacher|hod_comme
         // Attendance Report
         Route::get('/report', [AttendanceController::class, 'report'])->name('report');
 
-        // Edit Attendance
+        // Edit Attendance - wildcard routes at the end
         Route::get('/{attendanceId}/edit', [AttendanceController::class, 'edit'])->name('edit');
         Route::put('/{attendanceId}', [AttendanceController::class, 'update'])->name('update');
     });

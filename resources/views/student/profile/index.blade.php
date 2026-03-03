@@ -11,7 +11,7 @@
                     <h2 class="mb-1"><i class="bi bi-person-circle me-2 text-primary"></i>My Profile</h2>
                     <p class="text-muted mb-0">View and manage your profile information</p>
                 </div>
-                <div>
+                <div class="d-flex gap-2">
                     <a href="{{ route('student.profile.edit') }}" class="btn btn-primary">
                         <i class="bi bi-pencil me-1"></i>Edit Profile
                     </a>
@@ -28,33 +28,43 @@
         <div class="col-md-4">
             <div class="card shadow-sm border-0 text-center" style="border-radius: 15px;">
                 <div class="card-body p-4">
-                    @if($student->photo)
-                        <img src="{{ asset('storage/' . $student->photo) }}" 
-                             alt="{{ $student->name }}" 
-                             class="rounded-circle mb-3" 
-                             width="150" 
-                             height="150"
-                             style="object-fit: cover; border: 4px solid #667eea;">
-                    @else
-                        <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mb-3" 
-                             style="width: 150px; height: 150px; font-size: 3rem; border: 4px solid #667eea;">
-                            {{ substr($student->first_name, 0, 1) }}
-                        </div>
-                    @endif
+                    <div class="position-relative d-inline-block mb-3">
+                        @if($student->photo)
+                            <img src="{{ asset('storage/' . $student->photo) }}" 
+                                 alt="{{ $student->name }}" 
+                                 class="rounded-circle mb-3" 
+                                 width="150" 
+                                 height="150"
+                                 style="object-fit: cover; border: 4px solid #667eea;">
+                        @else
+                            <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mb-3" 
+                                 style="width: 150px; height: 150px; font-size: 3rem; border: 4px solid #667eea;">
+                                {{ substr($student->first_name, 0, 1) }}
+                            </div>
+                        @endif
+                        <a href="{{ route('student.profile.edit') }}" class="position-absolute bottom-0 end-0 btn btn-primary btn-sm rounded-circle" style="width: 35px; height: 35px;">
+                            <i class="bi bi-camera"></i>
+                        </a>
+                    </div>
                     
                     <h4 class="mb-1 fw-bold">{{ $student->name }}</h4>
                     <p class="text-muted mb-3">{{ $student->email }}</p>
                     
                     <div class="mb-3">
-                        <span class="badge bg-primary">
+                        <span class="badge bg-primary me-1">
                             <i class="bi bi-mortarboard me-1"></i>{{ $student->division->division_name ?? 'N/A' }}
                         </span>
-                        <span class="badge bg-success">
+                        <span class="badge bg-success me-1">
                             <i class="bi bi-check-circle me-1"></i>{{ ucfirst($student->student_status) }}
                         </span>
+                        @if($student->blood_group)
+                            <span class="badge bg-danger">
+                                <i class="bi bi-droplet me-1"></i>{{ $student->blood_group }}
+                            </span>
+                        @endif
                     </div>
 
-                    <div class="d-grid gap-2">
+                    <div class="d-grid gap-2 mt-4">
                         <a href="{{ route('student.profile.edit') }}" class="btn btn-outline-primary">
                             <i class="bi bi-pencil me-1"></i>Edit Profile
                         </a>
@@ -69,17 +79,27 @@
             <div class="card shadow-sm border-0 mt-3" style="border-radius: 15px;">
                 <div class="card-body p-3">
                     <h6 class="fw-bold mb-3"><i class="bi bi-graph-up me-2 text-primary"></i>Quick Stats</h6>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-muted">Attendance</span>
+                            <strong>{{ $attendancePercentage ?? 0 }}%</strong>
+                        </div>
+                        <div class="progress mb-3" style="height: 8px;">
+                            <div class="progress-bar bg-{{ ($attendancePercentage ?? 0) >= 75 ? 'success' : 'danger' }}" 
+                                 style="width: {{ $attendancePercentage ?? 0 }}%"></div>
+                        </div>
+                    </div>
                     <div class="d-flex justify-content-between mb-2">
-                        <span class="text-muted">Attendance</span>
-                        <strong>{{ $attendancePercentage ?? 0 }}%</strong>
-                    </div>
-                    <div class="progress mb-3" style="height: 8px;">
-                        <div class="progress-bar bg-{{ ($attendancePercentage ?? 0) >= 75 ? 'success' : 'danger' }}" 
-                             style="width: {{ $attendancePercentage ?? 0 }}%"></div>
-                    </div>
-                    <div class="d-flex justify-content-between">
                         <span class="text-muted">Roll Number</span>
                         <strong>{{ $student->roll_number ?? 'N/A' }}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Admission No.</span>
+                        <strong>{{ $student->admission_number ?? 'N/A' }}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">Academic Year</span>
+                        <strong>{{ $student->academic_year ?? 'N/A' }}</strong>
                     </div>
                 </div>
             </div>

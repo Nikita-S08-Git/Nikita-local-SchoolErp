@@ -197,7 +197,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (editModeCheckbox && markForm) {
         editModeCheckbox.addEventListener('change', function() {
             if (this.checked) {
-                markForm.action = '{{ route("academic.attendance.edit") }}';
+                markForm.action = '{{ route("academic.attendance.edit.post") }}';
                 document.getElementById('markAttendanceBtn').innerHTML = '<i class="bi bi-pencil"></i> Proceed to Edit Attendance';
             } else {
                 markForm.action = '{{ route("academic.attendance.mark") }}';

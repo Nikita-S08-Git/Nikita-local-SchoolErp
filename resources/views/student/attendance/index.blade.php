@@ -6,8 +6,23 @@
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col-12">
-            <h2 class="mb-1"><i class="bi bi-calendar-check me-2 text-success"></i>My Attendance</h2>
-            <p class="text-muted mb-0">Track your attendance across all subjects</p>
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="mb-1"><i class="bi bi-calendar-check me-2 text-success"></i>My Attendance</h2>
+                    <p class="text-muted mb-0">Track your attendance across all subjects</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <select class="form-select" style="width: auto;">
+                        <option>This Month</option>
+                        <option>Last Month</option>
+                        <option>This Semester</option>
+                        <option>This Year</option>
+                    </select>
+                    <button class="btn btn-outline-primary">
+                        <i class="bi bi-download me-1"></i>Export
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -16,15 +31,17 @@
         <div class="col-md-3">
             <div class="card stats-card h-100 border-0" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
                 <div class="card-body text-center text-white">
-                    <i class="bi bi-percent" style="font-size: 2.5rem; opacity: 0.3;"></i>
-                    <h2 class="mt-3 mb-1">{{ $overallPercentage }}%</h2>
-                    <p class="mb-0 opacity-75">Overall Attendance</p>
+                    <div class="mb-3">
+                        <i class="bi bi-percent" style="font-size: 3rem; opacity: 0.3;"></i>
+                    </div>
+                    <h2 class="mb-1">{{ $overallPercentage }}%</h2>
+                    <p class="mb-2 opacity-75">Overall Attendance</p>
                     @if($overallPercentage >= 75)
-                        <span class="badge bg-success mt-2"><i class="bi bi-check-circle me-1"></i>Safe</span>
+                        <span class="badge bg-white text-success"><i class="bi bi-check-circle me-1"></i>Excellent</span>
                     @elseif($overallPercentage >= 65)
-                        <span class="badge bg-warning mt-2"><i class="bi bi-exclamation-circle me-1"></i>Warning</span>
+                        <span class="badge bg-white text-warning"><i class="bi bi-exclamation-circle me-1"></i>Warning</span>
                     @else
-                        <span class="badge bg-danger mt-2"><i class="bi bi-x-circle me-1"></i>Low</span>
+                        <span class="badge bg-white text-danger"><i class="bi bi-x-circle me-1"></i>Low</span>
                     @endif
                 </div>
             </div>
@@ -33,8 +50,10 @@
         <div class="col-md-3">
             <div class="card stats-card h-100 border-0" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
                 <div class="card-body text-center text-white">
-                    <i class="bi bi-check-circle" style="font-size: 2.5rem; opacity: 0.3;"></i>
-                    <h2 class="mt-3 mb-1">{{ $presentDays }}</h2>
+                    <div class="mb-3">
+                        <i class="bi bi-check-circle" style="font-size: 3rem; opacity: 0.3;"></i>
+                    </div>
+                    <h2 class="mb-1">{{ $presentDays }}</h2>
                     <p class="mb-0 opacity-75">Days Present</p>
                 </div>
             </div>
@@ -43,8 +62,10 @@
         <div class="col-md-3">
             <div class="card stats-card h-100 border-0" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
                 <div class="card-body text-center text-white">
-                    <i class="bi bi-x-circle" style="font-size: 2.5rem; opacity: 0.3;"></i>
-                    <h2 class="mt-3 mb-1">{{ $absentDays }}</h2>
+                    <div class="mb-3">
+                        <i class="bi bi-x-circle" style="font-size: 3rem; opacity: 0.3;"></i>
+                    </div>
+                    <h2 class="mb-1">{{ $absentDays }}</h2>
                     <p class="mb-0 opacity-75">Days Absent</p>
                 </div>
             </div>
@@ -53,8 +74,10 @@
         <div class="col-md-3">
             <div class="card stats-card h-100 border-0" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
                 <div class="card-body text-center text-white">
-                    <i class="bi bi-clock" style="font-size: 2.5rem; opacity: 0.3;"></i>
-                    <h2 class="mt-3 mb-1">{{ $lateDays }}</h2>
+                    <div class="mb-3">
+                        <i class="bi bi-clock" style="font-size: 3rem; opacity: 0.3;"></i>
+                    </div>
+                    <h2 class="mb-1">{{ $lateDays }}</h2>
                     <p class="mb-0 opacity-75">Late Arrivals</p>
                 </div>
             </div>

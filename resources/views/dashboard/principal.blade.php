@@ -444,6 +444,16 @@
                             </div>
                             <i class="bi bi-chevron-right text-muted"></i>
                         </a>
+                        <a href="{{ route('web.departments.index') }}" class="quick-action-link">
+                            <div class="quick-action-icon bg-info-subtle">
+                                <i class="bi bi-building text-info"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="fw-semibold">Manage Departments</div>
+                                <small class="text-muted">View and manage departments</small>
+                            </div>
+                            <i class="bi bi-chevron-right text-muted"></i>
+                        </a>
                         <a href="{{ route('academic.divisions.index') }}" class="quick-action-link">
                             <div class="quick-action-icon bg-warning-subtle">
                                 <i class="bi bi-layers text-warning"></i>

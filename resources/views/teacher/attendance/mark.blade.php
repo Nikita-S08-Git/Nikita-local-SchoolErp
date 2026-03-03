@@ -30,7 +30,7 @@
                     <div class="text-center">
                         <i class="bi bi-clock text-success" style="font-size: 2rem;"></i>
                         <h6 class="mt-2 mb-1">Time</h6>
-                        <p class="text-muted">{{ substr($timetable->start_time, 0, 5) }} - {{ substr($timetable->end_time, 0, 5) }}</p>
+                        <p class="text-muted">{{ $timetable->formatted_time_range }}</p>
                     </div>
                 </div>
                 <div class="col-md-3">

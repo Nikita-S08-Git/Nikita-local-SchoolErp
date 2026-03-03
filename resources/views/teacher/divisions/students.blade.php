@@ -58,7 +58,7 @@
                     </h2>
                     <p class="text-muted mb-0">
                         <i class="bi bi-mortarboard me-1"></i>{{ $division->program->name ?? 'N/A' }}
-                        &bull; <i class="bi bi-person me-1"></i>{{ $students->count() }} Students
+                        &bull; <i class="bi bi-person me-1"></i>{{ $students->total() }} Students
                     </p>
                 </div>
                 <div>
@@ -70,7 +70,7 @@
         </div>
     </div>
 
-    @if($students->count() > 0)
+    @if($students->total() > 0)
         <div class="row">
             @foreach($students as $student)
                 <div class="col-md-6 col-lg-4 mb-4">
@@ -121,6 +121,16 @@
                 </div>
             @endforeach
         </div>
+        
+        @if($students->hasPages())
+        <div class="d-flex justify-content-center mt-4">
+            <nav aria-label="Student pagination">
+                <ul class="pagination">
+                    {{ $students->appends(request()->query())->links('pagination::bootstrap-4') }}
+                </ul>
+            </nav>
+        </div>
+        @endif
     @else
         <div class="card" style="border: none; border-radius: 12px;">
             <div class="card-body text-center py-5">

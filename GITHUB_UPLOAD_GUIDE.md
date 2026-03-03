@@ -18,7 +18,7 @@
 
 1. **Create Repository on GitHub**
    - Go to https://github.com/new
-   - Repository name: `School-Erp`
+   - Repository name: `Nikita-local-SchoolErp`
    - Choose Public or Private
    - **DO NOT** initialize with README/.gitignore
    - Click "Create repository"
@@ -34,7 +34,7 @@
    git add .
    git commit -m "Initial commit: School ERP System"
    git branch -M main
-   git remote add origin https://github.com/YOUR_USERNAME/School-Erp.git
+   git remote add origin https://github.com/YOUR_USERNAME/Nikita-local-SchoolErp.git
    git push -u origin main
    ```
 
@@ -67,7 +67,7 @@
 ### "Remote origin already exists"
 ```bash
 git remote remove origin
-git remote add origin https://github.com/YOUR_USERNAME/School-Erp.git
+git remote add origin https://github.com/YOUR_USERNAME/Nikita-local-SchoolErp.git
 ```
 
 ### "Nothing to commit"
@@ -83,7 +83,7 @@ git remote add origin https://github.com/YOUR_USERNAME/School-Erp.git
 ## After Upload
 
 1. **Verify upload**
-   - Visit: https://github.com/YOUR_USERNAME/School-Erp
+   - Visit: https://github.com/YOUR_USERNAME/Nikita-local-SchoolErp
 
 2. **Update README.md**
    - Replace `YOUR_USERNAME` with your actual username

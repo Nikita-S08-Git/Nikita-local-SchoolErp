@@ -680,7 +680,7 @@
                     <div class="collapse {{ request()->routeIs('academic.timetable.*') || request()->routeIs('academic.attendance.*') || request()->routeIs('academic.holidays.*') ? 'show' : '' }}" id="timetableAttendance">
                         <div class="dropdown-menu show">
                             <a class="dropdown-item {{ request()->routeIs('academic.timetable.*') ? 'active' : '' }}"
-                               href="{{ route('academic.timetable.index') }}">
+                               href="{{ route('academic.timetable.grid') }}">
                                 <i class="bi bi-calendar-week me-2"></i>Timetable
                             </a>
                             <a class="dropdown-item {{ request()->routeIs('academic.attendance.*') ? 'active' : '' }}"

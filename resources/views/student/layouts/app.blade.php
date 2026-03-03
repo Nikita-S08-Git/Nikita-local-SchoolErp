@@ -47,26 +47,17 @@
             box-shadow: 2px 0 10px rgba(0,0,0,0.1);
         }
         
-        #sidebar.active {
-            margin-left: calc(-1 * var(--sidebar-width));
+        .sidebar-menu-section {
+            padding: 10px 0;
         }
         
-        .sidebar-header {
-            padding: 20px;
-            background: rgba(0,0,0,0.2);
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-        
-        .sidebar-header h3 {
-            color: #fff;
-            font-size: 1.3rem;
-            font-weight: 700;
-            margin: 0;
-        }
-        
-        .sidebar-header small {
-            color: #94a3b8;
-            font-size: 0.75rem;
+        .sidebar-menu-title {
+            padding: 10px 20px 5px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #6c757d;
+            font-weight: 600;
         }
         
         #sidebar ul.components {
@@ -99,6 +90,15 @@
             font-size: 1.1rem;
             width: 20px;
             text-align: center;
+        }
+        
+        #sidebar ul li a .menu-text {
+            flex: 1;
+        }
+        
+        #sidebar ul li a .badge {
+            font-size: 0.7rem;
+            padding: 0.25em 0.6em;
         }
         
         .notification-badge {
@@ -261,6 +261,56 @@
             font-weight: 600;
             color: #212529;
         }
+        
+        /* Enhanced Animations */
+        .sidebar-header {
+            padding: 20px;
+            background: rgba(0,0,0,0.2);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .sidebar-header h3 {
+            color: #fff;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin: 0;
+        }
+        
+        .sidebar-header small {
+            color: #94a3b8;
+            font-size: 0.75rem;
+        }
+        
+        /* Logout button styling */
+        .logout-btn {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            color: white;
+            transition: all 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
+        }
+        
+        /* Card hover effects */
+        .card {
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
+        }
+        
+        /* Smooth transitions */
+        a, button {
+            transition: all 0.3s ease;
+        }
     </style>
     
     @stack('styles')
@@ -279,15 +329,65 @@
                 <li>
                     <a href="{{ route('student.dashboard') }}" class="{{ request()->routeIs('student.dashboard') ? 'active' : '' }}">
                         <i class="bi bi-speedometer2"></i>
-                        <span>Dashboard</span>
+                        <span class="menu-text">Dashboard</span>
                     </a>
                 </li>
+
+                <!-- Academic Section -->
+                <div class="sidebar-menu-section">
+                    <div class="sidebar-menu-title">Academic</div>
+                </div>
+
+                <!-- Timetable -->
+                <li>
+                    <a href="{{ route('student.timetable') }}" class="{{ request()->routeIs('student.timetable*') ? 'active' : '' }}">
+                        <i class="bi bi-calendar-week"></i>
+                        <span class="menu-text">Timetable</span>
+                    </a>
+                </li>
+
+                <!-- Attendance -->
+                <li>
+                    <a href="{{ route('student.attendance') }}" class="{{ request()->routeIs('student.attendance*') ? 'active' : '' }}">
+                        <i class="bi bi-calendar-check"></i>
+                        <span class="menu-text">Attendance</span>
+                    </a>
+                </li>
+
+                <!-- Results -->
+                <li>
+                    <a href="{{ route('student.results') }}" class="{{ request()->routeIs('student.results*') ? 'active' : '' }}">
+                        <i class="bi bi-clipboard-data"></i>
+                        <span class="menu-text">Results</span>
+                    </a>
+                </li>
+
+                <!-- Fees Section -->
+                <div class="sidebar-menu-section">
+                    <div class="sidebar-menu-title">Payments</div>
+                </div>
+
+                <!-- Fees -->
+                <li>
+                    <a href="{{ route('student.fees') }}" class="{{ request()->routeIs('student.fees*') ? 'active' : '' }}">
+                        <i class="bi bi-currency-dollar"></i>
+                        <span class="menu-text">Fees</span>
+                        @if(isset($pendingFees) && $pendingFees > 0)
+                            <span class="badge bg-warning text-dark">{{ $pendingFees }}</span>
+                        @endif
+                    </a>
+                </li>
+
+                <!-- Personal Section -->
+                <div class="sidebar-menu-section">
+                    <div class="sidebar-menu-title">Personal</div>
+                </div>
 
                 <!-- My Profile -->
                 <li>
                     <a href="{{ route('student.profile') }}" class="{{ request()->routeIs('student.profile*') ? 'active' : '' }}">
                         <i class="bi bi-person-circle"></i>
-                        <span>My Profile</span>
+                        <span class="menu-text">My Profile</span>
                     </a>
                 </li>
 
@@ -295,21 +395,31 @@
                 <li>
                     <a href="{{ route('student.notifications') }}" class="{{ request()->routeIs('student.notifications') ? 'active' : '' }}">
                         <i class="bi bi-bell"></i>
-                        <span>Notifications</span>
-                        @if($student->unreadNotificationsCount() > 0)
-                            <span class="badge bg-danger notification-badge">
-                                {{ $student->unreadNotificationsCount() }}
-                            </span>
+                        <span class="menu-text">Notifications</span>
+                        @php $authStudent = \Illuminate\Support\Facades\Auth::guard('student')->user(); @endphp
+                        @if($authStudent && $authStudent->unreadNotificationsCount() > 0)
+                            <span class="badge bg-danger">{{ $authStudent->unreadNotificationsCount() }}</span>
                         @endif
+                    </a>
+                </li>
+
+                <!-- Library -->
+                <li>
+                    <a href="{{ route('student.library') }}" class="{{ request()->routeIs('student.library*') ? 'active' : '' }}">
+                        <i class="bi bi-book"></i>
+                        <span class="menu-text">Library</span>
                     </a>
                 </li>
             </ul>
 
             <div class="mt-auto p-3 border-top border-secondary">
-                <form action="{{ route('student.logout') }}" method="POST">
+                <div class="d-flex align-items-center justify-content-between">
+                    <small class="text-muted">Logged in as Student</small>
+                </div>
+                <form action="{{ route('student.logout') }}" method="POST" class="mt-2">
                     @csrf
-                    <button type="submit" class="btn btn-outline-light w-100">
-                        <i class="bi bi-box-arrow-right"></i> Logout
+                    <button type="submit" class="btn logout-btn w-100">
+                        <i class="bi bi-box-arrow-right me-2"></i>Logout
                     </button>
                 </form>
             </div>

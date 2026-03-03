@@ -42,6 +42,16 @@ Route::middleware('auth:student')->prefix('student')->name('student.')->group(fu
     // Attendance
     Route::get('/attendance', [DashboardController::class, 'attendance'])->name('attendance');
     
+    // Fees
+    Route::get('/fees', [DashboardController::class, 'fees'])->name('fees.index');
+    Route::get('/fees/payment/{studentFee}', [DashboardController::class, 'feesPayment'])->name('fees.payment');
+    
+    // Results
+    Route::get('/results', [DashboardController::class, 'results'])->name('results');
+    
+    // Library
+    Route::get('/library', [DashboardController::class, 'library'])->name('library');
+    
     // Notifications
     Route::get('/notifications', [DashboardController::class, 'notifications'])->name('notifications');
     Route::post('/notifications/{id}/read', [DashboardController::class, 'markNotificationAsRead'])->name('notifications.read');

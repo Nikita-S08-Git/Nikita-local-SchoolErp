@@ -129,6 +129,16 @@ class DivisionController extends Controller
             return redirect()->back()->with('error', 'Cannot delete division with assigned students!');
         }
 
+        // Check for timetable records
+        if ($division->timetables()->count() > 0) {
+            return redirect()->back()->with('error', 'Cannot delete division with assigned timetable entries! Please delete the timetable first.');
+        }
+
+        // Check for attendance records
+        if (\App\Models\Academic\Attendance::where('division_id', $division->id)->count() > 0) {
+            return redirect()->back()->with('error', 'Cannot delete division with attendance records!');
+        }
+
         $division->delete();
         return redirect()->route('academic.divisions.index')->with('success', 'Division deleted successfully!');
     }

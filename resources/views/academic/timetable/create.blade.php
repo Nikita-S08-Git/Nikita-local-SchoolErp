@@ -77,41 +77,27 @@
                             </div>
 
                             <div class="col-md-6">
-                                <label for="day_of_week" class="form-label">Day <span class="text-danger">*</span></label>
-                                <select name="day_of_week" id="day_of_week" class="form-select @error('day_of_week') is-invalid @enderror" required>
-                                    <option value="">-- Select Day --</option>
-                                    @foreach($days as $value => $label)
-                                        <option value="{{ $value }}" {{ old('day_of_week') == $value ? 'selected' : '' }}>
-                                            {{ $label }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('day_of_week')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                                <div class="form-text">
-                                    <i class="bi bi-info-circle"></i> Select a day for recurring weekly schedule
-                                </div>
-                            </div>
-
-                            <div class="col-md-6">
-                                <label for="date" class="form-label">Specific Date (Optional)</label>
+                                <label for="date" class="form-label">Specific Date <span class="text-danger">*</span></label>
                                 <input type="date" name="date" id="date" 
-                                       class="form-select @error('date') is-invalid @enderror" 
+                                       class="form-control @error('date') is-invalid @enderror" 
                                        value="{{ old('date') }}" 
                                        min="{{ date('Y-m-d') }}"
-                                       onchange="checkHolidayOnDate()">
+                                       required
+                                       onchange="checkHolidayOnDate(); autoDetectDay();">
                                 @error('date')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                                 <div class="form-text">
-                                    <i class="bi bi-info-circle"></i> Leave empty for recurring schedule, or select a specific date
+                                    <i class="bi bi-info-circle"></i> Select a date - day will be auto-detected
                                 </div>
                                 <div id="holidayWarning" class="alert alert-warning mt-2 d-none">
                                     <i class="bi bi-exclamation-triangle"></i>
                                     <span id="holidayWarningText"></span>
                                 </div>
                             </div>
+
+                            <!-- Hidden Day Field (auto-calculated from date) -->
+                            <input type="hidden" name="day_of_week" id="day_of_week" value="">
 
                             <div class="col-md-6">
                                 <label for="room_id" class="form-label">Room</label>
@@ -285,11 +271,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 const dateObj = new Date(selectedDate + 'T00:00:00'); // Fix timezone issue
                 const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
                 
-                // Update day_of_week dropdown
+                // Update hidden day_of_week field
                 daySelect.value = dayName;
-                
-                // Trigger change event for availability check
-                daySelect.dispatchEvent(new Event('change'));
                 
                 // Check for holiday
                 checkHolidayOnDate();
@@ -329,6 +312,18 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(error => {
                 console.error('Holiday check error:', error);
             });
+    };
+    
+    // Auto-detect day from date
+    window.autoDetectDay = function() {
+        const dateInput = document.getElementById('date');
+        const dayField = document.getElementById('day_of_week');
+        
+        if (dateInput && dayField && dateInput.value) {
+            const dateObj = new Date(dateInput.value + 'T00:00:00');
+            const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+            dayField.value = dayName;
+        }
     };
     
     // Form validation - ensure either date or day_of_week is selected

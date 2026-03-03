@@ -21,7 +21,7 @@ echo Remote configured: https://github.com/Nikita-S08-Git/Nikita-local-SchoolErp
 echo.
 
 echo ========================================
-echo   STEP 2: Push to GitHub
+echo   STEP 2: Push to GitHub (Teacher_M branch)
 echo ========================================
 echo.
 echo IMPORTANT - Authentication:
@@ -44,7 +44,8 @@ echo.
 echo Pushing to GitHub now...
 echo.
 
-"C:\Program Files\Git\cmd\git.exe" push -u origin main --force
+"C:\Program Files\Git\cmd\git.exe" branch -M Teacher_M
+"C:\Program Files\Git\cmd\git.exe" push -u origin Teacher_M --force
 
 if %ERRORLEVEL% EQU 0 (
     echo.

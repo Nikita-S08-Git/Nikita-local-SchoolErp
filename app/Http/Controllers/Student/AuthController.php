@@ -27,19 +27,28 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
-        // Check if student exists
-        $student = Student::where('email', $credentials['email'])->first();
+        // Check if student exists (through user relationship)
+        $user = \App\Models\User::where('email', $credentials['email'])->first();
 
-        if (!$student) {
+        if (!$user) {
             return back()->withErrors([
                 'email' => 'The provided credentials do not match our records.',
             ]);
         }
 
-        // Verify password
-        if (!\Hash::check($credentials['password'], $student->password)) {
+        // Verify password from user account
+        if (!\Hash::check($credentials['password'], $user->password)) {
             return back()->withErrors([
                 'email' => 'The provided credentials do not match our records.',
+            ]);
+        }
+
+        // Get the student record
+        $student = \App\Models\User\Student::where('user_id', $user->id)->first();
+
+        if (!$student) {
+            return back()->withErrors([
+                'email' => 'Student record not found. Please contact administration.',
             ]);
         }
 

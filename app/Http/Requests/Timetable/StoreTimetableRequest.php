@@ -53,13 +53,13 @@ class StoreTimetableRequest extends BaseFormRequest
                 'exists:users,id',
             ],
             'day_of_week' => [
-                'required_without:date',
+                'nullable',
                 Rule::in(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']),
             ],
             
-            // Date - optional for specific date classes
+            // Date - now required for specific date classes (day will be auto-calculated)
             'date' => [
-                'nullable',
+                'required',
                 'date',
                 'after_or_equal:today',
                 function ($attribute, $value, $fail) {
@@ -131,13 +131,13 @@ class StoreTimetableRequest extends BaseFormRequest
             'division_id.required' => 'Please select a division/class.',
             'subject_id.required' => 'Please select a subject.',
             'teacher_id.required' => 'Please select a teacher.',
-            'day_of_week.required_without' => 'Please select a day of the week or specify a date.',
             'time_slot_id.required' => 'Please select a time slot.',
             'academic_year_id.required' => 'Please select an academic year.',
+            'date.required' => 'Please select a specific date.',
 
             // Validation messages
             'day_of_week.in' => 'Please select a valid day (Monday to Saturday).',
-            'day_of_week.required_without' => 'Please select a day of the week or a specific date.',
+            'day_of_week.required_without' => 'Please select a specific date - day will be auto-detected.',
             'date.after_or_equal' => 'Date cannot be in the past.',
             'start_time.date_format' => 'Start time must be in HH:MM format (e.g., 09:00).',
             'end_time.date_format' => 'End time must be in HH:MM format (e.g., 10:00).',

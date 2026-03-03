@@ -50,7 +50,7 @@
                                         </div>
                                         <div class="d-flex align-items-center mb-2">
                                             <i class="bi bi-clock text-muted me-2"></i>
-                                            <span class="small">{{ substr($lecture->start_time, 0, 5) }} - {{ substr($lecture->end_time, 0, 5) }}</span>
+                                            <span class="small">{{ $lecture->formatted_time_range }}</span>
                                         </div>
                                         <div class="d-flex align-items-center">
                                             <i class="bi bi-geo-alt text-muted me-2"></i>

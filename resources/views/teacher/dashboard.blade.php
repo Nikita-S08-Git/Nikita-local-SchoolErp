@@ -401,7 +401,7 @@
                             </div>
                             <span>Mark Attendance</span>
                         </a>
-                        <a href="{{ route('academic.timetable.index') }}" class="quick-action-item quick-action-primary">
+                        <a href="{{ route('timetable.teacher') }}" class="quick-action-item quick-action-primary">
                             <div class="quick-action-icon">
                                 <i class="bi bi-calendar-week"></i>
                             </div>

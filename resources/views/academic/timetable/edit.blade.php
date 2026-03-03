@@ -265,7 +265,7 @@
                                         <select name="room" id="room" class="form-select">
                                             <option value="">Select Room (Optional)</option>
                                             @foreach($rooms as $room)
-                                                <option value="{{ $room }}" {{ $timetable->room == $room ? 'selected' : '' }}>{{ $room }}</option>
+                                                <option value="{{ $room->room_number }}" {{ $timetable->room == $room->room_number ? 'selected' : '' }}>{{ $room->room_number }}</option>
                                             @endforeach
                                         </select>
                                         <div class="form-text">Select from available rooms or enter custom room</div>

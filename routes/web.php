@@ -16,6 +16,55 @@ use App\Http\Controllers\Web\ExaminationController;
 use App\Http\Controllers\Web\LibraryController;
 use App\Http\Controllers\Web\StaffController;
 use App\Http\Controllers\Web\TimeSlotController;
+use App\Http\Controllers\Student\AuthController as StudentAuthController;
+use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
+
+// ============================================
+// STUDENT AUTH ROUTES (Guest)
+// ============================================
+Route::middleware('guest:student')->group(function () {
+    Route::get('/student/login', [StudentAuthController::class, 'showLogin'])->name('student.login');
+    Route::post('/student/login', [StudentAuthController::class, 'login']);
+});
+
+// ============================================
+// STUDENT AUTHENTICATED ROUTES
+// ============================================
+Route::middleware('auth:student')->prefix('student')->name('student.')->group(function () {
+    // Logout
+    Route::post('/logout', [StudentAuthController::class, 'logout'])->name('logout');
+    
+    // Dashboard
+    Route::get('/dashboard', [StudentDashboardController::class, 'index'])->name('dashboard');
+    
+    // Profile
+    Route::get('/profile', [StudentDashboardController::class, 'profile'])->name('profile');
+    Route::get('/profile/edit', [StudentDashboardController::class, 'editProfile'])->name('profile.edit');
+    Route::put('/profile', [StudentDashboardController::class, 'updateProfile'])->name('profile.update');
+    Route::get('/profile/change-password', [StudentDashboardController::class, 'changePassword'])->name('profile.change-password');
+    Route::post('/profile/change-password', [StudentDashboardController::class, 'updatePassword']);
+    
+    // Timetable
+    Route::get('/timetable', [StudentDashboardController::class, 'timetable'])->name('timetable');
+    
+    // Attendance
+    Route::get('/attendance', [StudentDashboardController::class, 'attendance'])->name('attendance');
+    
+    // Fees
+    Route::get('/fees', [StudentDashboardController::class, 'fees'])->name('fees');
+    Route::get('/fees/payment/{studentFee}', [StudentDashboardController::class, 'feesPayment'])->name('fees.payment');
+    
+    // Results
+    Route::get('/results', [StudentDashboardController::class, 'results'])->name('results');
+    
+    // Library
+    Route::get('/library', [StudentDashboardController::class, 'library'])->name('library');
+    
+    // Notifications
+    Route::get('/notifications', [StudentDashboardController::class, 'notifications'])->name('notifications');
+    Route::post('/notifications/{id}/read', [StudentDashboardController::class, 'markNotificationAsRead'])->name('notifications.read');
+    Route::post('/notifications/read-all', [StudentDashboardController::class, 'markAllNotificationsAsRead'])->name('notifications.read-all');
+});
 
 Route::prefix('dashboard/principal')
     ->name('principal.')
@@ -107,10 +156,21 @@ Route::middleware(['auth'])->prefix('academic')->name('academic.')->group(functi
         Route::post('mark', [\App\Http\Controllers\Web\AttendanceController::class, 'mark'])->name('mark');
         Route::post('store', [\App\Http\Controllers\Web\AttendanceController::class, 'store'])->name('store');
         Route::get('edit', [\App\Http\Controllers\Web\AttendanceController::class, 'edit'])->name('edit');
+        Route::post('edit', [\App\Http\Controllers\Web\AttendanceController::class, 'edit'])->name('edit.post');
         Route::put('update', [\App\Http\Controllers\Web\AttendanceController::class, 'update'])->name('update');
         Route::delete('delete', [\App\Http\Controllers\Web\AttendanceController::class, 'destroy'])->name('destroy');
         Route::get('report', [\App\Http\Controllers\Web\AttendanceController::class, 'report'])->name('report');
         Route::post('check-holiday', [\App\Http\Controllers\Web\AttendanceController::class, 'checkHoliday'])->name('check-holiday');
+        
+        // Get students by division (AJAX)
+        Route::get('division/{division}/students', [\App\Http\Controllers\Web\AttendanceController::class, 'getStudentsByDivision'])
+            ->name('division.students');
+            
+        // Download attendance report
+        Route::get('report/download', [\App\Http\Controllers\Web\AttendanceController::class, 'downloadReport'])
+            ->name('report.download');
+        Route::get('report/excel', [\App\Http\Controllers\Web\AttendanceController::class, 'downloadExcel'])
+            ->name('report.excel');
     });
 
     // Timetable
@@ -123,6 +183,11 @@ Route::middleware(['auth'])->prefix('academic')->name('academic.')->group(functi
         // CRUD operations
         Route::get('/create', [\App\Http\Controllers\Web\TimetableController::class, 'create'])->name('create');
         Route::post('/', [\App\Http\Controllers\Web\TimetableController::class, 'store'])->name('store');
+        
+        // Teacher timetable route (must be before wildcard routes)
+        Route::get('/teacher', [\App\Http\Controllers\Web\TimetableController::class, 'teacherTimetable'])->name('teacher');
+        
+        // Wildcard routes for individual timetable entries
         Route::get('/{timetable}', [\App\Http\Controllers\Web\TimetableController::class, 'show'])->name('show');
         Route::get('/{timetable}/edit', [\App\Http\Controllers\Web\TimetableController::class, 'edit'])->name('edit');
         Route::put('/{timetable}', [\App\Http\Controllers\Web\TimetableController::class, 'update'])->name('update');
@@ -153,7 +218,6 @@ Route::middleware(['auth'])->prefix('academic')->name('academic.')->group(functi
         Route::post('/check-availability', [\App\Http\Controllers\Web\TimetableController::class, 'checkAvailability'])->name('check-availability');
         Route::get('/division/{divisionId}', [\App\Http\Controllers\Web\TimetableController::class, 'show'])->name('show-division');
         Route::get('/division/{divisionId}/print', [\App\Http\Controllers\Web\TimetableController::class, 'print'])->name('print');
-        Route::get('/teacher', [\App\Http\Controllers\Web\TimetableController::class, 'teacherTimetable'])->name('teacher');
     });
 
     // Time Slot Management
@@ -190,11 +254,6 @@ Route::middleware(['auth', 'role:admin|principal|office|teacher'])->prefix('fees
         ->names('scholarships');
 });
 
-// Student Fee Routes
-Route::middleware(['auth', 'role:student'])->prefix('student/fees')->name('student.fees.')->group(function () {
-    Route::get('/', [\App\Http\Controllers\Web\StudentFeeController::class, 'index'])->name('index');
-    Route::get('/payment/{studentFee}', [\App\Http\Controllers\Web\StudentFeeController::class, 'payment'])->name('payment');
-});
 
 // Razorpay Payment Routes
 Route::middleware(['auth'])->prefix('razorpay')->group(function () {

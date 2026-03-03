@@ -11,25 +11,30 @@
                     <h2 class="mb-1"><i class="bi bi-calendar-week me-2 text-primary"></i>My Timetable</h2>
                     <p class="text-muted mb-0">View your weekly class schedule</p>
                 </div>
-                <button onclick="window.print()" class="btn btn-outline-primary">
-                    <i class="bi bi-printer me-1"></i>Print Timetable
-                </button>
+                <div class="d-flex gap-2">
+                    <button onclick="window.print()" class="btn btn-outline-primary">
+                        <i class="bi bi-printer me-1"></i>Print Timetable
+                    </button>
+                    <button class="btn btn-outline-secondary">
+                        <i class="bi bi-download me-1"></i>Download PDF
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="card shadow-sm border-0" style="border-radius: 15px;">
+    <div class="card shadow-sm border-0 mb-4" style="border-radius: 15px;">
         <div class="card-body p-4">
             <div class="table-responsive">
                 <table class="table table-bordered table-hover">
                     <thead class="table-light">
                         <tr>
-                            <th width="120">Time/Day</th>
-                            @foreach(['monday', 'tuesday', 'wednesday', 'thursday', 'friday'] as $day)
-                                <th class="text-center {{ strtolower(date('l')) === $day ? 'bg-primary bg-opacity-10' : '' }}">
-                                    {{ ucfirst($day) }}
+                            <th width="120" class="text-center">Time</th>
+                            @foreach(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as $day)
+                                <th class="text-center {{ strtolower(date('l')) === $day ? 'bg-primary bg-opacity-10' : '' }}" style="min-width: 150px;">
+                                    <div>{{ ucfirst($day) }}</div>
                                     @if(strtolower(date('l')) === $day)
-                                        <span class="badge bg-primary ms-2">Today</span>
+                                        <span class="badge bg-primary mt-1">Today</span>
                                     @endif
                                 </th>
                             @endforeach
@@ -37,16 +42,24 @@
                     </thead>
                     <tbody>
                         @php
-                            $timeSlots = ['09:00', '10:00', '11:00', '12:00', '14:00', '15:00'];
+                            $timeSlots = [
+                                '08:00' => '08:00 - 09:00',
+                                '09:00' => '09:00 - 10:00',
+                                '10:00' => '10:00 - 11:00',
+                                '11:00' => '11:00 - 12:00',
+                                '12:00' => '12:00 - 13:00',
+                                '14:00' => '14:00 - 15:00',
+                                '15:00' => '15:00 - 16:00',
+                            ];
                         @endphp
-                        @foreach($timeSlots as $time)
+                        @foreach($timeSlots as $time => $label)
                             <tr>
-                                <td class="fw-bold bg-light">
+                                <td class="fw-bold bg-light text-center">
                                     <i class="bi bi-clock me-1"></i>
-                                    {{ $time }} - {{ date('H:i', strtotime($time . ' +1 hour')) }}
+                                    {{ $label }}
                                 </td>
-                                @foreach(['monday', 'tuesday', 'wednesday', 'thursday', 'friday'] as $day)
-                                    <td style="min-width: 180px;">
+                                @foreach(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as $day)
+                                    <td style="min-width: 150px;">
                                         @php
                                             $class = null;
                                             if (isset($timetable[$day])) {
@@ -54,8 +67,8 @@
                                             }
                                         @endphp
                                         @if($class)
-                                            <div class="text-center p-2" style="background: linear-gradient(135deg, #f8f9ff 0%, #eef2ff 100%); border-radius: 8px; border-left: 3px solid #667eea;">
-                                                <strong class="d-block text-primary mb-1">{{ $class->subject->name ?? 'N/A' }}</strong>
+                                            <div class="p-2 text-center" style="background: linear-gradient(135deg, #f8f9ff 0%, #eef2ff 100%); border-radius: 8px; border-left: 3px solid #667eea;">
+                                                <strong class="d-block text-primary mb-1" style="font-size: 0.9rem;">{{ $class->subject->name ?? 'N/A' }}</strong>
                                                 <small class="text-muted d-block mb-1">
                                                     <i class="bi bi-person me-1"></i>{{ $class->teacher->name ?? 'N/A' }}
                                                 </small>

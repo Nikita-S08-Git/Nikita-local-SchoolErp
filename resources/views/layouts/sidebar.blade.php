@@ -9,13 +9,14 @@
             ['name' => 'Teachers', 'route' => 'dashboard.teachers.index', 'icon' => 'person-badge-fill'],
             
             // Academic Management Section
+            ['name' => 'Departments', 'route' => 'web.departments.index', 'icon' => 'building'],
             ['name' => 'Programs', 'route' => 'academic.programs.index', 'icon' => 'mortarboard'],
             ['name' => 'Subjects', 'route' => 'academic.subjects.index', 'icon' => 'book'],
             ['name' => 'Divisions', 'route' => 'academic.divisions.index', 'icon' => 'diagram-3'],
             ['name' => 'Academic Sessions', 'route' => 'web.academic.sessions.index', 'icon' => 'calendar-event'],
             
             // Timetable & Attendance Section
-            ['name' => 'Timetable', 'route' => 'academic.timetable.index', 'icon' => 'calendar-week'],
+            ['name' => 'Timetable', 'route' => 'academic.timetable.grid', 'icon' => 'calendar-week'],
             ['name' => 'Attendance', 'route' => 'academic.attendance.index', 'icon' => 'clipboard-check'],
             ['name' => 'Holidays', 'route' => 'academic.holidays.index', 'icon' => 'calendar-event'],
             
@@ -27,13 +28,14 @@
             ['name' => 'Teachers', 'route' => 'dashboard.teachers.index', 'icon' => 'person-badge-fill'],
             
             // Academic Management Section
+            ['name' => 'Departments', 'route' => 'web.departments.index', 'icon' => 'building'],
             ['name' => 'Programs', 'route' => 'academic.programs.index', 'icon' => 'mortarboard'],
             ['name' => 'Subjects', 'route' => 'academic.subjects.index', 'icon' => 'book'],
             ['name' => 'Divisions', 'route' => 'academic.divisions.index', 'icon' => 'diagram-3'],
             ['name' => 'Academic Sessions', 'route' => 'web.academic.sessions.index', 'icon' => 'calendar-event'],
             
             // Timetable & Attendance Section
-            ['name' => 'Timetable', 'route' => 'academic.timetable.index', 'icon' => 'calendar-week'],
+            ['name' => 'Timetable', 'route' => 'academic.timetable.grid', 'icon' => 'calendar-week'],
             ['name' => 'Attendance', 'route' => 'academic.attendance.index', 'icon' => 'clipboard-check'],
             ['name' => 'Holidays', 'route' => 'academic.holidays.index', 'icon' => 'calendar-event'],
             
@@ -75,7 +77,7 @@
             ['name' => 'Students', 'route' => 'dashboard.students.index', 'icon' => 'people-fill'],
             
             // Timetable & Attendance Section
-            ['name' => 'Timetable', 'route' => 'academic.timetable.index', 'icon' => 'calendar-week'],
+            ['name' => 'Timetable', 'route' => 'academic.timetable.grid', 'icon' => 'calendar-week'],
             ['name' => 'Attendance', 'route' => 'academic.attendance.index', 'icon' => 'clipboard-check'],
             ['name' => 'Holidays', 'route' => 'academic.holidays.index', 'icon' => 'calendar-event'],
         ],

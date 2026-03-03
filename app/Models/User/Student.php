@@ -3,6 +3,8 @@
 namespace App\Models\User;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Auth\Authenticatable as AuthenticatableTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -19,9 +21,10 @@ use App\Models\Attendance\Attendance;
 use App\Models\StudentNotification;
 
 
-class Student extends Model
+class Student extends Model implements Authenticatable
 {
     // Traits (add extra functionality to the model)
+    use AuthenticatableTrait;  // For authentication
     use HasFactory;    // Enables creating fake data for testing
     use SoftDeletes;   // Enables "soft delete" - marks as deleted without actually deleting
 
