@@ -101,18 +101,11 @@
                                         @enderror
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label for="category" class="form-label">Category <span class="text-danger">*</span></label>
-                                        <select class="form-select @error('category') is-invalid @enderror" id="category" name="category" required>
-                                            <option value="">Select Category</option>
-                                            <option value="general" {{ old('category') == 'general' ? 'selected' : '' }}>General</option>
-                                            <option value="obc" {{ old('category') == 'obc' ? 'selected' : '' }}>OBC</option>
-                                            <option value="sc" {{ old('category') == 'sc' ? 'selected' : '' }}>SC</option>
-                                            <option value="st" {{ old('category') == 'st' ? 'selected' : '' }}>ST</option>
-                                            <option value="vjnt" {{ old('category') == 'vjnt' ? 'selected' : '' }}>VJNT</option>
-                                            <option value="nt" {{ old('category') == 'nt' ? 'selected' : '' }}>NT</option>
-                                            <option value="ews" {{ old('category') == 'ews' ? 'selected' : '' }}>EWS</option>
-                                        </select>
-                                        @error('category')
+                                        <label for="aadhar_number" class="form-label">Aadhar Number</label>
+                                        <input type="text" class="form-control @error('aadhar_number') is-invalid @enderror" 
+                                               id="aadhar_number" name="aadhar_number" value="{{ old('aadhar_number') }}" 
+                                               maxlength="12" placeholder="Enter 12-digit Aadhar number">
+                                        @error('aadhar_number')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>

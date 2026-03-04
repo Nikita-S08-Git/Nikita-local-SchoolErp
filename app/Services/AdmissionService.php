@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Academic\Admission;
 use App\Models\Academic\StudentDocument;
 use App\Models\AuditLog;
+use App\Models\User\Student;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -12,16 +13,86 @@ use Carbon\Carbon;
 
 class AdmissionService
 {
+    /**
+     * Create a student directly from admission form data
+     */
+    public function createStudentFromAdmission(array $data): Student
+    {
+        return DB::transaction(function () use ($data) {
+            // Create user first
+            $user = \App\Models\User::create([
+                'name' => $data['first_name'] . ' ' . ($data['middle_name'] ?? '') . ' ' . $data['last_name'],
+                'email' => $data['email'],
+                'password' => bcrypt('password123'), // Default password
+                'role' => 'student',
+            ]);
+            
+            // Map fields to students table
+            // roll_number = admission_number (they are the same)
+            $studentData = [
+                'user_id' => $user->id,
+                'admission_number' => $data['admission_number'],
+                'roll_number' => $data['admission_number'], // Same as admission number
+                'first_name' => $data['first_name'],
+                'middle_name' => $data['middle_name'] ?? null,
+                'last_name' => $data['last_name'],
+                'date_of_birth' => $data['date_of_birth'],
+                'gender' => $data['gender'],
+                'blood_group' => $data['blood_group'] ?? null,
+                'religion' => $data['religion'] ?? null,
+                'category' => $data['category'],
+                'aadhar_number' => $data['aadhar_number'] ?? null,
+                'mobile_number' => $data['mobile_number'],
+                'email' => $data['email'],
+                'current_address' => $data['current_address'],
+                'permanent_address' => $data['permanent_address'] ?? $data['current_address'],
+                'program_id' => $data['program_id'],
+                'division_id' => $data['division_id'],
+                'academic_session_id' => $data['academic_session_id'],
+                'academic_year' => $data['academic_year'],
+                'admission_date' => $data['admission_date'],
+                'student_status' => $data['student_status'] ?? 'active',
+                'photo_path' => $data['photo_path'] ?? null,
+                'signature_path' => $data['signature_path'] ?? null,
+                'marksheet_path' => $data['marksheet_path'] ?? null,
+                'cast_certificate_path' => $data['cast_certificate_path'] ?? null,
+            ];
+            
+            $student = Student::create($studentData);
+            
+            // Log the admission
+            AuditLog::logEvent(
+                $student,
+                'admission_created',
+                null,
+                $student->toArray()
+            );
+            
+            return $student;
+        });
+    }
+
     public function apply(array $data): Admission
     {
         return DB::transaction(function () use ($data) {
             // Generate application number
             $applicationNo = $this->generateApplicationNumber();
             
-            $admission = Admission::create(array_merge($data, [
+            // Filter out file path fields if they're null
+            $admissionData = array_merge($data, [
                 'application_no' => $applicationNo,
                 'status' => 'applied'
-            ]));
+            ]);
+            
+            // Only include file paths if they have values
+            $fileFields = ['photo_path', 'signature_path', 'twelfth_marksheet_path', 'cast_certificate_path'];
+            foreach ($fileFields as $field) {
+                if (!isset($admissionData[$field]) || is_null($admissionData[$field])) {
+                    unset($admissionData[$field]);
+                }
+            }
+            
+            $admission = Admission::create($admissionData);
 
             // Log the admission application
             AuditLog::logEvent(
@@ -201,5 +272,115 @@ class AdmissionService
             'rejected' => $query->clone()->where('status', 'rejected')->count(),
             'enrolled' => $query->clone()->where('status', 'enrolled')->count(),
         ];
+    }
+
+    /**
+     * Enroll a verified admission as a student
+     */
+    public function enrollStudent(Admission $admission): \App\Models\User\Student
+    {
+        return DB::transaction(function () use ($admission) {
+            // Check if admission is verified
+            if (!$admission->isVerified()) {
+                throw new \Exception('Only verified admissions can be enrolled.');
+            }
+
+            // Check if already enrolled
+            if ($admission->student_id) {
+                throw new \Exception('This admission has already been enrolled.');
+            }
+
+            // Get user for this admission
+            $user = \App\Models\User::where('email', $admission->email)->first();
+
+            if (!$user) {
+                // Create user account
+                $user = $this->createUserFromAdmission($admission);
+            }
+
+            // Generate roll number
+            $rollNumber = \App\Services\RollNumberService::generate(
+                $admission->program_id,
+                now()->year,
+                $admission->division->division_name ?? null
+            );
+
+            // Create student record
+            $student = \App\Models\User\Student::create([
+                'user_id' => $user->id,
+                'admission_number' => $admission->application_no,
+                'roll_number' => $rollNumber,
+                'first_name' => $admission->first_name,
+                'middle_name' => $admission->middle_name,
+                'last_name' => $admission->last_name,
+                'date_of_birth' => $admission->date_of_birth,
+                'gender' => $admission->gender,
+                'blood_group' => $admission->blood_group,
+                'religion' => $admission->religion,
+                'category' => $admission->category,
+                'aadhar_number' => $admission->aadhar_number,
+                'mobile_number' => $admission->mobile_number,
+                'email' => $admission->email,
+                'current_address' => $admission->current_address,
+                'permanent_address' => $admission->permanent_address,
+                'program_id' => $admission->program_id,
+                'academic_year' => $admission->academic_year,
+                'division_id' => $admission->division_id,
+                'academic_session_id' => $admission->academic_session_id,
+                'student_status' => 'active',
+                'admission_date' => now()
+            ]);
+
+            // Update admission status
+            $admission->update([
+                'status' => 'enrolled',
+                'student_id' => $student->id
+            ]);
+
+            // Log the enrollment
+            AuditLog::logEvent(
+                $student,
+                'enrolled',
+                null,
+                $student->toArray()
+            );
+
+            return $student;
+        });
+    }
+
+    /**
+     * Create user account from admission
+     */
+    private function createUserFromAdmission(Admission $admission): \App\Models\User
+    {
+        $username = strtolower($admission->application_no);
+        $tempPassword = \Illuminate\Support\Str::random(8);
+
+        $user = \App\Models\User::create([
+            'name' => $admission->first_name . ' ' . $admission->last_name,
+            'email' => $admission->email,
+            'password' => \Illuminate\Support\Facades\Hash::make($tempPassword),
+            'email_verified_at' => now()
+        ]);
+
+        // Assign student role
+        $user->assignRole('student');
+
+        // Log user creation
+        AuditLog::logEvent(
+            $user,
+            'created',
+            null,
+            [
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => 'student',
+                'admission_id' => $admission->id,
+                'temp_password' => $tempPassword
+            ]
+        );
+
+        return $user;
     }
 }

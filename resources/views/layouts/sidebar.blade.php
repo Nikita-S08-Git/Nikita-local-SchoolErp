@@ -5,6 +5,7 @@
     $menuByRole = [
         'principal' => [
             ['name' => 'Dashboard', 'route' => 'dashboard.principal', 'icon' => 'speedometer2'],
+            ['name' => 'Admissions', 'route' => 'admissions.index', 'icon' => 'person-plus-fill'],
             ['name' => 'Students', 'route' => 'dashboard.students.index', 'icon' => 'people-fill'],
             ['name' => 'Teachers', 'route' => 'dashboard.teachers.index', 'icon' => 'person-badge-fill'],
             
@@ -24,6 +25,7 @@
         ],
         'admin' => [
             ['name' => 'Dashboard', 'route' => 'dashboard.admin', 'icon' => 'speedometer2'],
+            ['name' => 'Admissions', 'route' => 'admissions.index', 'icon' => 'person-plus-fill'],
             ['name' => 'Students', 'route' => 'dashboard.students.index', 'icon' => 'people-fill'],
             ['name' => 'Teachers', 'route' => 'dashboard.teachers.index', 'icon' => 'person-badge-fill'],
             

@@ -38,6 +38,7 @@ class DatabaseSeeder extends Seeder
             // Students
             StudentSeeder::class,
             TestStudentSeeder::class,
+            TestAdmissionSeeder::class,
         ]);
     }
 }
