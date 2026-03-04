@@ -10,7 +10,7 @@ use App\Models\Academic\Program;
 use App\Models\Academic\Division;
 use App\Models\Fee\StudentFee;
 use App\Models\Result\StudentMark;
-use App\Models\Attendance\Attendance;
+use App\Models\Academic\Attendance;
 
 class ReportBuilderService
 {

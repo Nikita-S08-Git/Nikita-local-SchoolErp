@@ -161,7 +161,7 @@ class AttendanceController extends Controller
                     [
                         'student_id' => $studentData['student_id'],
                         'division_id' => $validated['division_id'],
-                        'date' => $validated['date'],
+                        'attendance_date' => $validated['date'],
                     ],
                     [
                         'academic_session_id' => $validated['academic_session_id'],
@@ -341,7 +341,7 @@ class AttendanceController extends Controller
         
         $attendanceRecords = Attendance::with(['student', 'student.studentProfile', 'markedBy', 'division'])
             ->where('division_id', $request->division_id)
-            ->whereBetween('date', [$request->start_date, $request->end_date])
+            ->whereBetween('attendance_date', [$request->start_date, $request->end_date])
             ->get();
 
         $html = view('pdf.attendance-report', [
@@ -370,7 +370,7 @@ class AttendanceController extends Controller
         
         $attendanceRecords = Attendance::with(['student', 'student.studentProfile', 'markedBy', 'division'])
             ->where('division_id', $request->division_id)
-            ->whereBetween('date', [$request->start_date, $request->end_date])
+            ->whereBetween('attendance_date', [$request->start_date, $request->end_date])
             ->get();
 
         $data = [];

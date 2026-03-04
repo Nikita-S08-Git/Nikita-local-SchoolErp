@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
-use App\Models\Attendance\Attendance;
+use App\Models\Academic\Attendance;
 use App\Models\Academic\Timetable;
 use App\Models\Academic\Division;
 use App\Models\Academic\AcademicYear;

@@ -4,11 +4,35 @@ namespace App\Models\Academic;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\User\Student;
 use App\Models\User;
 
+/**
+ * Unified Attendance Model
+ * 
+ * Represents a student's attendance record for a specific date/class.
+ * This is the canonical model - all attendance records should use this.
+ * 
+ * @property int $id
+ * @property int $student_id
+ * @property int|null $division_id
+ * @property int|null $academic_session_id
+ * @property int|null $timetable_id
+ * @property \Carbon\Carbon $attendance_date
+ * @property string|null $check_in_time
+ * @property string|null $check_out_time
+ * @property string $status (present, absent, late)
+ * @property int|null $marked_by
+ * @property string|null $remarks
+ * @property string|null $ip_address
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ */
 class Attendance extends Model
 {
+    use HasFactory;
+
     /**
      * The table associated with the model.
      */
@@ -21,22 +45,34 @@ class Attendance extends Model
     const STATUS_ABSENT = 'absent';
     const STATUS_LATE = 'late';
 
+    /**
+     * The attributes that are mass assignable.
+     */
     protected $fillable = [
         'student_id',
         'division_id',
         'academic_session_id',
+        'timetable_id',
         'date',
+        'check_in_time',
+        'check_out_time',
         'status',
         'marked_by',
         'remarks',
-    ];
-
-    protected $casts = [
-        'date' => 'date',
+        'ip_address',
     ];
 
     /**
-     * Get the student for this attendance record
+     * The attributes that should be cast.
+     */
+    protected $casts = [
+        'date' => 'date',
+        'check_in_time' => 'datetime:H:i:s',
+        'check_out_time' => 'datetime:H:i:s',
+    ];
+
+    /**
+     * Get the student for this attendance record.
      */
     public function student(): BelongsTo
     {
@@ -44,7 +80,7 @@ class Attendance extends Model
     }
 
     /**
-     * Get the division for this attendance record
+     * Get the division for this attendance record.
      */
     public function division(): BelongsTo
     {
@@ -52,7 +88,7 @@ class Attendance extends Model
     }
 
     /**
-     * Get the academic session for this attendance record
+     * Get the academic session for this attendance record.
      */
     public function academicSession(): BelongsTo
     {
@@ -60,7 +96,15 @@ class Attendance extends Model
     }
 
     /**
-     * Get the teacher who marked this attendance
+     * Get the timetable entry (lecture) for this attendance.
+     */
+    public function timetable(): BelongsTo
+    {
+        return $this->belongsTo(Timetable::class);
+    }
+
+    /**
+     * Get the teacher who marked this attendance.
      */
     public function markedBy(): BelongsTo
     {
@@ -68,7 +112,7 @@ class Attendance extends Model
     }
 
     /**
-     * Scope: Filter by date
+     * Scope: Filter by date.
      */
     public function scopeByDate($query, $date)
     {
@@ -76,7 +120,7 @@ class Attendance extends Model
     }
 
     /**
-     * Scope: Filter by division
+     * Scope: Filter by division.
      */
     public function scopeByDivision($query, $divisionId)
     {
@@ -84,7 +128,7 @@ class Attendance extends Model
     }
 
     /**
-     * Scope: Filter by student
+     * Scope: Filter by student.
      */
     public function scopeByStudent($query, $studentId)
     {
@@ -92,179 +136,50 @@ class Attendance extends Model
     }
 
     /**
-     * Scope: Only present records
+     * Scope: Filter by academic session.
      */
-    public function scopePresent($query)
+    public function scopeBySession($query, $sessionId)
     {
-        return $query->where('status', 'present');
+        return $query->where('academic_session_id', $sessionId);
     }
 
     /**
-     * Scope: Only absent records
+     * Scope: Filter by status.
      */
-    public function scopeAbsent($query)
+    public function scopeByStatus($query, $status)
     {
-        return $query->where('status', 'absent');
+        return $query->where('status', $status);
     }
 
     /**
-     * Scope: Only late records
+     * Scope: Filter by date range.
      */
-    public function scopeLate($query)
-    {
-        return $query->where('status', 'late');
-    }
-
-    /**
-     * Scope: Filter by teacher who marked
-     */
-    public function scopeMarkedBy($query, $teacherId)
-    {
-        return $query->where('marked_by', $teacherId);
-    }
-
-    /**
-     * Check if attendance is present or late
-     */
-    public function isPresent(): bool
-    {
-        return in_array($this->status, ['present', 'late']);
-    }
-
-    /**
-     * Get attendance percentage for a student in a division
-     */
-    public static function getPercentageForStudent(int $studentId, int $divisionId): float
-    {
-        $totalDays = self::where('division_id', $divisionId)
-            ->distinct('date')
-            ->count('date');
-
-        if ($totalDays === 0) {
-            return 0;
-        }
-
-        $presentDays = self::where('student_id', $studentId)
-            ->whereIn('status', ['present', 'late'])
-            ->count();
-
-        return round(($presentDays / $totalDays) * 100, 2);
-    }
-
-    /**
-     * Create or update attendance record (ensures uniqueness)
-     */
-    public static function updateOrCreateAttendance(array $attributes, array $values): self
-    {
-        return self::updateOrCreate(
-            [
-                'student_id' => $attributes['student_id'],
-                'date' => $attributes['date'],
-            ],
-            array_merge($attributes, $values)
-        );
-    }
-
-    /**
-     * Get attendance statistics for a division
-     */
-    public static function getDivisionStats(int $divisionId, ?string $startDate = null, ?string $endDate = null): array
-    {
-        $query = self::where('division_id', $divisionId);
-
-        if ($startDate && $endDate) {
-            $query->whereBetween('date', [$startDate, $endDate]);
-        }
-
-        $total = $query->count();
-        $present = $query->whereIn('status', ['present', 'late'])->count();
-        $absent = $query->where('status', 'absent')->count();
-
-        return [
-            'total' => $total,
-            'present' => $present,
-            'absent' => $absent,
-            'percentage' => $total > 0 ? round(($present / $total) * 100, 2) : 0,
-        ];
-    }
-
-    /**
-     * Get attendance statistics for a student
-     */
-    public static function getStudentStats(int $studentId, ?int $divisionId = null, ?string $startDate = null, ?string $endDate = null): array
-    {
-        $query = self::where('student_id', $studentId);
-
-        if ($divisionId) {
-            $query->where('division_id', $divisionId);
-        }
-
-        if ($startDate && $endDate) {
-            $query->whereBetween('date', [$startDate, $endDate]);
-        }
-
-        $total = $query->count();
-        $present = $query->whereIn('status', ['present', 'late'])->count();
-        $absent = $query->where('status', 'absent')->count();
-
-        return [
-            'total' => $total,
-            'present' => $present,
-            'absent' => $absent,
-            'percentage' => $total > 0 ? round(($present / $total) * 100, 2) : 0,
-        ];
-    }
-
-    /**
-     * Get attendance for a specific date and division
-     */
-    public static function getByDateAndDivision(string $date, int $divisionId): \Illuminate\Database\Eloquent\Collection
-    {
-        return self::where('division_id', $divisionId)
-            ->whereDate('date', $date)
-            ->with(['student.user'])
-            ->get();
-    }
-
-    /**
-     * Get students without attendance for a specific date and division
-     */
-    public static function getStudentsWithoutAttendance(string $date, int $divisionId, array $studentIds): array
-    {
-        $markedStudents = self::where('division_id', $divisionId)
-            ->whereDate('date', $date)
-            ->pluck('student_id')
-            ->toArray();
-
-        return array_diff($studentIds, $markedStudents);
-    }
-
-    /**
-     * Scope: Filter by date range
-     */
-    public function scopeByDateRange($query, $startDate, $endDate)
+    public function scopeDateRange($query, $startDate, $endDate)
     {
         return $query->whereBetween('date', [$startDate, $endDate]);
     }
 
     /**
-     * Get status badge color
+     * Check if attendance is marked as present.
      */
-    public function getStatusColorAttribute(): string
+    public function isPresent(): bool
     {
-        return match($this->status) {
-            self::STATUS_PRESENT => 'success',
-            self::STATUS_ABSENT => 'danger',
-            self::STATUS_LATE => 'warning',
-            default => 'secondary',
-        };
+        return $this->status === self::STATUS_PRESENT;
     }
 
     /**
-     * Get status label
+     * Check if attendance is marked as absent.
      */
-    public function getStatusLabelAttribute(): string
+    public function isAbsent(): bool
     {
-        return ucfirst($this->status);
+        return $this->status === self::STATUS_ABSENT;
+    }
+
+    /**
+     * Check if attendance is marked as late.
+     */
+    public function isLate(): bool
+    {
+        return $this->status === self::STATUS_LATE;
     }
 }

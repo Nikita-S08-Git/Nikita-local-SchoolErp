@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api\Attendance;
 
 use App\Http\Controllers\Controller;
-use App\Models\Attendance\Attendance;
+use App\Models\Academic\Attendance;
 use App\Models\Academic\Division;
 use App\Models\Academic\AcademicYear;
 use App\Services\HolidayService;

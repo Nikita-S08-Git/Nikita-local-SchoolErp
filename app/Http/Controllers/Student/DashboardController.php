@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Student;
 use App\Http\Controllers\Controller;
 use App\Models\User\Student;
 use App\Models\Academic\Timetable;
-use App\Models\Attendance\Attendance;
+use App\Models\Academic\Attendance;
 use App\Models\StudentNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;

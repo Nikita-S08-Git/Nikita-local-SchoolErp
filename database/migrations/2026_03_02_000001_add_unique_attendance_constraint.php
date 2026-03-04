@@ -48,9 +48,17 @@ return new class extends Migration
 
         // Add unique constraint
         Schema::table('attendance', function (Blueprint $table) {
-            // Drop existing index if it exists (non-unique)
-            $table->dropIndex(['date', 'student_id']);
-            $table->dropIndex(['student_id', 'date']);
+            // Try to drop existing indexes if they exist (ignore errors)
+            try {
+                $table->dropIndex(['date', 'student_id']);
+            } catch (\Exception $e) {
+                // Index may not exist, ignore
+            }
+            try {
+                $table->dropIndex(['student_id', 'date']);
+            } catch (\Exception $e) {
+                // Index may not exist, ignore
+            }
             
             // Add unique index on student_id and date
             $table->unique(['student_id', 'date'], 'attendance_student_date_unique');

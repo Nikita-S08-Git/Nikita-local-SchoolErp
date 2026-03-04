@@ -11,7 +11,7 @@ use App\Models\Academic\Subject;
 use App\Models\Academic\Timetable;
 use App\Models\Academic\TimeSlot;
 use App\Models\Academic\AcademicYear;
-use App\Models\Attendance\Attendance;
+use App\Models\Academic\Attendance;
 use App\Models\Fee\FeePayment;
 use App\Models\Fee\StudentFee;
 use App\Models\TeacherAssignment;

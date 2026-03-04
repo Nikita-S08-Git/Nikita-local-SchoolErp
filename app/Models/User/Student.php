@@ -17,7 +17,7 @@ use App\Models\Academic\AcademicSession;
 use App\Models\Fee\Scholarship;
 use App\Models\Academic\Admission;
 use App\Models\StudentProfile;
-use App\Models\Attendance\Attendance;
+use App\Models\Academic\Attendance;
 use App\Models\StudentNotification;
 
 
