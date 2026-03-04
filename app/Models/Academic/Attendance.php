@@ -19,7 +19,7 @@ use App\Models\User;
  * @property int|null $division_id
  * @property int|null $academic_session_id
  * @property int|null $timetable_id
- * @property \Carbon\Carbon $attendance_date
+ * @property \Carbon\Carbon $date
  * @property string|null $check_in_time
  * @property string|null $check_out_time
  * @property string $status (present, absent, late)

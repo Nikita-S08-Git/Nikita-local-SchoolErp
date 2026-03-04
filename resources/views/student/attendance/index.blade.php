@@ -168,7 +168,7 @@
                     <tbody>
                         @forelse($recentAttendance as $attendance)
                             <tr>
-                                <td>{{ $attendance->attendance_date->format('d M Y') }}</td>
+                                <td>{{ $attendance->date->format('d M Y') }}</td>
                                 <td>{{ $attendance->subject->name ?? 'N/A' }}</td>
                                 <td>
                                     <span class="badge bg-{{ $attendance->status === 'present' ? 'success' : ($attendance->status === 'absent' ? 'danger' : 'warning') }}">

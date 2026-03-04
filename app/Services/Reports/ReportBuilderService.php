@@ -75,7 +75,7 @@ class ReportBuilderService
         ],
         'attendance' => [
             'id' => 'Attendance ID',
-            'attendance_date' => 'Date',
+            'date' => 'Date',
             'status' => 'Status',
             'check_in_time' => 'Check In Time',
             'remarks' => 'Remarks'
