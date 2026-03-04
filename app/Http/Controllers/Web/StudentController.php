@@ -264,6 +264,21 @@ public function update(Request $request, Student $student)
      */
     public function destroy(Student $student)
     {
+        // Check for related fee records
+        if ($student->fees()->exists()) {
+            return redirect()
+                ->route('dashboard.students.index')
+                ->with('error', 'Student has fee records. Please clear fees before deletion.');
+        }
+
+        // Check for attendance records
+        if ($student->attendances()->exists()) {
+            return redirect()
+                ->route('dashboard.students.index')
+                ->with('error', 'Student has attendance records. Cannot delete.');
+        }
+
+        // Delete student photos if exists
         if ($student->photo_path && Storage::disk('public')->exists($student->photo_path)) {
             Storage::disk('public')->delete($student->photo_path);
         }

@@ -99,6 +99,20 @@ class TeacherController extends Controller
 
     public function destroy(User $teacher)
     {
+        // Check for timetable assignments
+        if ($teacher->timetables()->exists()) {
+            return redirect()
+                ->route('dashboard.teachers.index')
+                ->with('error', 'Teacher is assigned to timetable. Please remove assignments first.');
+        }
+
+        // Check for class teacher assignment
+        if ($teacher->assignedDivision()->exists()) {
+            return redirect()
+                ->route('dashboard.teachers.index')
+                ->with('error', 'Teacher is assigned as class teacher. Please reassign the class first.');
+        }
+
         $teacher->delete();
         return redirect()->route('dashboard.teachers.index')
             ->with('success', 'Teacher deleted successfully!');
