@@ -28,6 +28,26 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
+/*
+|--------------------------------------------------------------------------
+| API Response Test Routes
+|--------------------------------------------------------------------------
+| These routes are for testing the ApiResponse helper class
+*/
+Route::prefix('test')->group(function () {
+    Route::get('/success', [\App\Http\Controllers\Api\ApiTestController::class, 'success']);
+    Route::get('/error', [\App\Http\Controllers\Api\ApiTestController::class, 'error']);
+    Route::get('/error-validation', [\App\Http\Controllers\Api\ApiTestController::class, 'errorValidation']);
+    Route::get('/created', [\App\Http\Controllers\Api\ApiTestController::class, 'created']);
+    Route::get('/paginated', [\App\Http\Controllers\Api\ApiTestController::class, 'paginated']);
+    Route::get('/paginated-meta', [\App\Http\Controllers\Api\ApiTestController::class, 'paginatedMeta']);
+    Route::get('/not-found', [\App\Http\Controllers\Api\ApiTestController::class, 'notFound']);
+    Route::get('/unauthorized', [\App\Http\Controllers\Api\ApiTestController::class, 'unauthorized']);
+    Route::get('/forbidden', [\App\Http\Controllers\Api\ApiTestController::class, 'forbidden']);
+    Route::get('/no-content', [\App\Http\Controllers\Api\ApiTestController::class, 'noContent']);
+    Route::get('/null-data', [\App\Http\Controllers\Api\ApiTestController::class, 'nullData']);
+});
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\Academic\StudentController;
 use App\Http\Controllers\Api\Academic\DivisionController;
