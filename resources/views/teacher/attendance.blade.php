@@ -17,7 +17,7 @@
                 </div>
                 <div class="card-body">
                     <!-- Date Filter -->
-                    <form method="GET" action="{{ route('teacher.attendance') }}" class="mb-4">
+                    <form method="GET" action="{{ route('teacher.attendance.index') }}" class="mb-4">
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="input-group">

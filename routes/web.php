@@ -16,6 +16,8 @@ use App\Http\Controllers\Web\ExaminationController;
 use App\Http\Controllers\Web\LibraryController;
 use App\Http\Controllers\Web\StaffController;
 use App\Http\Controllers\Web\TimeSlotController;
+use App\Http\Controllers\Web\LeaveController;
+use App\Http\Controllers\Teacher\AttendanceController;
 use App\Http\Controllers\Student\AuthController as StudentAuthController;
 use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
 
@@ -227,6 +229,18 @@ Route::middleware(['auth'])->prefix('academic')->name('academic.')->group(functi
     Route::resource('holidays', \App\Http\Controllers\Web\HolidayController::class)->names('holidays');
     Route::post('holidays/{holiday}/toggle-status', [\App\Http\Controllers\Web\HolidayController::class, 'toggleStatus'])->name('holidays.toggle-status');
     Route::get('holidays/check-date', [\App\Http\Controllers\Web\HolidayController::class, 'checkDate'])->name('holidays.check-date');
+    
+    // Leave Management
+    Route::resource('leaves', \App\Http\Controllers\Web\LeaveController::class)->names('leaves');
+    Route::get('leaves/my-leaves', [\App\Http\Controllers\Web\LeaveController::class, 'myLeaves'])->name('leaves.my-leaves');
+    Route::post('leaves/{leave}/approve', [\App\Http\Controllers\Web\LeaveController::class, 'approve'])->name('leaves.approve');
+    Route::post('leaves/{leave}/reject', [\App\Http\Controllers\Web\LeaveController::class, 'reject'])->name('leaves.reject');
+});
+
+// Teacher Attendance Routes - additional routes for teacher functionality
+Route::middleware(['auth', 'role:teacher|class_teacher|subject_teacher|hod_commerce|hod_science|hod_management|hod_arts'])->group(function () {
+    Route::get('/teacher/attendance/create/{timetableId}', [\App\Http\Controllers\Teacher\AttendanceController::class, 'create'])->name('teacher.attendance.create');
+    Route::post('/teacher/attendance/store/{timetableId}', [\App\Http\Controllers\Teacher\AttendanceController::class, 'store'])->name('teacher.attendance.store');
 });
 
 // Fee Management Routes

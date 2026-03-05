@@ -207,7 +207,7 @@ class Student extends Model implements Authenticatable
      */
     public function attendances(): HasMany
     {
-        return $this->hasMany(\App\Models\Attendance\Attendance::class);
+        return $this->hasMany(\App\Models\Academic\Attendance::class);
     }
 
     /**

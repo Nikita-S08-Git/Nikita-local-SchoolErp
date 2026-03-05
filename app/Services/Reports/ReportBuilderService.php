@@ -21,7 +21,7 @@ class ReportBuilderService
         'divisions' => \App\Models\Academic\Division::class,
         'student_fees' => \App\Models\Fee\StudentFee::class,
         'student_marks' => \App\Models\Result\StudentMark::class,
-        'attendance' => \App\Models\Attendance\Attendance::class,
+        'attendance' => \App\Models\Academic\Attendance::class,
     ];
 
     protected array $availableColumns = [

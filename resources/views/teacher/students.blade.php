@@ -17,7 +17,7 @@
                 </div>
                 <div class="card-body">
                     <!-- Search Form -->
-                    <form method="GET" action="{{ route('teacher.students') }}" class="mb-4">
+                    <form method="GET" action="{{ route('teacher.students.index') }}" class="mb-4">
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="input-group">
@@ -31,7 +31,7 @@
                             </div>
                             <div class="col-md-6">
                                 @if(request('search'))
-                                    <a href="{{ route('teacher.students') }}" class="btn btn-secondary">
+                                    <a href="{{ route('teacher.students.index') }}" class="btn btn-secondary">
                                         <i class="bi bi-x-circle me-1"></i>Clear Search
                                     </a>
                                 @endif
