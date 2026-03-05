@@ -3,6 +3,7 @@
 use App\Http\Controllers\Teacher\DashboardController;
 use App\Http\Controllers\Teacher\AttendanceController;
 use App\Http\Controllers\Web\Teacher\StudentsController;
+use App\Http\Controllers\Web\ExaminationController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -31,6 +32,17 @@ Route::middleware(['auth', 'role:teacher|class_teacher|subject_teacher|hod_comme
 
     // Student Details
     Route::get('/students/{studentId}', [DashboardController::class, 'studentDetails'])->name('students.details');
+
+    // Results Management
+    Route::prefix('results')->name('results.')->group(function () {
+        // View all students' results for teacher's divisions
+        Route::get('/', [ExaminationController::class, 'teacherResults'])->name('index');
+        // View results by division
+        Route::get('/division/{divisionId}', [ExaminationController::class, 'divisionResults'])->name('division');
+        // Enter/Edit marks
+        Route::get('/enter/{examinationId}/{divisionId}', [ExaminationController::class, 'enterMarks'])->name('enter');
+        Route::post('/store-marks', [ExaminationController::class, 'storeMarks'])->name('store-marks');
+    });
 
     // My Students (Resource routes)
     Route::get('/students', [StudentsController::class, 'index'])->name('students.index');

@@ -9,6 +9,7 @@ use App\Models\Academic\Division;
 use App\Models\User\Student;
 use App\Models\StudentProfile;
 use App\Models\Academic\Attendance;
+use App\Models\Result\StudentMark;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -307,7 +308,32 @@ class DashboardController extends Controller
             ->limit(10)
             ->get();
 
-        return view('teacher.students.details', compact('student', 'attendancePercentage', 'recentAttendance'));
+        // Get student marks/results
+        $marks = StudentMark::where('student_id', $student->id)
+            ->with(['subject', 'examination'])
+            ->orderBy('examination_id')
+            ->get();
+
+        // Calculate overall percentage from marks
+        $totalMarksObtained = $marks->sum('marks_obtained');
+        $totalMaxMarks = $marks->sum('max_marks');
+        $overallPercentage = $totalMaxMarks > 0 ? ($totalMarksObtained / $totalMaxMarks) * 100 : 0;
+
+        // Check if current user is admin or principal (can see full details)
+        // OR if the current user is the student themselves
+        $currentUser = auth()->user();
+        $canViewFullDetails = $currentUser->hasRole(['admin', 'principal']) || $currentUser->id == $student->user_id;
+
+        return view('teacher.students.details', compact(
+            'student', 
+            'attendancePercentage', 
+            'recentAttendance',
+            'marks',
+            'overallPercentage',
+            'totalMarksObtained',
+            'totalMaxMarks',
+            'canViewFullDetails'
+        ));
     }
 
     /**

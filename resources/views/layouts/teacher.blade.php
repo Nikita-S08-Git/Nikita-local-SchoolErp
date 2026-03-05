@@ -527,9 +527,9 @@
 
                 <div class="sidebar-heading">Assessment</div>
 
-                <!-- Marks Entry - Placeholder -->
+                <!-- Marks Entry -->
                 <li>
-                    <a href="#" data-bs-toggle="tooltip" title="Coming Soon">
+                    <a href="{{ route('teacher.results.index') }}" class="{{ request()->routeIs('teacher.results.*') ? 'active' : '' }}">
                         <i class="bi bi-clipboard-data"></i>
                         <span>Marks & Results</span>
                     </a>

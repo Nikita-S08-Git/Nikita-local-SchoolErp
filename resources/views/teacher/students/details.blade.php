@@ -141,6 +141,123 @@
         </div>
     </div>
 
+    <!-- Academic Results -->
+    <div class="row mt-3">
+        <div class="col-12">
+            <div class="card" style="border: none; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08);">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4">
+                        <i class="bi bi-clipboard-data me-2 text-primary"></i>Academic Results
+                        @if($marks->count() > 0)
+                            <span class="badge bg-primary ms-2">{{ $marks->count() }} Subjects</span>
+                        @endif
+                    </h5>
+                    
+                    @if($marks->count() > 0)
+                        <!-- Overall Summary -->
+                        @if($canViewFullDetails)
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h6 class="text-muted mb-1">Overall Percentage</h6>
+                                        <h3 class="fw-bold {{ $overallPercentage >= 40 ? 'text-success' : 'text-danger' }}">
+                                            {{ number_format($overallPercentage, 2) }}%
+                                        </h3>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h6 class="text-muted mb-1">Total Marks Obtained</h6>
+                                        <h3 class="fw-bold text-primary">{{ $totalMarksObtained }}</h3>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h6 class="text-muted mb-1">Total Max Marks</h6>
+                                        <h3 class="fw-bold text-secondary">{{ $totalMaxMarks }}</h3>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @else
+                        <div class="alert alert-info mb-4">
+                            <i class="bi bi-info-circle me-2"></i>
+                            Your overall percentage: <strong>{{ number_format($overallPercentage, 2) }}%</strong>
+                        </div>
+                        @endif
+
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Subject</th>
+                                        <th>Examination</th>
+                                        @if($canViewFullDetails)
+                                        <th class="text-center">Marks Obtained</th>
+                                        <th class="text-center">Max Marks</th>
+                                        @endif
+                                        <th class="text-center">Percentage</th>
+                                        @if($canViewFullDetails)
+                                        <th class="text-center">Grade</th>
+                                        <th class="text-center">Status</th>
+                                        @endif
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($marks as $mark)
+                                        @php
+                                            $markPercentage = $mark->max_marks > 0 ? ($mark->marks_obtained / $mark->max_marks) * 100 : 0;
+                                            $grade = '';
+                                            if ($markPercentage >= 90) $grade = 'A+';
+                                            elseif ($markPercentage >= 80) $grade = 'A';
+                                            elseif ($markPercentage >= 70) $grade = 'B+';
+                                            elseif ($markPercentage >= 60) $grade = 'B';
+                                            elseif ($markPercentage >= 50) $grade = 'C';
+                                            elseif ($markPercentage >= 40) $grade = 'D';
+                                            else $grade = 'F';
+                                        @endphp
+                                        <tr>
+                                            <td><strong>{{ $mark->subject->name ?? 'N/A' }}</strong></td>
+                                            <td>{{ $mark->examination->name ?? 'N/A' }}</td>
+                                            @if($canViewFullDetails)
+                                            <td class="text-center"><strong>{{ $mark->marks_obtained }}</strong></td>
+                                            <td class="text-center">{{ $mark->max_marks }}</td>
+                                            @endif
+                                            <td class="text-center">
+                                                <span class="badge bg-{{ $markPercentage >= 40 ? 'success' : 'warning' }}">
+                                                    {{ number_format($markPercentage, 1) }}%
+                                                </span>
+                                            </td>
+                                            @if($canViewFullDetails)
+                                            <td class="text-center">
+                                                <span class="badge bg-{{ $markPercentage >= 40 ? 'success' : 'danger' }}">{{ $grade }}</span>
+                                            </td>
+                                            <td class="text-center">
+                                                @if($markPercentage >= 40)
+                                                    <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Pass</span>
+                                                @else
+                                                    <span class="badge bg-danger"><i class="bi bi-x-circle me-1"></i>Fail</span>
+                                                @endif
+                                            </td>
+                                            @endif
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <p class="text-muted text-center py-3">No academic results available</p>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Recent Attendance -->
     <div class="row">
         <div class="col-12">

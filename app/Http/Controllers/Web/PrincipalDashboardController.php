@@ -15,6 +15,8 @@ use App\Models\Academic\Attendance;
 use App\Models\Fee\FeePayment;
 use App\Models\Fee\StudentFee;
 use App\Models\TeacherAssignment;
+use App\Models\Result\Examination;
+use App\Models\Result\StudentMark;
 use App\Services\HolidayService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -455,5 +457,50 @@ class PrincipalDashboardController extends Controller
             return redirect()->route('dashboard.principal')
                 ->with('error', 'Failed to remove assignment: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * View all student results (Admin/Principal only)
+     */
+    public function results(Request $request)
+    {
+        // Get all divisions
+        $divisions = Division::where('is_active', true)
+            ->with(['program', 'session'])
+            ->get();
+        
+        // Get all active examinations
+        $examinations = \App\Models\Result\Examination::active()->get();
+        
+        $selectedDivision = null;
+        $selectedExam = null;
+        $results = collect();
+        $students = collect();
+        
+        if ($request->filled('division_id') && $request->filled('examination_id')) {
+            $selectedDivision = Division::find($request->division_id);
+            $selectedExam = Examination::find($request->examination_id);
+            
+            // Get students in the division
+            $students = Student::where('division_id', $request->division_id)
+                ->where('student_status', 'active')
+                ->orderBy('roll_number')
+                ->paginate(20);
+            
+            // Get marks for all students
+            $results = StudentMark::where('examination_id', $request->examination_id)
+                ->whereIn('student_id', $students->pluck('id'))
+                ->with(['subject'])
+                ->get();
+        }
+        
+        return view('principal.results.index', compact(
+            'divisions', 
+            'examinations', 
+            'selectedDivision', 
+            'selectedExam',
+            'results',
+            'students'
+        ));
     }
 }

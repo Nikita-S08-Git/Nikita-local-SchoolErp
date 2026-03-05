@@ -660,6 +660,10 @@
                                href="{{ route('examinations.index') }}">
                                 <i class="bi bi-pencil-square me-2"></i>Examinations
                             </a>
+                            <a class="dropdown-item {{ request()->routeIs('principal.results') ? 'active' : '' }}"
+                               href="{{ route('principal.results') }}">
+                                <i class="bi bi-clipboard-data me-2"></i>Results
+                            </a>
                             <a class="dropdown-item {{ request()->routeIs('library.books.*') ? 'active' : '' }}"
                                href="{{ route('library.books.index') }}">
                                 <i class="bi bi-book me-2"></i>Library
@@ -820,6 +824,12 @@
                     <a class="nav-link {{ request()->routeIs('examinations.*') ? 'active' : '' }}" href="{{ route('examinations.index') }}">
                         <i class="bi bi-clipboard-check"></i>
                         <span>Examinations</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('principal.results') ? 'active' : '' }}" href="{{ route('principal.results') }}">
+                        <i class="bi bi-clipboard-data"></i>
+                        <span>Results</span>
                     </a>
                 </li>
             </div>

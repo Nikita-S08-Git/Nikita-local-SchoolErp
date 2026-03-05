@@ -277,7 +277,7 @@
                             Showing {{ $timetables->firstItem() ?? 0 }} to {{ $timetables->lastItem() ?? 0 }} of {{ $timetables->total() }} entries
                         </div>
                         <div>
-                            {{ $timetables->links('pagination::bootstrap-5') }}
+                            {{ $timetables->links() }}
                         </div>
                     </div>
                 </div>

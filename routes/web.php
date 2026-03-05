@@ -18,6 +18,7 @@ use App\Http\Controllers\Web\StaffController;
 use App\Http\Controllers\Web\TimeSlotController;
 use App\Http\Controllers\Web\LeaveController;
 use App\Http\Controllers\Teacher\AttendanceController;
+use App\Http\Controllers\Web\AcademicRuleController;
 use App\Http\Controllers\Student\AuthController as StudentAuthController;
 use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
 
@@ -243,6 +244,13 @@ Route::middleware(['auth', 'role:teacher|class_teacher|subject_teacher|hod_comme
     Route::post('/teacher/attendance/store/{timetableId}', [\App\Http\Controllers\Teacher\AttendanceController::class, 'store'])->name('teacher.attendance.store');
 });
 
+// Academic Rules Management
+Route::middleware(['auth', 'role:admin|principal'])->prefix('academic')->name('academic.')->group(function () {
+    Route::resource('rules', \App\Http\Controllers\Web\AcademicRuleController::class);
+    Route::post('rules/{rule}/toggle-status', [\App\Http\Controllers\Web\AcademicRuleController::class, 'toggleStatus'])->name('rules.toggle-status');
+    Route::get('rules/clear-cache', [\App\Http\Controllers\Web\AcademicRuleController::class, 'clearCache'])->name('rules.clear-cache');
+});
+
 // Fee Management Routes
 Route::middleware(['auth', 'role:admin|principal|office|teacher'])->prefix('fees')->name('fees.')->group(function () {
     // Fee Structures
@@ -383,6 +391,11 @@ Route::middleware(['auth'])->group(function () {
 
     Route::delete('/principal/remove-assignment/{assignmentId}', [\App\Http\Controllers\Web\PrincipalDashboardController::class, 'removeAssignment'])
         ->name('principal.remove-assignment')
+        ->middleware('role:principal|admin');
+
+    // Principal/Admin Results Routes
+    Route::get('/principal/results', [\App\Http\Controllers\Web\PrincipalDashboardController::class, 'results'])
+        ->name('principal.results')
         ->middleware('role:principal|admin');
     
     Route::get('/dashboard/admin', [\App\Http\Controllers\Web\PrincipalDashboardController::class, 'index'])

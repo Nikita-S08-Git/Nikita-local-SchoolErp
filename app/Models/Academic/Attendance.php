@@ -182,4 +182,25 @@ class Attendance extends Model
     {
         return $this->status === self::STATUS_LATE;
     }
+
+    /**
+     * Calculate attendance percentage for a student
+     */
+    public static function getPercentageForStudent(int $studentId, int $divisionId): float
+    {
+        $totalRecords = self::where('student_id', $studentId)
+            ->where('division_id', $divisionId)
+            ->count();
+        
+        if ($totalRecords === 0) {
+            return 0.0;
+        }
+        
+        $presentRecords = self::where('student_id', $studentId)
+            ->where('division_id', $divisionId)
+            ->whereIn('status', [self::STATUS_PRESENT, self::STATUS_LATE])
+            ->count();
+        
+        return round(($presentRecords / $totalRecords) * 100, 2);
+    }
 }

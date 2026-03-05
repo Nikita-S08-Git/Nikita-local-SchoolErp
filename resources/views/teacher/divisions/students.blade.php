@@ -126,7 +126,7 @@
         <div class="d-flex justify-content-center mt-4">
             <nav aria-label="Student pagination">
                 <ul class="pagination">
-                    {{ $students->appends(request()->query())->links('pagination::bootstrap-4') }}
+                    {{ $students->appends(request()->query())->links() }}
                 </ul>
             </nav>
         </div>
