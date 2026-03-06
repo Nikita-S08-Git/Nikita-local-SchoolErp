@@ -251,6 +251,20 @@ Route::middleware(['auth', 'role:admin|principal'])->prefix('academic')->name('a
     Route::get('rules/clear-cache', [\App\Http\Controllers\Web\AcademicRuleController::class, 'clearCache'])->name('rules.clear-cache');
 });
 
+// Student Promotion Routes
+Route::middleware(['auth', 'role:admin|principal'])->prefix('academic/promotions')->name('academic.promotions.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Web\PromotionController::class, 'index'])->name('index');
+    Route::post('/preview', [\App\Http\Controllers\Web\PromotionController::class, 'preview'])->name('preview');
+    Route::post('/promote', [\App\Http\Controllers\Web\PromotionController::class, 'promote'])->name('promote');
+    Route::post('/promote/{student}', [\App\Http\Controllers\Web\PromotionController::class, 'promoteStudent'])->name('promote.student');
+    Route::get('/history', [\App\Http\Controllers\Web\PromotionController::class, 'history'])->name('history');
+    Route::post('/rollback/{promotion}', [\App\Http\Controllers\Web\PromotionController::class, 'rollback'])->name('rollback');
+    
+    // AJAX routes
+    Route::get('/divisions', [\App\Http\Controllers\Web\PromotionController::class, 'getDivisions'])->name('getDivisions');
+    Route::get('/next-session', [\App\Http\Controllers\Web\PromotionController::class, 'getNextSession'])->name('getNextSession');
+});
+
 // Fee Management Routes
 Route::middleware(['auth', 'role:admin|principal|office|teacher'])->prefix('fees')->name('fees.')->group(function () {
     // Fee Structures

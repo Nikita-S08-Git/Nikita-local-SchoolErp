@@ -85,17 +85,23 @@
             </div>
             <div class="card-body">
                 <div class="d-grid gap-2">
-                    <a href="#" class="btn btn-outline-primary">
-                        <i class="bi bi-calendar-check"></i> View Attendance
+                    <a href="{{ route('student.profile') }}" class="btn btn-outline-dark">
+                        <i class="bi bi-person-circle me-2"></i> My Profile
                     </a>
-                    <a href="#" class="btn btn-outline-success">
-                        <i class="bi bi-credit-card"></i> Fee Details
+                    <a href="{{ route('student.attendance') }}" class="btn btn-outline-primary">
+                        <i class="bi bi-calendar-check me-2"></i> View Attendance
                     </a>
-                    <a href="#" class="btn btn-outline-info">
-                        <i class="bi bi-clock"></i> Timetable
+                    <a href="{{ route('student.fees.index') }}" class="btn btn-outline-success">
+                        <i class="bi bi-credit-card me-2"></i> Fee Details
                     </a>
-                    <a href="#" class="btn btn-outline-warning">
-                        <i class="bi bi-file-text"></i> Study Materials
+                    <a href="{{ route('student.timetable') }}" class="btn btn-outline-info">
+                        <i class="bi bi-clock me-2"></i> Timetable
+                    </a>
+                    <a href="{{ route('student.results') }}" class="btn btn-outline-warning">
+                        <i class="bi bi-clipboard-data me-2"></i> Results
+                    </a>
+                    <a href="{{ route('student.library') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-book me-2"></i> Library
                     </a>
                 </div>
             </div>
