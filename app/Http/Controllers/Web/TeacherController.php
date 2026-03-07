@@ -12,13 +12,21 @@ use Spatie\Permission\Models\Role;
 
 class TeacherController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $teachers = User::role('teacher')
-            ->latest()
-            ->paginate(15);
+        $sortBy = $request->query('sort', 'created_at');
+        $sortDir = $request->query('dir', 'desc');
+        $allowedSorts = ['name', 'email', 'created_at'];
+        if (!in_array($sortBy, $allowedSorts)) {
+            $sortBy = 'created_at';
+        }
+        $sortDir = in_array($sortDir, ['asc', 'desc']) ? $sortDir : 'desc';
 
-        return view('dashboard.teachers.index', compact('teachers'));
+        $teachers = User::role('teacher')
+            ->orderBy($sortBy, $sortDir)
+            ->paginate(15)->appends($request->query());
+
+        return view('dashboard.teachers.index', compact('teachers', 'sortBy', 'sortDir'));
     }
 
     public function create()

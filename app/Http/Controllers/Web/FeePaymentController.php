@@ -8,16 +8,25 @@ use App\Models\Fee\StudentFee;
 use App\Models\Fee\FeePayment;
 use App\Models\User\Student;
 use Illuminate\Support\Str;
+use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class FeePaymentController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $sortBy = $request->query('sort', 'payment_date');
+        $sortDir = $request->query('dir', 'desc');
+        $allowedSorts = ['payment_date', 'amount', 'payment_mode', 'transaction_id', 'created_at'];
+        if (!in_array($sortBy, $allowedSorts)) {
+            $sortBy = 'payment_date';
+        }
+        $sortDir = in_array($sortDir, ['asc', 'desc']) ? $sortDir : 'desc';
+
         $payments = FeePayment::with(['studentFee.student', 'studentFee.feeStructure.feeHead'])
-            ->orderBy('payment_date', 'desc')
-            ->paginate(15);
-        return view('fees.payments.index', compact('payments'));
+            ->orderBy($sortBy, $sortDir)
+            ->paginate(15)->appends($request->query());
+        return view('fees.payments.index', compact('payments', 'sortBy', 'sortDir'));
     }
 
     public function create()

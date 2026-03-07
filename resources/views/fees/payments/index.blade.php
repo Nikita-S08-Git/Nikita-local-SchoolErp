@@ -22,9 +22,9 @@
                                     <th>Receipt No.</th>
                                     <th>Student</th>
                                     <th>Fee Type</th>
-                                    <th>Amount</th>
-                                    <th>Payment Mode</th>
-                                    <th>Date</th>
+                                    <th><a href="?sort=amount&dir={{ $sortDir === 'asc' ? 'desc' : 'asc' }}" class="text-decoration-none text-dark">Amount {{ $sortBy === 'amount' ? ($sortDir === 'asc' ? '↑' : '↓') : '' }}</a></th>
+                                    <th><a href="?sort=payment_mode&dir={{ $sortDir === 'asc' ? 'desc' : 'asc' }}" class="text-decoration-none text-dark">Payment Mode {{ $sortBy === 'payment_mode' ? ($sortDir === 'asc' ? '↑' : '↓') : '' }}</a></th>
+                                    <th><a href="?sort=payment_date&dir={{ $sortDir === 'asc' ? 'desc' : 'asc' }}" class="text-decoration-none text-dark">Date {{ $sortBy === 'payment_date' ? ($sortDir === 'asc' ? '↑' : '↓') : '' }}</a></th>
                                     <th>Status</th>
                                 </tr>
                             </thead>
