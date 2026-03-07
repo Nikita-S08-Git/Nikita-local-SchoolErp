@@ -24,6 +24,9 @@ use App\Http\Controllers\Student\DashboardController as StudentDashboardControll
 
 // Bulk action route - outside auth middleware for testing
 Route::post('/dashboard/students/bulk-action', [StudentController::class, 'bulkAction'])->name('dashboard.students.bulkAction');
+Route::get('/dashboard/students/bulk-action', function() {
+    return redirect()->route('dashboard.students.index');
+});
 
 // ============================================
 // STUDENT AUTH ROUTES (Guest)
