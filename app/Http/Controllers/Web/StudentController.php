@@ -344,4 +344,57 @@ public function update(Request $request, Student $student)
             'roll_number' => $rollNumber
         ];
     }
+
+    /**
+     * Bulk action on students (delete, activate, deactivate)
+     */
+    public function bulkAction(Request $request)
+    {
+        $ids = $request->student_ids;
+        $action = $request->action;
+
+        if (!$ids) {
+            return redirect()->back()->with('error', 'No students selected');
+        }
+
+        if ($action == 'delete') {
+            // Check for related records before deletion
+            $studentsWithFees = Student::whereIn('id', $ids)->whereHas('fees')->pluck('id');
+            $studentsWithAttendance = Student::whereIn('id', $ids)->whereHas('attendances')->pluck('id');
+            
+            $protectedIds = $studentsWithFees->merge($studentsWithAttendance)->unique();
+            $deletableIds = collect($ids)->diff($protectedIds);
+
+            if ($deletableIds->isNotEmpty()) {
+                // Delete student photos
+                $students = Student::whereIn('id', $deletableIds)->get();
+                foreach ($students as $student) {
+                    if ($student->photo_path && Storage::disk('public')->exists($student->photo_path)) {
+                        Storage::disk('public')->delete($student->photo_path);
+                    }
+                    if ($student->signature_path && Storage::disk('public')->exists($student->signature_path)) {
+                        Storage::disk('public')->delete($student->signature_path);
+                    }
+                }
+                Student::whereIn('id', $deletableIds)->delete();
+            }
+
+            if ($protectedIds->isNotEmpty()) {
+                return redirect()->back()->with('warning', 'Some students could not be deleted due to related records (fees/attendance)');
+            }
+            return redirect()->back()->with('success', 'Selected students deleted successfully');
+        }
+
+        if ($action == 'activate') {
+            Student::whereIn('id', $ids)->update(['student_status' => 'active']);
+            return redirect()->back()->with('success', 'Selected students activated successfully');
+        }
+
+        if ($action == 'deactivate') {
+            Student::whereIn('id', $ids)->update(['student_status' => 'suspended']);
+            return redirect()->back()->with('success', 'Selected students deactivated successfully');
+        }
+
+        return redirect()->back()->with('error', 'Invalid action');
+    }
 }

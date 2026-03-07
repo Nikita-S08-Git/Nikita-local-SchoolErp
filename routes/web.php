@@ -325,6 +325,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard/students/{student}/edit', [StudentController::class, 'edit'])->name('dashboard.students.edit');
     Route::put('/dashboard/students/{student}', [StudentController::class, 'update'])->name('dashboard.students.update');
     Route::delete('/dashboard/students/{student}', [StudentController::class, 'destroy'])->name('dashboard.students.destroy');
+    Route::post('/dashboard/students/bulk-action', [StudentController::class, 'bulkAction'])->name('dashboard.students.bulkAction');
 });
 
 // Guardian CRUD under student (dashboard prefixed) - use model binding
