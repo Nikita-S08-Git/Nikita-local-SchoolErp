@@ -57,8 +57,16 @@ class PromotionController extends Controller
                 ? Division::where('program_id', $programId)->where('is_active', true)->get()
                 : Division::where('is_active', true)->get());
         
-        // Get target divisions (for next session promotion) - all active divisions
-        $targetDivisions = Division::where('is_active', true)->orderBy('program_id')->orderBy('division_name')->get();
+        // Get target divisions (for next session promotion) - filtered by program and next session
+        // Note: This query uses $nextSession which is defined below
+        $targetDivisionsQuery = Division::where('is_active', true);
+        
+        // Filter by selected program if any
+        if ($programId) {
+            $targetDivisionsQuery->where('program_id', $programId);
+        }
+        
+        $targetDivisions = $targetDivisionsQuery->orderBy('program_id')->orderBy('division_name')->get();
 
         // Get eligible students
         $eligibleStudents = collect();
@@ -137,6 +145,11 @@ class PromotionController extends Controller
                     $nextAcademicYear = ($startYear + 1) . '-' . str_pad($endYear, 2, '0', STR_PAD_LEFT);
                 }
             }
+        }
+
+        // Filter target divisions by next session if available
+        if ($nextSession) {
+            $targetDivisions = $targetDivisions->where('session_id', $nextSession->id);
         }
 
         return view('academic.promotions.index', compact(
