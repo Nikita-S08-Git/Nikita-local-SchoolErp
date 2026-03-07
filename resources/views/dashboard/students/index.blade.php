@@ -150,10 +150,31 @@
                     <thead class="table-light">
                         <tr>
                             <th style="width: 60px;">Photo</th>
-                            <th>Student Details</th>
-                            <th>Academic Info</th>
+                            <th>
+                                <a href="?sort=first_name&dir={{ $sortDir === 'asc' ? 'desc' : 'asc' }}" class="text-decoration-none text-dark">
+                                    Student Details
+                                    @if($sortBy === 'first_name' || $sortBy === 'last_name')
+                                        <i class="bi bi-sort-{{ $sortDir }}"></i>
+                                    @endif
+                                </a>
+                            </th>
+                            <th>
+                                <a href="?sort=admission_number&dir={{ $sortDir === 'asc' ? 'desc' : 'asc' }}" class="text-decoration-none text-dark">
+                                    Academic Info
+                                    @if($sortBy === 'admission_number')
+                                        <i class="bi bi-sort-{{ $sortDir }}"></i>
+                                    @endif
+                                </a>
+                            </th>
                             <th>Contact</th>
-                            <th>Status</th>
+                            <th>
+                                <a href="?sort=student_status&dir={{ $sortDir === 'asc' ? 'desc' : 'asc' }}" class="text-decoration-none text-dark">
+                                    Status
+                                    @if($sortBy === 'student_status')
+                                        <i class="bi bi-sort-{{ $sortDir }}"></i>
+                                    @endif
+                                </a>
+                            </th>
                             <th class="text-end" style="width: 120px;">Actions</th>
                         </tr>
                     </thead>

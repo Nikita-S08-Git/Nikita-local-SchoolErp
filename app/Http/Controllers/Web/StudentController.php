@@ -40,10 +40,19 @@ class StudentController extends Controller
             });
         }
 
-        $students = $query->paginate(20);
+        // Sorting
+        $sortBy = $request->query('sort', 'created_at');
+        $sortDir = $request->query('dir', 'desc');
+        $allowedSorts = ['first_name', 'last_name', 'admission_number', 'roll_number', 'email', 'created_at', 'student_status'];
+        if (!in_array($sortBy, $allowedSorts)) {
+            $sortBy = 'created_at';
+        }
+        $sortDir = in_array($sortDir, ['asc', 'desc']) ? $sortDir : 'desc';
+
+        $students = $query->orderBy($sortBy, $sortDir)->paginate(20)->appends($request->query());
         $programs = Program::where('is_active', true)->get();
 
-        return view('dashboard.students.index', compact('students', 'programs'));
+        return view('dashboard.students.index', compact('students', 'programs', 'sortBy', 'sortDir'));
     }
 
     /**
