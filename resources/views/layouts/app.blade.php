@@ -638,6 +638,14 @@
                                href="{{ route('academic.sessions.index') }}">
                                 <i class="bi bi-calendar-range me-2"></i>Academic Sessions
                             </a>
+                            <a class="dropdown-item {{ request()->routeIs('academic.rules.*') ? 'active' : '' }}"
+                               href="{{ route('academic.rules.index') }}">
+                                <i class="bi bi-shield-check me-2"></i>Academic Rules
+                            </a>
+                            <a class="dropdown-item {{ request()->routeIs('academic.promotions.*') ? 'active' : '' }}"
+                               href="{{ route('academic.promotions.index') }}">
+                                <i class="bi bi-arrow-up-circle me-2"></i>Student Promotion
+                            </a>
                             <a class="dropdown-item {{ request()->routeIs('fees.structures.*') ? 'active' : '' }}"
                                href="{{ route('fees.structures.index') }}">
                                 <i class="bi bi-gear me-2"></i>Fee Structures
