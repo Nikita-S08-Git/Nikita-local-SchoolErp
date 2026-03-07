@@ -13,9 +13,6 @@
                         <a href="{{ route('academic.rules.create') }}" class="btn btn-primary btn-sm">
                             <i class="fas fa-plus"></i> Add New Rule
                         </a>
-                        <a href="{{ route('academic.rules.history') }}" class="btn btn-info btn-sm">
-                            <i class="fas fa-history"></i> History
-                        </a>
                         <a href="{{ route('academic.rules.clear-cache') }}" class="btn btn-warning btn-sm" onclick="return confirm('Are you sure you want to clear all caches?')">
                             <i class="fas fa-broom"></i> Clear Cache
                         </a>
@@ -89,25 +86,25 @@
                                         <td>
                                             @switch($rule->category)
                                                 @case('result')
-                                                    <span class="badge bg-primary">Result</span>
+                                                    <span class="badge badge-primary">Result</span>
                                                     @break
                                                 @case('attendance')
-                                                    <span class="badge bg-info">Attendance</span>
+                                                    <span class="badge badge-info">Attendance</span>
                                                     @break
                                                 @case('promotion')
-                                                    <span class="badge bg-success">Promotion</span>
+                                                    <span class="badge badge-success">Promotion</span>
                                                     @break
                                                 @case('fee')
-                                                    <span class="badge bg-warning">Fee</span>
+                                                    <span class="badge badge-warning">Fee</span>
                                                     @break
                                                 @case('atkt')
-                                                    <span class="badge bg-secondary">ATKT</span>
+                                                    <span class="badge badge-secondary">ATKT</span>
                                                     @break
                                                 @case('examination')
-                                                    <span class="badge bg-dark">Examination</span>
+                                                    <span class="badge badge-dark">Examination</span>
                                                     @break
                                                 @default
-                                                    <span class="badge bg-light text-dark">General</span>
+                                                    <span class="badge badge-light">General</span>
                                             @endswitch
                                         </td>
                                         <td>
@@ -124,9 +121,9 @@
                                         <td>{{ $rule->effective_to ? $rule->effective_to->format('d-m-Y') : 'N/A' }}</td>
                                         <td>
                                             @if($rule->is_active)
-                                                <span class="badge bg-success"><i class="bi bi-check-circle"></i> Active</span>
+                                                <span class="badge badge-success">Active</span>
                                             @else
-                                                <span class="badge bg-danger"><i class="bi bi-x-circle"></i> Inactive</span>
+                                                <span class="badge badge-danger">Inactive</span>
                                             @endif
                                         </td>
                                         <td>

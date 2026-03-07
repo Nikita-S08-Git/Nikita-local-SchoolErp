@@ -65,7 +65,7 @@
                     </tbody>
                 </table>
             </div>
-            {{ $examinations->links('vendor.pagination.bootstrap-5') }}
+            {{ $examinations->links() }}
         </div>
     </div>
 </div>

@@ -638,10 +638,6 @@
                                href="{{ route('academic.sessions.index') }}">
                                 <i class="bi bi-calendar-range me-2"></i>Academic Sessions
                             </a>
-                            <a class="dropdown-item {{ request()->routeIs('academic.rules.*') ? 'active' : '' }}"
-                               href="{{ route('academic.rules.index') }}">
-                                <i class="bi bi-sliders me-2"></i>Academic Rules
-                            </a>
                             <a class="dropdown-item {{ request()->routeIs('fees.structures.*') ? 'active' : '' }}"
                                href="{{ route('fees.structures.index') }}">
                                 <i class="bi bi-gear me-2"></i>Fee Structures
@@ -671,29 +667,6 @@
                             <a class="dropdown-item {{ request()->routeIs('library.books.*') ? 'active' : '' }}"
                                href="{{ route('library.books.index') }}">
                                 <i class="bi bi-book me-2"></i>Library
-                            </a>
-                        </div>
-                    </div>
-                </li>
-            </div>
-
-            <!-- Student Promotion Section -->
-            <div class="nav-section">
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle {{ request()->routeIs('academic.promotions.*') ? 'active' : '' }}" 
-                       href="#" data-bs-toggle="collapse" data-bs-target="#studentPromotion" aria-expanded="{{ request()->routeIs('academic.promotions.*') ? 'true' : 'false' }}">
-                        <i class="bi bi-arrow-up-circle"></i>
-                        <span>Student Promotion</span>
-                    </a>
-                    <div class="collapse {{ request()->routeIs('academic.promotions.*') ? 'show' : '' }}" id="studentPromotion">
-                        <div class="dropdown-menu show">
-                            <a class="dropdown-item {{ request()->routeIs('academic.promotions.index') ? 'active' : '' }}"
-                               href="{{ route('academic.promotions.index') }}">
-                                <i class="bi bi-list-check me-2"></i>Promote Students
-                            </a>
-                            <a class="dropdown-item {{ request()->routeIs('academic.promotions.history') ? 'active' : '' }}"
-                               href="{{ route('academic.promotions.history') }}">
-                                <i class="bi bi-clock-history me-2"></i>Promotion History
                             </a>
                         </div>
                     </div>
@@ -777,10 +750,6 @@
                             <a class="dropdown-item {{ request()->routeIs('academic.sessions.*') ? 'active' : '' }}"
                                href="{{ route('academic.sessions.index') }}">
                                 <i class="bi bi-calendar-range me-2"></i>Academic Sessions
-                            </a>
-                            <a class="dropdown-item {{ request()->routeIs('academic.promotions.*') ? 'active' : '' }}"
-                               href="{{ route('academic.promotions.index') }}">
-                                <i class="bi bi-arrow-up-circle me-2"></i>Student Promotion
                             </a>
                         </div>
                     </div>

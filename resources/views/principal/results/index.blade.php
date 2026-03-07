@@ -144,18 +144,9 @@
                     </table>
                 </div>
                 
-                @if($students->hasPages())
-                    <div class="card-footer bg-white">
-                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                            <div class="text-muted small">
-                                Showing {{ $students->firstItem() }} to {{ $students->lastItem() }} 
-                                of {{ $students->total() }} results
-                            </div>
-
-                            <div>
-                                {{ $students->appends(request()->query())->links('pagination::bootstrap-5') }}
-                            </div>
-                        </div>
+                @if($students instanceof \Illuminate\Pagination\LengthAwarePaginator)
+                    <div class="mt-4">
+                        {{ $students->links() }}
                     </div>
                 @endif
             @else

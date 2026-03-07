@@ -41,15 +41,13 @@ class PromotionService
      */
     public function __construct(array $eligibilityCriteria = [])
     {
-        // Get values from AcademicRuleService (database-driven) with config fallback
+        // Default criteria from config
         $this->eligibilityCriteria = array_merge([
-            'minimum_attendance' => AcademicRuleService::getMinAttendance(config('schoolerp.attendance.minimum_percentage', 75)),
-            'attendance_grace' => AcademicRuleService::getAttendanceGrace(config('schoolerp.attendance.grace_percentage', 5)),
-            'pass_percentage' => AcademicRuleService::getPassPercentage(config('schoolerp.results.pass_percentage', 40)),
-            'max_atkt_subjects' => AcademicRuleService::getAtktMaxSubjects(3),
-            'max_atkt_attempts' => AcademicRuleService::getAtktMaxAttempts(3),
-            'fee_clearance_required' => AcademicRuleService::getFeeClearanceRequired(false),
-            'grace_marks' => AcademicRuleService::getGraceMarks(false),
+            'minimum_attendance' => config('schoolerp.attendance.minimum_percentage', 75),
+            'attendance_grace' => config('schoolerp.attendance.grace_percentage', 5),
+            'pass_percentage' => config('schoolerp.results.pass_percentage', 40),
+            'max_atkt_subjects' => 3, // Maximum failed subjects for ATKT
+            'fee_clearance_required' => false, // Can be overridden per institution
             'compulsory_subjects' => [], // Subject IDs that must be passed
         ], $eligibilityCriteria);
     }
@@ -388,15 +386,10 @@ class PromotionService
 
         $eligibility = $this->checkEligibility($currentRecord);
 
-        // Build full name properly
-        $studentName = trim(($student->first_name ?? '') . ' ' . ($student->middle_name ?? '') . ' ' . ($student->last_name ?? ''));
-        
         return [
             'student' => [
                 'id' => $student->id,
-                'name' => $studentName,
-                'first_name' => $student->first_name,
-                'last_name' => $student->last_name,
+                'name' => $student->full_name,
                 'admission_number' => $student->admission_number,
             ],
             'current' => [
