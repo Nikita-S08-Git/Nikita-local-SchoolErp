@@ -59,7 +59,7 @@ class PromotionController extends Controller
         
         // Get target divisions (for next session promotion) - filtered by program and next session
         // Note: This query uses $nextSession which is defined below
-        $targetDivisionsQuery = Division::where('is_active', true);
+        $targetDivisionsQuery = Division::where('is_active', true)->with('program');
         
         // Filter by selected program if any
         if ($programId) {
