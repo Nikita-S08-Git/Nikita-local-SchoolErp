@@ -86,25 +86,25 @@
                                         <td>
                                             @switch($rule->category)
                                                 @case('result')
-                                                    <span class="badge badge-primary">Result</span>
+                                                    <span class="badge bg-primary">Result</span>
                                                     @break
                                                 @case('attendance')
-                                                    <span class="badge badge-info">Attendance</span>
+                                                    <span class="badge bg-info text-dark">Attendance</span>
                                                     @break
                                                 @case('promotion')
-                                                    <span class="badge badge-success">Promotion</span>
+                                                    <span class="badge bg-success">Promotion</span>
                                                     @break
                                                 @case('fee')
-                                                    <span class="badge badge-warning">Fee</span>
+                                                    <span class="badge bg-warning text-dark">Fee</span>
                                                     @break
                                                 @case('atkt')
-                                                    <span class="badge badge-secondary">ATKT</span>
+                                                    <span class="badge bg-secondary">ATKT</span>
                                                     @break
                                                 @case('examination')
-                                                    <span class="badge badge-dark">Examination</span>
+                                                    <span class="badge bg-dark">Examination</span>
                                                     @break
                                                 @default
-                                                    <span class="badge badge-light">General</span>
+                                                    <span class="badge bg-light text-dark">General</span>
                                             @endswitch
                                         </td>
                                         <td>
@@ -121,9 +121,9 @@
                                         <td>{{ $rule->effective_to ? $rule->effective_to->format('d-m-Y') : 'N/A' }}</td>
                                         <td>
                                             @if($rule->is_active)
-                                                <span class="badge badge-success">Active</span>
+                                                <span class="badge bg-success">Active</span>
                                             @else
-                                                <span class="badge badge-danger">Inactive</span>
+                                                <span class="badge bg-danger">Inactive</span>
                                             @endif
                                         </td>
                                         <td>
