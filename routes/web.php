@@ -251,6 +251,15 @@ Route::middleware(['auth', 'role:admin|principal'])->prefix('academic')->name('a
     Route::get('rules/clear-cache', [\App\Http\Controllers\Web\AcademicRuleController::class, 'clearCache'])->name('rules.clear-cache');
 });
 
+// Student Promotion Management
+Route::middleware(['auth', 'role:admin|principal'])->prefix('academic')->name('academic.')->group(function () {
+    Route::get('promotions', [\App\Http\Controllers\Web\PromotionController::class, 'index'])->name('promotions.index');
+    Route::post('promotions/preview', [\App\Http\Controllers\Web\PromotionController::class, 'preview'])->name('promotions.preview');
+    Route::post('promotions/promote', [\App\Http\Controllers\Web\PromotionController::class, 'promote'])->name('promotions.promote');
+    Route::get('promotions/history', [\App\Http\Controllers\Web\PromotionController::class, 'history'])->name('promotions.history');
+    Route::post('promotions/{logId}/rollback', [\App\Http\Controllers\Web\PromotionController::class, 'rollback'])->name('promotions.rollback');
+});
+
 // Fee Management Routes
 Route::middleware(['auth', 'role:admin|principal|office|teacher'])->prefix('fees')->name('fees.')->group(function () {
     // Fee Structures
