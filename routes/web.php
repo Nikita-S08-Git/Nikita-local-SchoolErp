@@ -254,6 +254,7 @@ Route::middleware(['auth', 'role:admin|principal'])->prefix('academic')->name('a
 // Student Promotion Management
 Route::middleware(['auth', 'role:admin|principal'])->prefix('academic')->name('academic.')->group(function () {
     Route::get('promotions', [\App\Http\Controllers\Web\PromotionController::class, 'index'])->name('promotions.index');
+    Route::get('promotions/get-divisions', [\App\Http\Controllers\Web\PromotionController::class, 'getDivisions'])->name('promotions.getDivisions');
     Route::post('promotions/preview', [\App\Http\Controllers\Web\PromotionController::class, 'preview'])->name('promotions.preview');
     Route::post('promotions/promote', [\App\Http\Controllers\Web\PromotionController::class, 'promote'])->name('promotions.promote');
     Route::get('promotions/history', [\App\Http\Controllers\Web\PromotionController::class, 'history'])->name('promotions.history');
