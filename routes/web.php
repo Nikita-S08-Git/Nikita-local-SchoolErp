@@ -258,6 +258,7 @@ Route::middleware(['auth', 'role:admin|principal'])->prefix('academic')->name('a
     Route::get('promotions/get-next-session', [\App\Http\Controllers\Web\PromotionController::class, 'getNextSession'])->name('promotions.getNextSession');
     Route::post('promotions/preview', [\App\Http\Controllers\Web\PromotionController::class, 'preview'])->name('promotions.preview');
     Route::post('promotions/promote', [\App\Http\Controllers\Web\PromotionController::class, 'promote'])->name('promotions.promote');
+    Route::post('promotions/promote/{studentId}', [\App\Http\Controllers\Web\PromotionController::class, 'promoteStudent'])->name('promotions.promoteStudent');
     Route::get('promotions/history', [\App\Http\Controllers\Web\PromotionController::class, 'history'])->name('promotions.history');
     Route::post('promotions/{logId}/rollback', [\App\Http\Controllers\Web\PromotionController::class, 'rollback'])->name('promotions.rollback');
 });
