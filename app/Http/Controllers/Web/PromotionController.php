@@ -148,8 +148,12 @@ class PromotionController extends Controller
         }
 
         // Filter target divisions by next session if available
+        // If no next session, show all divisions for the selected program
         if ($nextSession) {
             $targetDivisions = $targetDivisions->where('session_id', $nextSession->id);
+        } elseif ($programId) {
+            // If no next session but program is selected, show divisions for that program
+            $targetDivisions = $targetDivisions->where('program_id', $programId);
         }
 
         return view('academic.promotions.index', compact(
