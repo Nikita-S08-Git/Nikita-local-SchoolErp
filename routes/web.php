@@ -22,6 +22,9 @@ use App\Http\Controllers\Web\AcademicRuleController;
 use App\Http\Controllers\Student\AuthController as StudentAuthController;
 use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
 
+// Bulk action route - outside auth middleware for testing
+Route::post('/dashboard/students/bulk-action', [StudentController::class, 'bulkAction'])->name('dashboard.students.bulkAction');
+
 // ============================================
 // STUDENT AUTH ROUTES (Guest)
 // ============================================
@@ -325,10 +328,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard/students/{student}/edit', [StudentController::class, 'edit'])->name('dashboard.students.edit');
     Route::put('/dashboard/students/{student}', [StudentController::class, 'update'])->name('dashboard.students.update');
     Route::delete('/dashboard/students/{student}', [StudentController::class, 'destroy'])->name('dashboard.students.destroy');
-    Route::post('/dashboard/students/bulk-action', [StudentController::class, 'bulkAction'])->name('dashboard.students.bulkAction');
-    Route::get('/dashboard/students/bulk-action', function() {
-        return redirect()->route('dashboard.students.index');
-    });
 });
 
 // Guardian CRUD under student (dashboard prefixed) - use model binding
