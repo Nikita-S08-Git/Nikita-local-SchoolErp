@@ -163,13 +163,13 @@ return new class extends Migration
             $table->index(['academic_session_id', 'result_status']);
 
             // Index for promotion queries
-            $table->index(['academic_session_id', 'promotion_status']);
+            $table->index(['academic_session_id', 'promotion_status'], 'session_promotion_idx');
 
             // Index for ATKT tracking
             $table->index(['result_status', 'backlog_count']);
 
             // Composite index for eligibility checks
-            $table->index(['attendance_status', 'fee_cleared', 'result_status']);
+            $table->index(['attendance_status', 'fee_cleared', 'result_status'], 'eligibility_idx');
         });
     }
 
