@@ -52,7 +52,7 @@
     </div>
 
     <!-- Attendance Form -->
-    <form action="{{ route('teacher.attendance.store', $timetable->id) }}" method="POST">
+    <form id="attendanceForm" action="{{ route('teacher.attendance.store', $timetable->id) }}" method="POST">
         @csrf
         <input type="hidden" name="date" value="{{ $date }}">
         
@@ -148,9 +148,11 @@
                         <i class="bi bi-info-circle me-1"></i>
                         Default status is <strong>Present</strong>. Click on status buttons to change.
                     </p>
-                    <button type="submit" class="btn btn-primary btn-lg" onclick="this.form.submit(); this.disabled=true; this.innerHTML='Submitting...';" style="cursor:pointer;">
-                        <i class="bi bi-check-circle me-2"></i>Submit Attendance
-                    </button>
+                    <div>
+                        <button type="button" class="btn btn-primary btn-lg" onclick="submitAttendance()">
+                            <i class="bi bi-check-circle me-2"></i>Submit Attendance
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -166,7 +168,22 @@ document.addEventListener('DOMContentLoaded', function() {
         submitBtn.disabled = false;
         submitBtn.removeAttribute('disabled');
     }
+    // Also add form submit handler
+    const form = document.getElementById('attendanceForm');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const submitBtns = form.querySelectorAll('button[type="submit"]');
+            submitBtns.forEach(btn => {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Submitting...';
+            });
+        });
+    }
 });
+
+function submitAttendance() {
+    document.getElementById('attendanceForm').submit();
+}
 
 function markAll(status) {
     const radios = document.querySelectorAll(`input[name$="[status]"][value="${status}"]`);
