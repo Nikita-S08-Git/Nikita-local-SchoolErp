@@ -148,7 +148,7 @@
                         <i class="bi bi-info-circle me-1"></i>
                         Default status is <strong>Present</strong>. Click on status buttons to change.
                     </p>
-                    <button type="submit" class="btn btn-primary btn-lg">
+                    <button type="submit" class="btn btn-primary btn-lg" onclick="this.form.submit(); this.disabled=true; this.innerHTML='Submitting...';" style="cursor:pointer;">
                         <i class="bi bi-check-circle me-2"></i>Submit Attendance
                     </button>
                 </div>
