@@ -22,11 +22,11 @@ use App\Http\Controllers\Web\AcademicRuleController;
 use App\Http\Controllers\Student\AuthController as StudentAuthController;
 use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
 
-// Bulk action route - outside auth middleware for testing
-Route::post('/dashboard/students/bulk-action', [StudentController::class, 'bulkAction'])->name('dashboard.students.bulkAction');
-Route::get('/dashboard/students/bulk-action', function() {
-    return redirect()->route('dashboard.students.index');
-});
+// Bulk action route - moved inside auth middleware
+// Route::post('/dashboard/students/bulk-action', [StudentController::class, 'bulkAction'])->name('dashboard.students.bulkAction');
+// Route::get('/dashboard/students/bulk-action', function() {
+//     return redirect()->route('dashboard.students.index');
+// });
 
 // ============================================
 // STUDENT AUTH ROUTES (Guest)
@@ -323,6 +323,13 @@ Route::middleware(['auth'])->group(function () {
         return view('test-storage', compact('students'));
     });
     
+    // Bulk action route - inside auth middleware (must be before wildcard route)
+    Route::post('/dashboard/students/bulk-action', [StudentController::class, 'bulkAction'])->name('dashboard.students.bulkAction');
+    Route::delete('/dashboard/students/bulk-action', [StudentController::class, 'bulkAction']);
+    Route::get('/dashboard/students/bulk-action', function() {
+        return redirect()->route('dashboard.students.index');
+    });
+    
     // Dashboard student routes
     Route::get('/dashboard/students', [StudentController::class, 'index'])->name('dashboard.students.index');
     Route::get('/dashboard/students/create', [StudentController::class, 'create'])->name('dashboard.students.create');
@@ -507,3 +514,4 @@ Route::middleware(['auth'])->prefix('staff')->name('staff.')->group(function () 
 
 // Teacher Dashboard Routes
 require __DIR__ . '/teacher.php';
+
