@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Result\Examination;
 use App\Models\Result\Subject;
 use App\Models\Result\StudentMark;
+use App\Models\Result\MarksDraft;
 use App\Models\Academic\Division;
 use App\Models\User\Student;
 use App\Models\TeacherAssignment;
@@ -337,5 +338,85 @@ class ExaminationController extends Controller
         }
 
         return redirect()->back()->with('success', 'Marks saved successfully!');
+    }
+
+    /**
+     * Save draft marks - AJAX endpoint for auto-save
+     */
+    public function saveDraft(Request $request)
+    {
+        $validated = $request->validate([
+            'examination_id' => 'required|exists:examinations,id',
+            'subject_id' => 'required|exists:subjects,id',
+            'marks' => 'required|array',
+        ]);
+
+        $teacher = Auth::user();
+        $marksData = $validated['marks'];
+
+        $result = MarksDraft::saveMultipleDrafts(
+            $teacher->id,
+            $validated['examination_id'],
+            $validated['subject_id'],
+            $marksData
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Draft saved successfully!',
+            'saved_count' => $result['saved_count'],
+            'total' => $result['total'],
+            'timestamp' => now()->toISOString(),
+        ]);
+    }
+
+    /**
+     * Load draft marks - AJAX endpoint to fetch existing drafts
+     */
+    public function loadDrafts(Request $request)
+    {
+        $validated = $request->validate([
+            'examination_id' => 'required|exists:examinations,id',
+            'subject_id' => 'required|exists:subjects,id',
+        ]);
+
+        $teacher = Auth::user();
+
+        $drafts = MarksDraft::getDraftsKeyedByStudent(
+            $teacher->id,
+            $validated['examination_id'],
+            $validated['subject_id']
+        );
+
+        return response()->json([
+            'success' => true,
+            'drafts' => $drafts,
+            'count' => count($drafts),
+        ]);
+    }
+
+    /**
+     * Clear draft marks - AJAX endpoint to clear drafts after successful submission
+     */
+    public function clearDrafts(Request $request)
+    {
+        $validated = $request->validate([
+            'examination_id' => 'required|exists:examinations,id',
+            'subject_id' => 'nullable|exists:subjects,id',
+        ]);
+
+        $teacher = Auth::user();
+
+        $deleted = MarksDraft::clearDrafts(
+            $teacher->id,
+            $validated['examination_id'],
+            $validated['subject_id'] ?? null
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Drafts cleared successfully!',
+            'deleted_count' => $deleted,
+        ]);
     }
 }

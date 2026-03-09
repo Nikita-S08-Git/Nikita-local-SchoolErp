@@ -159,6 +159,15 @@
 
 @push('scripts')
 <script>
+// Force enable submit button on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const submitBtn = document.querySelector('button[type="submit"]');
+    if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.removeAttribute('disabled');
+    }
+});
+
 function markAll(status) {
     const radios = document.querySelectorAll(`input[name$="[status]"][value="${status}"]`);
     radios.forEach(radio => {

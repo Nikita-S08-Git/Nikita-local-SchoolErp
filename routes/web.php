@@ -462,6 +462,11 @@ Route::middleware(['auth'])->prefix('examinations')->name('examinations.')->grou
     Route::get('/{examination}/marks-entry', [ExaminationController::class, 'marksEntry'])->name('marks-entry');
     Route::post('/{examination}/save-marks', [ExaminationController::class, 'saveMarks'])->name('save-marks');
     Route::delete('/{examination}', [ExaminationController::class, 'destroy'])->name('destroy');
+    
+    // Draft marks endpoints for auto-save
+    Route::post('/save-draft', [ExaminationController::class, 'saveDraft'])->name('save-draft');
+    Route::get('/load-drafts', [ExaminationController::class, 'loadDrafts'])->name('load-drafts');
+    Route::post('/clear-drafts', [ExaminationController::class, 'clearDrafts'])->name('clear-drafts');
 });
 
 // Results Management
