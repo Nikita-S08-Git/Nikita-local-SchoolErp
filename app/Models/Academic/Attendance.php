@@ -191,16 +191,42 @@ class Attendance extends Model
         $totalRecords = self::where('student_id', $studentId)
             ->where('division_id', $divisionId)
             ->count();
-        
+
         if ($totalRecords === 0) {
             return 0.0;
         }
-        
+
         $presentRecords = self::where('student_id', $studentId)
             ->where('division_id', $divisionId)
             ->whereIn('status', [self::STATUS_PRESENT, self::STATUS_LATE])
             ->count();
-        
+
         return round(($presentRecords / $totalRecords) * 100, 2);
+    }
+
+    /**
+     * Get the color for the status badge
+     */
+    public function getStatusColorAttribute(): string
+    {
+        return match($this->status) {
+            self::STATUS_PRESENT => 'success',
+            self::STATUS_ABSENT => 'danger',
+            self::STATUS_LATE => 'warning',
+            default => 'secondary',
+        };
+    }
+
+    /**
+     * Get the icon for the status badge
+     */
+    public function getStatusIconAttribute(): string
+    {
+        return match($this->status) {
+            self::STATUS_PRESENT => 'check-circle',
+            self::STATUS_ABSENT => 'x-circle',
+            self::STATUS_LATE => 'exclamation-circle',
+            default => 'question-circle',
+        };
     }
 }

@@ -452,7 +452,7 @@ Route::middleware(['auth'])->group(function () {
 // ============================================
 
 // Examination Management
-Route::middleware(['auth'])->prefix('examinations')->name('examinations.')->group(function () {
+Route::middleware(['auth', 'role:admin|teacher|class_teacher|subject_teacher|hod_commerce|hod_science|hod_management|hod_arts'])->prefix('examinations')->name('examinations.')->group(function () {
     Route::get('/', [ExaminationController::class, 'index'])->name('index');
     Route::get('/create', [ExaminationController::class, 'create'])->name('create');
     Route::post('/', [ExaminationController::class, 'store'])->name('store');
@@ -462,7 +462,7 @@ Route::middleware(['auth'])->prefix('examinations')->name('examinations.')->grou
     Route::get('/{examination}/marks-entry', [ExaminationController::class, 'marksEntry'])->name('marks-entry');
     Route::post('/{examination}/save-marks', [ExaminationController::class, 'saveMarks'])->name('save-marks');
     Route::delete('/{examination}', [ExaminationController::class, 'destroy'])->name('destroy');
-    
+
     // Draft marks endpoints for auto-save
     Route::post('/save-draft', [ExaminationController::class, 'saveDraft'])->name('save-draft');
     Route::get('/load-drafts', [ExaminationController::class, 'loadDrafts'])->name('load-drafts');

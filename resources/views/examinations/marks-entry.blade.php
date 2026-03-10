@@ -36,7 +36,7 @@
                             <option value="">Select Subject</option>
                             @foreach($subjects as $subject)
                                 <option value="{{ $subject->id }}" {{ request('subject_id') == $subject->id ? 'selected' : '' }}>
-                                    {{ $subject->subject_name }}
+                                    {{ $subject->name }} ({{ $subject->code }})
                                 </option>
                             @endforeach
                         </select>

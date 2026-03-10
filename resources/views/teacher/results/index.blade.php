@@ -101,26 +101,40 @@
                             @foreach($students as $student)
                                 @php
                                     $studentMarks = $results->where('student_id', $student->id);
+                                    $subjectsCount = $studentMarks->count();
                                     $totalMarks = $studentMarks->sum('marks_obtained');
                                     $totalMaxMarks = $studentMarks->sum('max_marks');
-                                    $percentage = $totalMaxMarks > 0 ? ($totalMarks / $totalMaxMarks) * 100 : 0;
-                                    $passPercentage = 40; // Can use AcademicRuleService
-                                    $isPass = $percentage >= $passPercentage;
+                                    $hasMarks = $subjectsCount > 0;
+                                    $percentage = $hasMarks && $totalMaxMarks > 0 ? ($totalMarks / $totalMaxMarks) * 100 : null;
+                                    $passPercentage = 40;
+                                    $isPass = $hasMarks && $percentage !== null && $percentage >= $passPercentage;
                                 @endphp
                                 <tr>
                                     <td>{{ $student->roll_number }}</td>
                                     <td>
                                         <strong>{{ $student->first_name }} {{ $student->last_name }}</strong>
                                     </td>
-                                    <td>{{ $studentMarks->count() }}</td>
-                                    <td class="text-center">{{ $totalMarks }} / {{ $totalMaxMarks }}</td>
+                                    <td>{{ $subjectsCount }}</td>
                                     <td class="text-center">
-                                        <span class="badge bg-{{ $isPass ? 'success' : 'danger' }}">
-                                            {{ number_format($percentage, 1) }}%
-                                        </span>
+                                        @if($hasMarks)
+                                            {{ $totalMarks }} / {{ $totalMaxMarks }}
+                                        @else
+                                            <span class="text-muted">-</span>
+                                        @endif
                                     </td>
                                     <td class="text-center">
-                                        @if($isPass)
+                                        @if($hasMarks && $percentage !== null)
+                                            <span class="badge bg-{{ $isPass ? 'success' : 'danger' }}">
+                                                {{ number_format($percentage, 1) }}%
+                                            </span>
+                                        @else
+                                            <span class="text-muted">-</span>
+                                        @endif
+                                    </td>
+                                    <td class="text-center">
+                                        @if(!$hasMarks)
+                                            <span class="badge bg-warning"><i class="bi bi-clock me-1"></i>Pending</span>
+                                        @elseif($isPass)
                                             <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Pass</span>
                                         @else
                                             <span class="badge bg-danger"><i class="bi bi-x-circle me-1"></i>Fail</span>

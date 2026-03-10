@@ -84,7 +84,7 @@
                         <tbody>
                             @foreach($students as $index => $student)
                                 @php
-                                    $existing = $existingAttendance->get($student->user_id);
+                                    $existing = $existingAttendance->get($student->id);
                                     $status = $existing ? $existing->status : 'present';
                                 @endphp
                                 <tr class="{{ $existing ? 'table-info' : '' }}">
@@ -106,7 +106,7 @@
                                         </div>
                                     </td>
                                     <td class="text-center">
-                                        <input type="radio" name="attendances[{{ $index }}][status]" value="present" 
+                                        <input type="radio" name="attendances[{{ $index }}][status]" value="present"
                                                class="btn-check" id="present_{{ $student->id }}"
                                                {{ $status === 'present' ? 'checked' : '' }}>
                                         <label class="btn btn-sm btn-outline-success" for="present_{{ $student->id }}">
@@ -114,7 +114,7 @@
                                         </label>
                                     </td>
                                     <td class="text-center">
-                                        <input type="radio" name="attendances[{{ $index }}][status]" value="absent" 
+                                        <input type="radio" name="attendances[{{ $index }}][status]" value="absent"
                                                class="btn-check" id="absent_{{ $student->id }}"
                                                {{ $status === 'absent' ? 'checked' : '' }}>
                                         <label class="btn btn-sm btn-outline-danger" for="absent_{{ $student->id }}">
@@ -122,7 +122,7 @@
                                         </label>
                                     </td>
                                     <td class="text-center">
-                                        <input type="radio" name="attendances[{{ $index }}][status]" value="late" 
+                                        <input type="radio" name="attendances[{{ $index }}][status]" value="late"
                                                class="btn-check" id="late_{{ $student->id }}"
                                                {{ $status === 'late' ? 'checked' : '' }}>
                                         <label class="btn btn-sm btn-outline-warning" for="late_{{ $student->id }}">
@@ -130,10 +130,10 @@
                                         </label>
                                     </td>
                                     <td>
-                                        <input type="hidden" name="attendances[{{ $index }}][student_id]" value="{{ $student->user_id }}">
+                                        <input type="hidden" name="attendances[{{ $index }}][student_id]" value="{{ $student->id }}">
                                         <input type="text" name="attendances[{{ $index }}][remarks]"
                                                class="form-control form-control-sm"
-                                               value="{{ $existing->remarks ?? '' }}"
+                                               value="{{ $existing?->remarks ?? '' }}"
                                                placeholder="Optional remarks">
                                     </td>
                                 </tr>

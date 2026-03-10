@@ -33,6 +33,9 @@ Route::middleware(['auth', 'role:teacher|class_teacher|subject_teacher|hod_comme
     // Student Details
     Route::get('/students/{studentId}', [DashboardController::class, 'studentDetails'])->name('students.details');
 
+    // Examinations & Marks Entry
+    Route::get('/examinations', [ExaminationController::class, 'teacherExaminations'])->name('examinations');
+
     // Results Management
     Route::prefix('results')->name('results.')->group(function () {
         // View all students' results for teacher's divisions

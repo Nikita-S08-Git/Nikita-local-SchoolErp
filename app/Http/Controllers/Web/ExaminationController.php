@@ -22,6 +22,17 @@ class ExaminationController extends Controller
         return view('examinations.index', compact('examinations'));
     }
 
+    /**
+     * Show examinations list for teachers (with teacher layout)
+     */
+    public function teacherExaminations()
+    {
+        $examinations = Examination::where('is_active', true)
+            ->latest()
+            ->paginate(15);
+        return view('teacher.examinations.index', compact('examinations'));
+    }
+
     public function show(Examination $examination)
     {
         return view('examinations.show', compact('examination'));
