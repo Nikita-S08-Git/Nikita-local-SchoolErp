@@ -101,7 +101,7 @@
                                     </td>
                                     <td>
                                         <span class="badge bg-{{ $attendance->status_color }}">
-                                            <i class="bi bi-{{ $attendance->status === 'present' ? 'check-circle' : ($attendance->status === 'absent' ? 'x-circle' : 'exclamation-circle') }} me-1"></i>
+                                            <i class="bi bi-{{ $attendance->status_icon }} me-1"></i>
                                             {{ ucfirst($attendance->status) }}
                                         </span>
                                     </td>

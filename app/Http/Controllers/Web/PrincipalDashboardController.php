@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Models\User\Student;
 use App\Models\User;
+use App\Models\Academic\Department;
 use App\Models\Academic\Division;
 use App\Models\Academic\Program;
 use App\Models\Academic\Subject;
@@ -51,6 +52,10 @@ class PrincipalDashboardController extends Controller
         $totalDivisions = Division::where('is_active', true)->count();
 
         $totalPrograms = Program::where('is_active', true)->count();
+
+        $totalDepartments = Department::count();
+
+        $totalExaminations = Examination::count();
 
         $totalSubjects = Subject::count();
 
@@ -118,6 +123,8 @@ class PrincipalDashboardController extends Controller
             'totalDivisions',
             'totalPrograms',
             'totalSubjects',
+            'totalDepartments',
+            'totalExaminations',
             'attendanceToday',
             'todayAttendance',
             'attendancePercentage',
@@ -487,9 +494,12 @@ class PrincipalDashboardController extends Controller
                 ->orderBy('roll_number')
                 ->paginate(20);
             
-            // Get marks for all students
+            // Get ALL marks for the division (not just paginated students)
+            // This ensures marks are available for all students regardless of page
             $results = StudentMark::where('examination_id', $request->examination_id)
-                ->whereIn('student_id', $students->pluck('id'))
+                ->whereIn('student_id', Student::where('division_id', $request->division_id)
+                    ->where('student_status', 'active')
+                    ->pluck('id'))
                 ->with(['subject'])
                 ->get();
         }

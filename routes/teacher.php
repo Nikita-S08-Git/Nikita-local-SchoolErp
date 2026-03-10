@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware(['auth', 'role:teacher|class_teacher|subject_teacher|hod_commerce|hod_science|hod_management|hod_arts'])->prefix('teacher')->name('teacher.')->group(function () {
+Route::middleware(['auth', 'role:admin|teacher|class_teacher|subject_teacher|hod_commerce|hod_science|hod_management|hod_arts'])->prefix('teacher')->name('teacher.')->group(function () {
 
     // Dashboard Home
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -32,6 +32,9 @@ Route::middleware(['auth', 'role:teacher|class_teacher|subject_teacher|hod_comme
 
     // Student Details
     Route::get('/students/{studentId}', [DashboardController::class, 'studentDetails'])->name('students.details');
+
+    // Examinations & Marks Entry
+    Route::get('/examinations', [ExaminationController::class, 'teacherExaminations'])->name('examinations');
 
     // Results Management
     Route::prefix('results')->name('results.')->group(function () {

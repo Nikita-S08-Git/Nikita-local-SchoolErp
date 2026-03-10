@@ -4,6 +4,7 @@
 
 @section('content')
 <div class="container-fluid px-4 py-4">
+    <!-- Header Section -->
     <div class="row mb-4">
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center">
@@ -14,8 +15,8 @@
                             <li class="breadcrumb-item active">Results</li>
                         </ol>
                     </nav>
-                    <h2 class="fw-bold" style="color: #667eea;">
-                        <i class="bi bi-clipboard-data me-2"></i>Student Results
+                    <h2 class="fw-bold" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                        <i class="bi bi-clipboard-check me-2"></i>Student Results
                     </h2>
                     <p class="text-muted mb-0">View and manage examination results for your divisions</p>
                 </div>
@@ -23,41 +24,56 @@
         </div>
     </div>
 
-    <!-- Filters -->
-    <div class="card mb-4" style="border: none; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08);">
-        <div class="card-body">
+    <!-- Filters Card -->
+    <div class="card mb-4" style="border: none; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow: hidden;">
+        <div class="card-header" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border: none; padding: 16px 24px;">
+            <h5 class="mb-0 text-white fw-bold">
+                <i class="bi bi-funnel me-2"></i>Filter Results
+            </h5>
+        </div>
+        <div class="card-body" style="padding: 24px;">
             <form method="GET" action="{{ route('teacher.results.index') }}">
-                <div class="row">
+                <div class="row g-3">
                     <div class="col-md-5">
-                        <div class="mb-3">
-                            <label for="division_id" class="form-label">Select Division</label>
-                            <select name="division_id" id="division_id" class="form-select">
-                                <option value="">-- Select Division --</option>
-                                @foreach($divisions as $division)
-                                    <option value="{{ $division->id }}" {{ request('division_id') == $division->id ? 'selected' : '' }}>
-                                        {{ $division->division_name }} - {{ $division->program->name ?? '' }}
-                                    </option>
-                                @endforeach
-                            </select>
+                        <div class="form-group">
+                            <label for="division_id" class="form-label fw-semibold text-dark">Select Division</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0">
+                                    <i class="bi bi-collection"></i>
+                                </span>
+                                <select name="division_id" id="division_id" class="form-select border-0 bg-light">
+                                    <option value="">-- Select Division --</option>
+                                    @foreach($divisions as $division)
+                                        <option value="{{ $division->id }}" {{ request('division_id') == $division->id ? 'selected' : '' }}>
+                                            {{ $division->division_name }} - {{ $division->program->name ?? '' }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
                         </div>
                     </div>
                     <div class="col-md-5">
-                        <div class="mb-3">
-                            <label for="examination_id" class="form-label">Select Examination</label>
-                            <select name="examination_id" id="examination_id" class="form-select">
-                                <option value="">-- Select Examination --</option>
-                                @foreach($examinations as $exam)
-                                    <option value="{{ $exam->id }}" {{ request('examination_id') == $exam->id ? 'selected' : '' }}>
-                                        {{ $exam->name }} ({{ ucfirst($exam->type) }})
-                                    </option>
-                                @endforeach
-                            </select>
+                        <div class="form-group">
+                            <label for="examination_id" class="form-label fw-semibold text-dark">Select Examination</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0">
+                                    <i class="bi bi-file-earmark-text"></i>
+                                </span>
+                                <select name="examination_id" id="examination_id" class="form-select border-0 bg-light">
+                                    <option value="">-- Select Examination --</option>
+                                    @foreach($examinations as $exam)
+                                        <option value="{{ $exam->id }}" {{ request('examination_id') == $exam->id ? 'selected' : '' }}>
+                                            {{ $exam->name }} ({{ ucfirst($exam->type) }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
                         </div>
                     </div>
                     <div class="col-md-2">
-                        <div class="mb-3 d-grid">
+                        <div class="form-group d-grid">
                             <label class="form-label">&nbsp;</label>
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="btn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px;">
                                 <i class="bi bi-search me-1"></i> Search
                             </button>
                         </div>
@@ -69,66 +85,175 @@
 
     <!-- Results -->
     @if($selectedDivision && $selectedExam)
-    <div class="card" style="border: none; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08);">
-        <div class="card-header bg-white py-3">
+    <!-- Statistics Cards -->
+    <div class="row mb-4 g-3">
+        @php
+            $pageStudents = $students->count();
+            $pagePassCount = 0;
+            $pageFailCount = 0;
+            $pagePendingCount = 0;
+            
+            foreach($students as $student) {
+                $studentMarks = $results->where('student_id', $student->id);
+                $subjectsCount = $studentMarks->count();
+                $totalMaxMarks = $studentMarks->sum('max_marks');
+                $hasMarks = $subjectsCount > 0;
+                
+                if ($hasMarks && $totalMaxMarks > 0) {
+                    $totalMarks = $studentMarks->sum('marks_obtained');
+                    $percentage = ($totalMarks / $totalMaxMarks) * 100;
+                    if ($percentage >= 40) {
+                        $pagePassCount++;
+                    } else {
+                        $pageFailCount++;
+                    }
+                } else {
+                    $pagePendingCount++;
+                }
+            }
+        @endphp
+        <div class="col-md-3">
+            <div class="card h-100" style="border: none; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08);">
+                <div class="card-body text-center">
+                    <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 50px; height: 50px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        <i class="bi bi-people text-white"></i>
+                    </div>
+                    <h4 class="fw-bold text-dark">{{ $pageStudents }}</h4>
+                    <p class="text-muted mb-0">This Page</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card h-100" style="border: none; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08);">
+                <div class="card-body text-center">
+                    <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 50px; height: 50px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                        <i class="bi bi-clock text-white"></i>
+                    </div>
+                    <h4 class="fw-bold text-warning">{{ $pagePendingCount }}</h4>
+                    <p class="text-muted mb-0">Pending</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card h-100" style="border: none; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08);">
+                <div class="card-body text-center">
+                    <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 50px; height: 50px; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                        <i class="bi bi-check-circle text-white"></i>
+                    </div>
+                    <h4 class="fw-bold" style="color: #4facfe;">{{ $pagePassCount }}</h4>
+                    <p class="text-muted mb-0">Passed</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card h-100" style="border: none; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08);">
+                <div class="card-body text-center">
+                    <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 50px; height: 50px; background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                        <i class="bi bi-x-circle text-white"></i>
+                    </div>
+                    <h4 class="fw-bold" style="color: #fa709a;">{{ $pageFailCount }}</h4>
+                    <p class="text-muted mb-0">Failed</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Table Card -->
+    <div class="card" style="border: none; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow: hidden;">
+        <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; padding: 16px 24px;">
             <div class="d-flex justify-content-between align-items-center">
-                <h5 class="fw-bold mb-0">
-                    <i class="bi bi-table me-2 text-primary"></i>
+                <h5 class="mb-0 text-white fw-bold">
+                    <i class="bi bi-table me-2"></i>
                     Results: {{ $selectedDivision->division_name }} - {{ $selectedExam->name }}
                 </h5>
                 <a href="{{ route('teacher.results.enter', ['examinationId' => $selectedExam->id, 'divisionId' => $selectedDivision->id]) }}" 
-                   class="btn btn-primary">
-                    <i class="bi bi-pencil me-1"></i> Enter/Edit Marks
+                   class="btn btn-light btn-sm fw-bold">
+                    <i class="bi bi-pencil me-1"></i> Enter Marks
                 </a>
             </div>
         </div>
-        <div class="card-body">
+        <div class="card-body p-0">
             @if($students->count() > 0)
                 <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead class="table-light">
+                    <table class="table table-hover mb-0">
+                        <thead style="background: #f8f9fa;">
                             <tr>
-                                <th>Roll No.</th>
-                                <th>Student Name</th>
-                                <th>Subjects</th>
-                                <th class="text-center">Total Marks</th>
-                                <th class="text-center">Percentage</th>
-                                <th class="text-center">Status</th>
-                                <th class="text-center">Actions</th>
+                                <th class="border-0 px-4 py-3 fw-bold text-dark">Roll No.</th>
+                                <th class="border-0 py-3 fw-bold text-dark">Student Name</th>
+                                <th class="border-0 py-3 fw-bold text-dark text-center">Subjects</th>
+                                <th class="border-0 py-3 fw-bold text-dark text-center">Total Marks</th>
+                                <th class="border-0 py-3 fw-bold text-dark text-center">Percentage</th>
+                                <th class="border-0 py-3 fw-bold text-dark text-center">Status</th>
+                                <th class="border-0 py-3 fw-bold text-dark text-center">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($students as $student)
                                 @php
                                     $studentMarks = $results->where('student_id', $student->id);
+                                    $subjectsCount = $studentMarks->count();
                                     $totalMarks = $studentMarks->sum('marks_obtained');
                                     $totalMaxMarks = $studentMarks->sum('max_marks');
-                                    $percentage = $totalMaxMarks > 0 ? ($totalMarks / $totalMaxMarks) * 100 : 0;
-                                    $passPercentage = 40; // Can use AcademicRuleService
-                                    $isPass = $percentage >= $passPercentage;
+                                    $hasMarks = $subjectsCount > 0;
+                                    $percentage = $hasMarks && $totalMaxMarks > 0 ? ($totalMarks / $totalMaxMarks) * 100 : null;
+                                    $passPercentage = 40;
+                                    $isPass = $hasMarks && $percentage !== null && $percentage >= $passPercentage;
                                 @endphp
-                                <tr>
-                                    <td>{{ $student->roll_number }}</td>
-                                    <td>
-                                        <strong>{{ $student->first_name }} {{ $student->last_name }}</strong>
+                                <tr style="transition: all 0.2s;">
+                                    <td class="px-4 py-3">
+                                        <span class="fw-semibold text-primary">{{ $student->roll_number }}</span>
                                     </td>
-                                    <td>{{ $studentMarks->count() }}</td>
-                                    <td class="text-center">{{ $totalMarks }} / {{ $totalMaxMarks }}</td>
-                                    <td class="text-center">
-                                        <span class="badge bg-{{ $isPass ? 'success' : 'danger' }}">
-                                            {{ number_format($percentage, 1) }}%
-                                        </span>
+                                    <td class="py-3">
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar me-2" style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center;">
+                                                <span class="text-white small fw-bold">{{ substr($student->first_name, 0, 1) }}</span>
+                                            </div>
+                                            <strong class="text-dark">{{ $student->first_name }} {{ $student->last_name }}</strong>
+                                        </div>
                                     </td>
-                                    <td class="text-center">
-                                        @if($isPass)
-                                            <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Pass</span>
+                                    <td class="text-center py-3">
+                                        <span class="badge bg-light text-dark">{{ $subjectsCount }}</span>
+                                    </td>
+                                    <td class="text-center py-3">
+                                        @if($hasMarks)
+                                            <span class="fw-bold text-dark">{{ $totalMarks }}</span>
+                                            <span class="text-muted">/ {{ $totalMaxMarks }}</span>
                                         @else
-                                            <span class="badge bg-danger"><i class="bi bi-x-circle me-1"></i>Fail</span>
+                                            <span class="text-muted">-</span>
                                         @endif
                                     </td>
-                                    <td class="text-center">
-                                        <a href="{{ route('teacher.students.details', $student->id) }}" class="btn btn-sm btn-outline-primary">
-                                            <i class="bi bi-eye"></i> View
+                                    <td class="text-center py-3">
+                                        @if($hasMarks && $percentage !== null)
+                                            <div class="progress mx-auto" style="width: 80px; height: 8px; border-radius: 4px;">
+                                                <div class="progress-bar" role="progressbar" style="width: {{ min($percentage, 100) }}%; background: linear-gradient(90deg, {{ $isPass ? '#4facfe' : '#fa709a' }} 0%, {{ $isPass ? '#00f2fe' : '#fee140' }} 100%);"></div>
+                                            </div>
+                                            <span class="badge bg-{{ $isPass ? 'success' : 'danger' }} mt-1">
+                                                {{ number_format($percentage, 1) }}%
+                                            </span>
+                                        @else
+                                            <span class="text-muted">-</span>
+                                        @endif
+                                    </td>
+                                    <td class="text-center py-3">
+                                        @if(!$hasMarks)
+                                            <span class="badge" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                                                <i class="bi bi-clock me-1"></i>Pending
+                                            </span>
+                                        @elseif($isPass)
+                                            <span class="badge" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                                                <i class="bi bi-check-circle me-1"></i>Pass
+                                            </span>
+                                        @else
+                                            <span class="badge" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                                                <i class="bi bi-x-circle me-1"></i>Fail
+                                            </span>
+                                        @endif
+                                    </td>
+                                    <td class="text-center py-3">
+                                        <a href="{{ route('teacher.students.details', $student->id) }}" 
+                                           class="btn btn-sm" 
+                                           style="background: #f8f9fa; border: 1px solid #dee2e6; color: #667eea;">
+                                            <i class="bi bi-eye"></i>
                                         </a>
                                     </td>
                                 </tr>
@@ -138,26 +263,63 @@
                 </div>
                 
                 @if($students instanceof \Illuminate\Pagination\LengthAwarePaginator)
-                    <div class="mt-4">
-                        {{ $students->links() }}
+                    <div class="card-footer bg-white border-0 py-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted">
+                                Showing {{ $students->firstItem() }} to {{ $students->lastItem() }} of {{ $students->total() }} results
+                            </span>
+                            {{ $students->links('pagination::bootstrap-4') }}
+                        </div>
                     </div>
                 @endif
             @else
                 <div class="text-center py-5">
-                    <i class="bi bi-clipboard-x text-muted" style="font-size: 3rem;"></i>
-                    <p class="text-muted mt-3">No students found in this division</p>
+                    <div class="mb-3">
+                        <i class="bi bi-clipboard-x text-muted" style="font-size: 4rem;"></i>
+                    </div>
+                    <h5 class="text-muted">No students found</h5>
+                    <p class="text-muted">There are no students in this division</p>
                 </div>
             @endif
         </div>
     </div>
     @else
-    <div class="card" style="border: none; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08);">
+    <!-- Empty State -->
+    <div class="card" style="border: none; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08);">
         <div class="card-body text-center py-5">
-            <i class="bi bi-clipboard-data text-muted" style="font-size: 4rem;"></i>
-            <h5 class="mt-3 text-muted">Select a division and examination to view results</h5>
-            <p class="text-muted">Use the filters above to search for student results</p>
+            <div class="mb-4">
+                <div class="d-inline-flex align-items-center justify-content-center" style="width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <i class="bi bi-clipboard-data text-white" style="font-size: 3rem;"></i>
+                </div>
+            </div>
+            <h4 class="fw-bold text-dark mb-2">Select Division & Examination</h4>
+            <p class="text-muted mb-0">Choose a division and examination from the filters above to view student results</p>
         </div>
     </div>
     @endif
 </div>
+
+<style>
+    .pagination {
+        margin: 0;
+    }
+    .page-link {
+        border: none;
+        color: #667eea;
+        padding: 8px 12px;
+        margin: 0 2px;
+        border-radius: 8px;
+    }
+    .page-link:hover {
+        background: #f8f9fa;
+        color: #764ba2;
+    }
+    .page-item.active .page-link {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    .table tr:hover {
+        background-color: #f8f9fa !important;
+    }
+</style>
 @endsection

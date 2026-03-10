@@ -52,7 +52,7 @@
     </div>
 
     <!-- Attendance Form -->
-    <form action="{{ route('teacher.attendance.store', $timetable->id) }}" method="POST">
+    <form id="attendanceForm" action="{{ route('teacher.attendance.store', $timetable->id) }}" method="POST">
         @csrf
         <input type="hidden" name="date" value="{{ $date }}">
         
@@ -84,7 +84,7 @@
                         <tbody>
                             @foreach($students as $index => $student)
                                 @php
-                                    $existing = $existingAttendance->get($student->user_id);
+                                    $existing = $existingAttendance->get($student->id);
                                     $status = $existing ? $existing->status : 'present';
                                 @endphp
                                 <tr class="{{ $existing ? 'table-info' : '' }}">
@@ -106,7 +106,7 @@
                                         </div>
                                     </td>
                                     <td class="text-center">
-                                        <input type="radio" name="attendances[{{ $index }}][status]" value="present" 
+                                        <input type="radio" name="attendances[{{ $index }}][status]" value="present"
                                                class="btn-check" id="present_{{ $student->id }}"
                                                {{ $status === 'present' ? 'checked' : '' }}>
                                         <label class="btn btn-sm btn-outline-success" for="present_{{ $student->id }}">
@@ -114,7 +114,7 @@
                                         </label>
                                     </td>
                                     <td class="text-center">
-                                        <input type="radio" name="attendances[{{ $index }}][status]" value="absent" 
+                                        <input type="radio" name="attendances[{{ $index }}][status]" value="absent"
                                                class="btn-check" id="absent_{{ $student->id }}"
                                                {{ $status === 'absent' ? 'checked' : '' }}>
                                         <label class="btn btn-sm btn-outline-danger" for="absent_{{ $student->id }}">
@@ -122,7 +122,7 @@
                                         </label>
                                     </td>
                                     <td class="text-center">
-                                        <input type="radio" name="attendances[{{ $index }}][status]" value="late" 
+                                        <input type="radio" name="attendances[{{ $index }}][status]" value="late"
                                                class="btn-check" id="late_{{ $student->id }}"
                                                {{ $status === 'late' ? 'checked' : '' }}>
                                         <label class="btn btn-sm btn-outline-warning" for="late_{{ $student->id }}">
@@ -130,10 +130,10 @@
                                         </label>
                                     </td>
                                     <td>
-                                        <input type="hidden" name="attendances[{{ $index }}][student_id]" value="{{ $student->user_id }}">
+                                        <input type="hidden" name="attendances[{{ $index }}][student_id]" value="{{ $student->id }}">
                                         <input type="text" name="attendances[{{ $index }}][remarks]"
                                                class="form-control form-control-sm"
-                                               value="{{ $existing->remarks ?? '' }}"
+                                               value="{{ $existing?->remarks ?? '' }}"
                                                placeholder="Optional remarks">
                                     </td>
                                 </tr>
@@ -148,9 +148,11 @@
                         <i class="bi bi-info-circle me-1"></i>
                         Default status is <strong>Present</strong>. Click on status buttons to change.
                     </p>
-                    <button type="submit" class="btn btn-primary btn-lg">
-                        <i class="bi bi-check-circle me-2"></i>Submit Attendance
-                    </button>
+                    <div>
+                        <button type="button" class="btn btn-primary btn-lg" onclick="submitAttendance()">
+                            <i class="bi bi-check-circle me-2"></i>Submit Attendance
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -159,6 +161,30 @@
 
 @push('scripts')
 <script>
+// Force enable submit button on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const submitBtn = document.querySelector('button[type="submit"]');
+    if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.removeAttribute('disabled');
+    }
+    // Also add form submit handler
+    const form = document.getElementById('attendanceForm');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const submitBtns = form.querySelectorAll('button[type="submit"]');
+            submitBtns.forEach(btn => {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Submitting...';
+            });
+        });
+    }
+});
+
+function submitAttendance() {
+    document.getElementById('attendanceForm').submit();
+}
+
 function markAll(status) {
     const radios = document.querySelectorAll(`input[name$="[status]"][value="${status}"]`);
     radios.forEach(radio => {

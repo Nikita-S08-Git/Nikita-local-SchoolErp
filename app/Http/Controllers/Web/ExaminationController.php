@@ -4,8 +4,9 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Models\Result\Examination;
-use App\Models\Result\Subject;
+use App\Models\Academic\Subject;
 use App\Models\Result\StudentMark;
+use App\Models\Result\MarksDraft;
 use App\Models\Academic\Division;
 use App\Models\User\Student;
 use App\Models\TeacherAssignment;
@@ -17,8 +18,19 @@ class ExaminationController extends Controller
 {
     public function index()
     {
-        $examinations = Examination::latest()->paginate(15);
+        $examinations = Examination::with('subject')->latest()->paginate(15);
         return view('examinations.index', compact('examinations'));
+    }
+
+    /**
+     * Show examinations list for teachers (with teacher layout)
+     */
+    public function teacherExaminations()
+    {
+        $examinations = Examination::where('is_active', true)
+            ->latest()
+            ->paginate(15);
+        return view('teacher.examinations.index', compact('examinations'));
     }
 
     public function show(Examination $examination)
@@ -28,7 +40,8 @@ class ExaminationController extends Controller
 
     public function edit(Examination $examination)
     {
-        return view('examinations.edit', compact('examination'));
+        $subjects = Subject::where('is_active', true)->with('program')->get();
+        return view('examinations.edit', compact('examination', 'subjects'));
     }
 
     public function update(Request $request, Examination $examination)
@@ -40,6 +53,7 @@ class ExaminationController extends Controller
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
             'academic_year' => 'required|string|max:20',
+            'subject_id' => 'nullable|exists:subjects,id',
         ]);
 
         $examination->update($validated);
@@ -50,7 +64,8 @@ class ExaminationController extends Controller
 
     public function create()
     {
-        return view('examinations.create');
+        $subjects = Subject::where('is_active', true)->with('program')->get();
+        return view('examinations.create', compact('subjects'));
     }
 
     public function store(Request $request)
@@ -62,6 +77,7 @@ class ExaminationController extends Controller
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
             'academic_year' => 'required|string|max:20',
+            'subject_id' => 'nullable|exists:subjects,id',
         ]);
 
         Examination::create($validated);
@@ -72,25 +88,32 @@ class ExaminationController extends Controller
 
     public function marksEntry(Request $request, Examination $examination)
     {
-        $divisions = Division::where('is_active', true)->get();
-        $subjects = Subject::where('is_active', true)->get();
+        // Load subject from the exam (exam already has subject_id)
+        $examination->load('subject');
+        $subject = $examination->subject;
+        
+        $divisions = Division::where('is_active', true)->with('program')->get();
         
         $students = [];
         $marks = [];
         
-        if ($request->has('division_id') && $request->has('subject_id')) {
+        // Only require division selection now - subject comes from exam
+        if ($request->has('division_id')) {
             $students = Student::where('division_id', $request->division_id)
                 ->where('student_status', 'active')
                 ->orderBy('roll_number')
                 ->get();
             
-            $marks = StudentMark::where('examination_id', $examination->id)
-                ->where('subject_id', $request->subject_id)
-                ->get()
-                ->keyBy('student_id');
+            // Get marks using exam's subject_id
+            if ($subject) {
+                $marks = StudentMark::where('examination_id', $examination->id)
+                    ->where('subject_id', $subject->id)
+                    ->get()
+                    ->keyBy('student_id');
+            }
         }
         
-        return view('examinations.marks-entry', compact('examination', 'divisions', 'subjects', 'students', 'marks'));
+        return view('examinations.marks-entry', compact('examination', 'divisions', 'subject', 'students', 'marks'));
     }
 
     public function getStudents(Request $request, Examination $examination)
@@ -107,8 +130,14 @@ class ExaminationController extends Controller
 
     public function saveMarks(Request $request, Examination $examination)
     {
+        // Load subject from exam
+        $examination->load('subject');
+        
+        if (!$examination->subject) {
+            return redirect()->back()->with('error', 'This exam does not have a subject assigned. Please assign a subject to the exam first.');
+        }
+        
         $validated = $request->validate([
-            'subject_id' => 'required|exists:subjects,id',
             'division_id' => 'required|exists:divisions,id',
             'marks' => 'required|array',
         ]);
@@ -126,7 +155,7 @@ class ExaminationController extends Controller
                 [
                     'student_id' => $studentId,
                     'examination_id' => $examination->id,
-                    'subject_id' => $validated['subject_id'],
+                    'subject_id' => $examination->subject->id,
                 ],
                 [
                     'marks_obtained' => $marksObtained,
@@ -140,8 +169,7 @@ class ExaminationController extends Controller
 
         return redirect()->route('examinations.marks-entry', [
             'examination' => $examination->id,
-            'division_id' => $validated['division_id'],
-            'subject_id' => $validated['subject_id']
+            'division_id' => $validated['division_id']
         ])->with('success', 'Marks saved successfully!');
     }
 
@@ -197,9 +225,12 @@ class ExaminationController extends Controller
                 ->orderBy('roll_number')
                 ->paginate(20);
             
-            // Get marks for all students
+            // Get ALL marks for the division (not just paginated students)
+            // This ensures marks are available for all students regardless of page
             $results = StudentMark::where('examination_id', $request->examination_id)
-                ->whereIn('student_id', $students->pluck('id'))
+                ->whereIn('student_id', Student::where('division_id', $request->division_id)
+                    ->where('student_status', 'active')
+                    ->pluck('id'))
                 ->with(['subject'])
                 ->get();
         }
@@ -259,31 +290,24 @@ class ExaminationController extends Controller
             abort(403, 'You do not have access to this division.');
         }
         
-        $examination = Examination::findOrFail($examinationId);
+        $examination = Examination::with('subject')->findOrFail($examinationId);
         $division = Division::with('program', 'session')->findOrFail($divisionId);
         
-        // Get subjects for this division (from timetable)
-        $subjectIds = \App\Models\Academic\Timetable::where('division_id', $divisionId)
-            ->distinct()
-            ->pluck('subject_id')
-            ->unique();
+        // Get subject from exam - it's already assigned
+        $subject = $examination->subject;
         
-        $subjects = Subject::whereIn('id', $subjectIds)->get();
-        
-        $selectedSubject = null;
         $students = collect();
         $marks = collect();
         
-        if ($request->filled('subject_id')) {
-            $selectedSubject = Subject::find($request->subject_id);
-            
+        // Load students and marks if subject exists
+        if ($subject) {
             $students = Student::where('division_id', $divisionId)
                 ->where('student_status', 'active')
                 ->orderBy('roll_number')
-                ->get();
+                ->paginate(20);
             
             $marks = StudentMark::where('examination_id', $examinationId)
-                ->where('subject_id', $request->subject_id)
+                ->where('subject_id', $subject->id)
                 ->get()
                 ->keyBy('student_id');
         }
@@ -291,8 +315,7 @@ class ExaminationController extends Controller
         return view('teacher.results.enter-marks', compact(
             'examination', 
             'division', 
-            'subjects', 
-            'selectedSubject',
+            'subject',
             'students',
             'marks'
         ));
@@ -305,9 +328,15 @@ class ExaminationController extends Controller
     {
         $validated = $request->validate([
             'examination_id' => 'required|exists:examinations,id',
-            'subject_id' => 'required|exists:subjects,id',
             'marks' => 'required|array',
         ]);
+        
+        // Get the exam with its subject
+        $examination = Examination::with('subject')->findOrFail($validated['examination_id']);
+        
+        if (!$examination->subject) {
+            return redirect()->back()->with('error', 'This exam does not have a subject assigned. Please assign a subject to the exam first.');
+        }
         
         $teacher = Auth::user();
         
@@ -324,7 +353,7 @@ class ExaminationController extends Controller
                 [
                     'student_id' => $studentId,
                     'examination_id' => $validated['examination_id'],
-                    'subject_id' => $validated['subject_id'],
+                    'subject_id' => $examination->subject->id,
                 ],
                 [
                     'marks_obtained' => $marksObtained,
@@ -337,5 +366,85 @@ class ExaminationController extends Controller
         }
 
         return redirect()->back()->with('success', 'Marks saved successfully!');
+    }
+
+    /**
+     * Save draft marks - AJAX endpoint for auto-save
+     */
+    public function saveDraft(Request $request)
+    {
+        $validated = $request->validate([
+            'examination_id' => 'required|exists:examinations,id',
+            'subject_id' => 'required|exists:subjects,id',
+            'marks' => 'required|array',
+        ]);
+
+        $teacher = Auth::user();
+        $marksData = $validated['marks'];
+
+        $result = MarksDraft::saveMultipleDrafts(
+            $teacher->id,
+            $validated['examination_id'],
+            $validated['subject_id'],
+            $marksData
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Draft saved successfully!',
+            'saved_count' => $result['saved_count'],
+            'total' => $result['total'],
+            'timestamp' => now()->toISOString(),
+        ]);
+    }
+
+    /**
+     * Load draft marks - AJAX endpoint to fetch existing drafts
+     */
+    public function loadDrafts(Request $request)
+    {
+        $validated = $request->validate([
+            'examination_id' => 'required|exists:examinations,id',
+            'subject_id' => 'required|exists:subjects,id',
+        ]);
+
+        $teacher = Auth::user();
+
+        $drafts = MarksDraft::getDraftsKeyedByStudent(
+            $teacher->id,
+            $validated['examination_id'],
+            $validated['subject_id']
+        );
+
+        return response()->json([
+            'success' => true,
+            'drafts' => $drafts,
+            'count' => count($drafts),
+        ]);
+    }
+
+    /**
+     * Clear draft marks - AJAX endpoint to clear drafts after successful submission
+     */
+    public function clearDrafts(Request $request)
+    {
+        $validated = $request->validate([
+            'examination_id' => 'required|exists:examinations,id',
+            'subject_id' => 'nullable|exists:subjects,id',
+        ]);
+
+        $teacher = Auth::user();
+
+        $deleted = MarksDraft::clearDrafts(
+            $teacher->id,
+            $validated['examination_id'],
+            $validated['subject_id'] ?? null
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Drafts cleared successfully!',
+            'deleted_count' => $deleted,
+        ]);
     }
 }

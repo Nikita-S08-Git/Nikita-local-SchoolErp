@@ -26,46 +26,44 @@
         </div>
     </div>
 
-    <!-- Subject Selection -->
+    <!-- Exam Info -->
     <div class="card mb-4" style="border: none; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08);">
         <div class="card-body">
-            <form method="GET" action="{{ route('teacher.results.enter', ['examinationId' => $examination->id, 'divisionId' => $division->id]) }}">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label for="subject_id" class="form-label">Select Subject</label>
-                            <select name="subject_id" id="subject_id" class="form-select" onchange="this.form.submit()">
-                                <option value="">-- Select Subject --</option>
-                                @foreach($subjects as $subject)
-                                    <option value="{{ $subject->id }}" {{ request('subject_id') == $subject->id ? 'selected' : '' }}>
-                                        {{ $subject->name }}
-                                    </option>
-                                @endforeach
-                            </select>
+            @if($subject)
+                <div class="alert alert-info mb-0">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                        <div>
+                            <strong>Exam:</strong> {{ $examination->name }} &nbsp;|&nbsp;
+                            <strong>Subject:</strong> {{ $subject->name }} ({{ $subject->code }})
                         </div>
                     </div>
                 </div>
-            </form>
+            @else
+                <div class="alert alert-warning mb-0">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <strong>Warning:</strong> This exam does not have a subject assigned. Please edit the exam and assign a subject first.
+                </div>
+            @endif
         </div>
     </div>
 
     <!-- Marks Entry Form -->
-    @if($selectedSubject)
+    @if($subject && $students->count() > 0)
     <div class="card" style="border: none; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08);">
         <div class="card-header bg-white py-3">
             <div class="d-flex justify-content-between align-items-center">
                 <h5 class="fw-bold mb-0">
                     <i class="bi bi-table me-2 text-primary"></i>
-                    Marks Entry: {{ $selectedSubject->name }}
+                    Marks Entry: {{ $subject->name }}
                 </h5>
-                <span class="badge bg-primary">{{ $students->count() }} Students</span>
+                <span class="badge bg-primary">{{ $students->total() }} Students (Page {{ $students->currentPage() }} of {{ $students->lastPage() }})</span>
             </div>
         </div>
         <div class="card-body">
             <form method="POST" action="{{ route('teacher.results.store-marks') }}">
                 @csrf
                 <input type="hidden" name="examination_id" value="{{ $examination->id }}">
-                <input type="hidden" name="subject_id" value="{{ $selectedSubject->id }}">
                 <input type="hidden" name="division_id" value="{{ $division->id }}">
                 <input type="hidden" name="max_marks" value="{{ $maxMarks ?? 100 }}">
 
@@ -152,6 +150,17 @@
                     </table>
                 </div>
 
+                <!-- Pagination -->
+                @if($students->hasPages())
+                <div class="mt-4">
+                    <nav aria-label="Student pagination">
+                        <ul class="pagination justify-content-center">
+                            {{ $students->appends(request()->query())->links('pagination::bootstrap-4') }}
+                        </ul>
+                    </nav>
+                </div>
+                @endif
+
                 <div class="mt-4">
                     <button type="submit" class="btn btn-primary">
                         <i class="bi bi-save me-1"></i> Save Marks
@@ -166,9 +175,15 @@
     @else
     <div class="card" style="border: none; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08);">
         <div class="card-body text-center py-5">
-            <i class="bi bi-book text-muted" style="font-size: 4rem;"></i>
-            <h5 class="mt-3 text-muted">Select a subject to enter marks</h5>
-            <p class="text-muted">Choose a subject from the dropdown above</p>
+            @if($subject)
+                <i class="bi bi-people text-muted" style="font-size: 4rem;"></i>
+                <h5 class="mt-3 text-muted">No students in this division</h5>
+                <p class="text-muted">There are no students assigned to this division yet.</p>
+            @else
+                <i class="bi bi-exclamation-triangle text-muted" style="font-size: 4rem;"></i>
+                <h5 class="mt-3 text-muted">Subject not assigned</h5>
+                <p class="text-muted">This exam does not have a subject. Please edit the exam and assign a subject.</p>
+            @endif
         </div>
     </div>
     @endif

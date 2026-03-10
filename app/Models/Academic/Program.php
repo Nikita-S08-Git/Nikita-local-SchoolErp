@@ -44,6 +44,11 @@ class Program extends Model
         return $this->hasMany(Division::class);
     }
 
+    public function subjects(): HasMany
+    {
+        return $this->hasMany(Subject::class);
+    }
+
     public function scopeActive($query)
     {
         return $query->where('is_active', true);

@@ -2,6 +2,29 @@
 
 @section('title', 'All Results')
 
+@section('styles')
+<style>
+    .pagination .page-link {
+        color: #667eea;
+        border-color: #e9ecef;
+        padding: 0.5rem 0.75rem;
+    }
+    .pagination .page-item.active .page-link {
+        background-color: #667eea;
+        border-color: #667eea;
+        color: white;
+    }
+    .pagination .page-link:hover {
+        color: #667eea;
+        background-color: #f8f9fa;
+    }
+    .pagination .page-item.disabled .page-link {
+        color: #6c757d;
+        background-color: #f8f9fa;
+    }
+</style>
+@endsection
+
 @section('content')
 <div class="container-fluid px-4 py-4">
     <div class="row mb-4">
@@ -77,7 +100,7 @@
                     Results: {{ $selectedDivision->division_name }} - {{ $selectedExam->name }}
                 </h5>
                 <div>
-                    <span class="badge bg-primary">{{ $students->count() }} Students</span>
+                    <span class="badge bg-primary">{{ $students->total() }} Students (Page {{ $students->currentPage() }} of {{ $students->lastPage() }})</span>
                 </div>
             </div>
         </div>
@@ -100,39 +123,59 @@
                             @foreach($students as $student)
                                 @php
                                     $studentMarks = $results->where('student_id', $student->id);
+                                    $subjectsCount = $studentMarks->count();
                                     $totalMarks = $studentMarks->sum('marks_obtained');
                                     $totalMaxMarks = $studentMarks->sum('max_marks');
-                                    $percentage = $totalMaxMarks > 0 ? ($totalMarks / $totalMaxMarks) * 100 : 0;
+                                    $hasMarks = $subjectsCount > 0;
+                                    $percentage = $hasMarks && $totalMaxMarks > 0 ? ($totalMarks / $totalMaxMarks) * 100 : null;
                                     $passPercentage = 40;
-                                    $isPass = $percentage >= $passPercentage;
+                                    $isPass = $hasMarks && $percentage !== null && $percentage >= $passPercentage;
                                     
-                                    // Calculate grade
+                                    // Calculate grade only if marks exist
                                     $grade = '';
-                                    if ($percentage >= 90) $grade = 'A+';
-                                    elseif ($percentage >= 80) $grade = 'A';
-                                    elseif ($percentage >= 70) $grade = 'B+';
-                                    elseif ($percentage >= 60) $grade = 'B';
-                                    elseif ($percentage >= 50) $grade = 'C';
-                                    elseif ($percentage >= 40) $grade = 'D';
-                                    else $grade = 'F';
+                                    if ($hasMarks && $percentage !== null) {
+                                        if ($percentage >= 90) $grade = 'A+';
+                                        elseif ($percentage >= 80) $grade = 'A';
+                                        elseif ($percentage >= 70) $grade = 'B+';
+                                        elseif ($percentage >= 60) $grade = 'B';
+                                        elseif ($percentage >= 50) $grade = 'C';
+                                        elseif ($percentage >= 40) $grade = 'D';
+                                        else $grade = 'F';
+                                    }
                                 @endphp
                                 <tr>
                                     <td>{{ $student->roll_number }}</td>
                                     <td>
                                         <strong>{{ $student->first_name }} {{ $student->last_name }}</strong>
                                     </td>
-                                    <td class="text-center">{{ $studentMarks->count() }}</td>
-                                    <td class="text-center">{{ $totalMarks }} / {{ $totalMaxMarks }}</td>
+                                    <td class="text-center">{{ $subjectsCount }}</td>
                                     <td class="text-center">
-                                        <span class="badge bg-{{ $isPass ? 'success' : 'danger' }}">
-                                            {{ number_format($percentage, 1) }}%
-                                        </span>
+                                        @if($hasMarks)
+                                            {{ $totalMarks }} / {{ $totalMaxMarks }}
+                                        @else
+                                            <span class="text-muted">-</span>
+                                        @endif
                                     </td>
                                     <td class="text-center">
-                                        <span class="badge bg-{{ $isPass ? 'success' : 'danger' }}">{{ $grade }}</span>
+                                        @if($hasMarks && $percentage !== null)
+                                            <span class="badge bg-{{ $isPass ? 'success' : 'danger' }}">
+                                                {{ number_format($percentage, 1) }}%
+                                            </span>
+                                        @else
+                                            <span class="text-muted">-</span>
+                                        @endif
                                     </td>
                                     <td class="text-center">
-                                        @if($isPass)
+                                        @if($hasMarks)
+                                            <span class="badge bg-{{ $isPass ? 'success' : 'danger' }}">{{ $grade }}</span>
+                                        @else
+                                            <span class="text-muted">-</span>
+                                        @endif
+                                    </td>
+                                    <td class="text-center">
+                                        @if(!$hasMarks)
+                                            <span class="badge bg-warning"><i class="bi bi-clock me-1"></i>Pending</span>
+                                        @elseif($isPass)
                                             <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Pass</span>
                                         @else
                                             <span class="badge bg-danger"><i class="bi bi-x-circle me-1"></i>Fail</span>
@@ -146,7 +189,57 @@
                 
                 @if($students instanceof \Illuminate\Pagination\LengthAwarePaginator)
                     <div class="mt-4">
-                        {{ $students->links() }}
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination justify-content-center">
+                                {{-- Previous Page Link --}}
+                                @if ($students->onFirstPage())
+                                    <li class="page-item disabled">
+                                        <span class="page-link"><i class="bi bi-chevron-left"></i> Previous</span>
+                                    </li>
+                                @else
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ $students->previousPageUrl() }}" rel="prev"><i class="bi bi-chevron-left"></i> Previous</a>
+                                    </li>
+                                @endif
+
+                                {{-- Pagination Elements --}}
+                                @foreach ($elements as $element)
+                                    {{-- "Three Dots" Separator --}}
+                                    @if (is_string($element))
+                                        <li class="page-item disabled"><span class="page-link">{{ $element }}</span></li>
+                                    @endif
+
+                                    {{-- Array Of Links --}}
+                                    @if (is_array($element))
+                                        @foreach ($element as $page => $url)
+                                            @if ($page == $students->currentPage())
+                                                <li class="page-item active"><span class="page-link">{{ $page }}</span></li>
+                                            @elseif ($page == 1 || $page == $students->lastPage() || abs($page - $students->currentPage()) <= 2)
+                                                <li class="page-item"><a class="page-link" href="{{ $url }}">{{ $page }}</a></li>
+                                            @elseif ($page == $students->currentPage() - 3 || $page == $students->currentPage() + 3)
+                                                <li class="page-item disabled"><span class="page-link">...</span></li>
+                                            @endif
+                                        @endforeach
+                                    @endif
+                                @endforeach
+
+                                {{-- Next Page Link --}}
+                                @if ($students->hasMorePages())
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ $students->nextPageUrl() }}" rel="next">Next <i class="bi bi-chevron-right"></i></a>
+                                    </li>
+                                @else
+                                    <li class="page-item disabled">
+                                        <span class="page-link">Next <i class="bi bi-chevron-right"></i></span>
+                                    </li>
+                                @endif
+                            </ul>
+                        </nav>
+                        <div class="text-center mt-2">
+                            <small class="text-muted">
+                                Showing {{ $students->firstItem() }} to {{ $students->lastItem() }} of {{ $students->total() }} results
+                            </small>
+                        </div>
                     </div>
                 @endif
             @else

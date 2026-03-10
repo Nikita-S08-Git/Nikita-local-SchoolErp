@@ -122,4 +122,12 @@ class LibraryController extends Controller
         return redirect()->route('library.books.index')
             ->with('success', 'Book deleted successfully!');
     }
+
+    public function students()
+    {
+        $students = Student::where('student_status', 'active')
+            ->with('user', 'division.program')
+            ->paginate(15);
+        return view('library.students', compact('students'));
+    }
 }
