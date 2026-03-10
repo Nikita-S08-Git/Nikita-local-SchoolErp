@@ -39,80 +39,73 @@
         </div>
     </div>
 
-    <!-- Statistics Cards -->
-    <div class="row g-4 mb-4">
-        <div class="col-xl-3 col-md-6">
-            <div class="principal-stats-card principal-stats-blue">
-                <div class="stats-card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <p class="stats-label">Total Students</p>
-                            <h2 class="stats-value">{{ number_format($totalStudents) }}</h2>
-                            <p class="stats-change">
-                                <i class="bi bi-arrow-up"></i> Active students
-                            </p>
-                        </div>
-                        <div class="stats-icon stats-icon-blue">
-                            <i class="bi bi-people-fill"></i>
-                        </div>
-                    </div>
+    <!-- Statistics Cards - Row 1 -->
+    <div class="row g-4 mb-4 justify-content-center">
+        <div class="col-xl-4">
+            <div class="principal-stats-card principal-stats-blue text-center h-100">
+                <div class="stats-card-body py-4">
+                    <i class="bi bi-people-fill fs-2 mb-2 d-block" style="color: rgba(255,255,255,0.9);"></i>
+                    <p class="stats-label mb-1">Total Students</p>
+                    <h2 class="stats-value mb-1">{{ number_format($totalStudents) }}</h2>
+                    <p class="stats-change mb-0"><small>Active Students</small></p>
                 </div>
             </div>
         </div>
 
-        <div class="col-xl-3 col-md-6">
-            <div class="principal-stats-card principal-stats-green">
-                <div class="stats-card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <p class="stats-label">Total Teachers</p>
-                            <h2 class="stats-value">{{ number_format($totalTeachers) }}</h2>
-                            <p class="stats-change">
-                                <i class="bi bi-person-badge"></i> Faculty members
-                            </p>
-                        </div>
-                        <div class="stats-icon stats-icon-green">
-                            <i class="bi bi-person-badge-fill"></i>
-                        </div>
-                    </div>
+        <div class="col-xl-4">
+            <div class="principal-stats-card principal-stats-green text-center h-100">
+                <div class="stats-card-body py-4">
+                    <i class="bi bi-person-badge-fill fs-2 mb-2 d-block" style="color: rgba(255,255,255,0.9);"></i>
+                    <p class="stats-label mb-1">Total Teachers</p>
+                    <h2 class="stats-value mb-1">{{ number_format($totalTeachers) }}</h2>
+                    <p class="stats-change mb-0"><small>Active Teachers</small></p>
                 </div>
             </div>
         </div>
 
-        <div class="col-xl-3 col-md-6">
-            <div class="principal-stats-card principal-stats-orange">
-                <div class="stats-card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <p class="stats-label">Total Programs</p>
-                            <h2 class="stats-value">{{ number_format($totalPrograms) }}</h2>
-                            <p class="stats-change">
-                                <i class="bi bi-mortarboard"></i> Active programs
-                            </p>
-                        </div>
-                        <div class="stats-icon stats-icon-orange">
-                            <i class="bi bi-mortarboard-fill"></i>
-                        </div>
-                    </div>
+        <div class="col-xl-4">
+            <div class="principal-stats-card principal-stats-red text-center h-100">
+                <div class="stats-card-body py-4">
+                    <i class="bi bi-building-fill fs-2 mb-2 d-block" style="color: rgba(255,255,255,0.9);"></i>
+                    <p class="stats-label mb-1">Total Departments</p>
+                    <h2 class="stats-value mb-1">{{ number_format($totalDepartments) }}</h2>
+                    <p class="stats-change mb-0"><small>Departments</small></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards - Row 2 -->
+    <div class="row g-4 mb-4 justify-content-center">
+        <div class="col-xl-4">
+            <div class="principal-stats-card principal-stats-orange text-center h-100">
+                <div class="stats-card-body py-4">
+                    <i class="bi bi-mortarboard-fill fs-2 mb-2 d-block" style="color: rgba(255,255,255,0.9);"></i>
+                    <p class="stats-label mb-1">Total Programs</p>
+                    <h2 class="stats-value mb-1">{{ number_format($totalPrograms) }}</h2>
+                    <p class="stats-change mb-0"><small>Academic Programs</small></p>
                 </div>
             </div>
         </div>
 
-        <div class="col-xl-3 col-md-6">
-            <div class="principal-stats-card principal-stats-purple">
-                <div class="stats-card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <p class="stats-label">Total Divisions</p>
-                            <h2 class="stats-value">{{ number_format($totalDivisions) }}</h2>
-                            <p class="stats-change">
-                                <i class="bi bi-layers"></i> Active classes
-                            </p>
-                        </div>
-                        <div class="stats-icon stats-icon-purple">
-                            <i class="bi bi-layers-fill"></i>
-                        </div>
-                    </div>
+        <div class="col-xl-4">
+            <div class="principal-stats-card principal-stats-purple text-center h-100">
+                <div class="stats-card-body py-4">
+                    <i class="bi bi-book-fill fs-2 mb-2 d-block" style="color: rgba(255,255,255,0.9);"></i>
+                    <p class="stats-label mb-1">Total Subjects</p>
+                    <h2 class="stats-value mb-1">{{ number_format($totalSubjects) }}</h2>
+                    <p class="stats-change mb-0"><small>Available Subjects</small></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4">
+            <div class="principal-stats-card principal-stats-teal text-center h-100">
+                <div class="stats-card-body py-4">
+                    <i class="bi bi-clipboard-check-fill fs-2 mb-2 d-block" style="color: rgba(255,255,255,0.9);"></i>
+                    <p class="stats-label mb-1">Total Exams</p>
+                    <h2 class="stats-value mb-1">{{ number_format($totalExaminations) }}</h2>
+                    <p class="stats-change mb-0"><small>Scheduled Exams</small></p>
                 </div>
             </div>
         </div>
@@ -327,94 +320,6 @@
                 </div>
             </div>
 
-            <!-- Teacher-Division Assignments -->
-            <div class="principal-card">
-                <div class="card-header-principal">
-                    <h5 class="mb-0">
-                        <i class="bi bi-diagram-3 me-2"></i>Teacher-Division Assignments
-                    </h5>
-                    <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#assignDivisionModal">
-                        <i class="bi bi-plus-circle me-1"></i>New Assignment
-                    </button>
-                </div>
-                <div class="card-body-principal">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Teacher</th>
-                                    <th>Division</th>
-                                    <th>Program</th>
-                                    <th>Students</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @php
-                                    $assignments = \App\Models\TeacherAssignment::with(['teacher', 'division.program', 'division.students'])
-                                        ->where('assignment_type', 'division')
-                                        ->latest()
-                                        ->limit(10)
-                                        ->get();
-                                @endphp
-                                @forelse($assignments as $assignment)
-                                    <tr>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <div class="teacher-avatar-small me-2">
-                                                    {{ substr($assignment->teacher->name ?? 'N', 0, 1) }}
-                                                </div>
-                                                <div>
-                                                    <div class="fw-semibold">{{ $assignment->teacher->name ?? 'N/A' }}</div>
-                                                    <small class="text-muted">{{ $assignment->teacher->email ?? '' }}</small>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <span class="badge bg-primary">{{ $assignment->division->division_name ?? 'N/A' }}</span>
-                                        </td>
-                                        <td>{{ $assignment->division->program->name ?? 'N/A' }}</td>
-                                        <td>
-                                            <span class="badge bg-info">
-                                                {{ $assignment->division->students->where('student_status', 'active')->count() }} Students
-                                            </span>
-                                        </td>
-                                        <td>
-                                            @if($assignment->is_active)
-                                                <span class="badge bg-success">Active</span>
-                                            @else
-                                                <span class="badge bg-secondary">Inactive</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <div class="btn-group btn-group-sm">
-                                                <button class="btn btn-outline-primary" title="Edit">
-                                                    <i class="bi bi-pencil"></i>
-                                                </button>
-                                                <button class="btn btn-outline-danger" title="Remove">
-                                                    <i class="bi bi-trash"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="6" class="text-center py-4">
-                                            <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
-                                            <p class="text-muted mt-2">No assignments found</p>
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Right Column -->
-        <div class="col-lg-4">
             <!-- Quick Actions -->
             <div class="principal-card mb-4">
                 <div class="card-header-principal">
@@ -422,74 +327,50 @@
                         <i class="bi bi-lightning-charge me-2"></i>Quick Actions
                     </h5>
                 </div>
-                <div class="card-body-principal">
-                    <div class="quick-actions-list">
-                        <a href="{{ route('principal.students.index') }}" class="quick-action-link">
-                            <div class="quick-action-icon bg-primary-subtle">
-                                <i class="bi bi-people text-primary"></i>
-                            </div>
-                            <div class="flex-grow-1">
-                                <div class="fw-semibold">Manage Students</div>
-                                <small class="text-muted">View and manage all students</small>
-                            </div>
-                            <i class="bi bi-chevron-right text-muted"></i>
-                        </a>
-                        <a href="{{ route('principal.teachers.index') }}" class="quick-action-link">
-                            <div class="quick-action-icon bg-success-subtle">
-                                <i class="bi bi-person-badge text-success"></i>
-                            </div>
-                            <div class="flex-grow-1">
-                                <div class="fw-semibold">Manage Teachers</div>
-                                <small class="text-muted">View and manage faculty</small>
-                            </div>
-                            <i class="bi bi-chevron-right text-muted"></i>
-                        </a>
-                        <a href="{{ route('web.departments.index') }}" class="quick-action-link">
-                            <div class="quick-action-icon bg-info-subtle">
-                                <i class="bi bi-building text-info"></i>
-                            </div>
-                            <div class="flex-grow-1">
-                                <div class="fw-semibold">Manage Departments</div>
-                                <small class="text-muted">View and manage departments</small>
-                            </div>
-                            <i class="bi bi-chevron-right text-muted"></i>
-                        </a>
-                        <a href="{{ route('academic.divisions.index') }}" class="quick-action-link">
-                            <div class="quick-action-icon bg-warning-subtle">
-                                <i class="bi bi-layers text-warning"></i>
-                            </div>
-                            <div class="flex-grow-1">
-                                <div class="fw-semibold">Manage Divisions</div>
-                                <small class="text-muted">View and manage classes</small>
-                            </div>
-                            <i class="bi bi-chevron-right text-muted"></i>
-                        </a>
-                        <a href="{{ route('fees.structures.index') }}" class="quick-action-link">
-                            <div class="quick-action-icon bg-info-subtle">
-                                <i class="bi bi-cash-coin text-info"></i>
-                            </div>
-                            <div class="flex-grow-1">
-                                <div class="fw-semibold">Fee Management</div>
-                                <small class="text-muted">Manage fee structures</small>
-                            </div>
-                            <i class="bi bi-chevron-right text-muted"></i>
-                        </a>
-                        <a href="{{ route('academic.timetable.grid') }}" class="quick-action-link">
-                            <div class="quick-action-icon bg-purple-subtle">
-                                <i class="bi bi-calendar-week text-purple"></i>
-                            </div>
-                            <div class="flex-grow-1">
-                                <div class="fw-semibold">Timetable</div>
-                                <small class="text-muted">View and manage schedules</small>
-                            </div>
-                            <i class="bi bi-chevron-right text-muted"></i>
-                        </a>
-                        <a href="{{ route('reports.index') }}" class="quick-action-link">
-                            <div class="quick-action-icon bg-danger-subtle">
-                                <i class="bi bi-file-earmark-bar-graph text-danger"></i>
-                            </div>
-                            <div class="flex-grow-1">
-                                <div class="fw-semibold">Reports</div>
+                <div class="card-body-principal p-3">
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <a href="{{ route('dashboard.students.index') }}#create" class="btn btn-primary w-100 py-2">
+                                <i class="bi bi-person-plus me-1"></i>Add Student
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="{{ route('dashboard.teachers.index') }}#create" class="btn btn-success w-100 py-2">
+                                <i class="bi bi-person-badge me-1"></i>Add Teacher
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="{{ route('web.departments.create') }}" class="btn btn-info w-100 py-2">
+                                <i class="bi bi-building me-1"></i>Add Department
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="{{ route('academic.programs.create') }}" class="btn btn-warning w-100 py-2">
+                                <i class="bi bi-mortarboard me-1"></i>Add Program
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="{{ route('academic.subjects.create') }}" class="btn btn-secondary w-100 py-2">
+                                <i class="bi bi-book me-1"></i>Add Subject
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="{{ route('examinations.create') }}" class="btn btn-danger w-100 py-2">
+                                <i class="bi bi-clipboard-plus me-1"></i>Create Exam
+                            </a>
+                        </div>
+                        <div class="col-12">
+                            <a href="{{ route('principal.results') }}" class="btn btn-dark w-100 py-2">
+                                <i class="bi bi-graph-up me-1"></i>View Results
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="col-lg-4">
                                 <small class="text-muted">Generate and view reports</small>
                             </div>
                             <i class="bi bi-chevron-right text-muted"></i>
@@ -1051,7 +932,15 @@ document.addEventListener('DOMContentLoaded', function() {
     background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
 }
 
-/* Principal Cards */
+.principal-stats-red {
+    background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+}
+
+.principal-stats-teal {
+    background: linear-gradient(135deg, #14b8a6 0%, #0f766e 100%);
+}
+
+/* Stats Icon Colors */
 .principal-card {
     background: white;
     border-radius: 16px;

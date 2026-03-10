@@ -86,7 +86,12 @@ class ReportController extends Controller
             ];
         }
         
-        $pdf = Pdf::loadView('pdf.attendance-report', compact('division', 'report', 'request'));
+        $pdf = Pdf::loadView('pdf.attendance-report', [
+            'division' => $division,
+            'report' => $report,
+            'startDate' => $request->from_date,
+            'endDate' => $request->to_date,
+        ]);
         return $pdf->download('attendance-report-' . $division->division_name . '.pdf');
     }
 

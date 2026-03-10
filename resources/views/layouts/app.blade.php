@@ -545,7 +545,13 @@
         
         <ul class="nav flex-column">
             @php
-                $role = auth()->check() ? (auth()->user()->roles->first()->name ?? 'student') : 'student';
+                $user = auth()->check() ? auth()->user() : null;
+                $role = $user ? ($user->roles->first()->name ?? 'student') : 'student';
+                
+                // Fallback for librarian by email
+                if ($role === 'student' && $user && $user->email === 'librarian@schoolerp.com') {
+                    $role = 'librarian';
+                }
                 
                 // Map roles to dashboard routes
                 $dashboardRoutes = [
@@ -622,6 +628,10 @@
                     </a>
                     <div class="collapse {{ request()->routeIs('academic.*') || request()->routeIs('fees.*') ? 'show' : '' }}" id="academicConfig">
                         <div class="dropdown-menu show">
+                            <a class="dropdown-item {{ request()->routeIs('web.departments.*') ? 'active' : '' }}"
+                               href="{{ route('web.departments.index') }}">
+                                <i class="bi bi-building me-2"></i>Departments
+                            </a>
                             <a class="dropdown-item {{ request()->routeIs('academic.programs.*') ? 'active' : '' }}"
                                href="{{ route('academic.programs.index') }}">
                                 <i class="bi bi-mortarboard me-2"></i>Programs
@@ -710,6 +720,16 @@
             @endif
             
             @if(in_array($role, ['principal', 'office']))
+            <!-- Admissions Section for Principal -->
+            <div class="nav-section">
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('admissions.*') ? 'active' : '' }}" href="{{ route('admissions.index') }}">
+                        <i class="bi bi-person-plus"></i>
+                        <span>Admissions</span>
+                    </a>
+                </li>
+            </div>
+
             <!-- User Management Section -->
             <div class="nav-section">
                 <li class="nav-item dropdown">
@@ -743,6 +763,10 @@
                     </a>
                     <div class="collapse {{ request()->routeIs('academic.*') ? 'show' : '' }}" id="academicManagement">
                         <div class="dropdown-menu show">
+                            <a class="dropdown-item {{ request()->routeIs('web.departments.*') ? 'active' : '' }}"
+                               href="{{ route('web.departments.index') }}">
+                                <i class="bi bi-building me-2"></i>Departments
+                            </a>
                             <a class="dropdown-item {{ request()->routeIs('academic.programs.*') ? 'active' : '' }}"
                                href="{{ route('academic.programs.index') }}">
                                 <i class="bi bi-mortarboard me-2"></i>Programs
@@ -882,6 +906,16 @@
                     </a>
                 </li>
             </div>
+
+            <!-- Reports Section for Principal -->
+            <div class="nav-section">
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('reports.index') ? 'active' : '' }}" href="{{ route('reports.index') }}">
+                        <i class="bi bi-graph-up"></i>
+                        <span>Reports</span>
+                    </a>
+                </li>
+            </div>
             @endif
             
             @if($role === 'student')
@@ -965,6 +999,50 @@
                             </a>
                         </div>
                     </div>
+                </li>
+            </div>
+            @endif
+            
+            @if($role === 'librarian')
+            <!-- Librarian Section -->
+            <!-- Library Management Section -->
+            <div class="nav-section">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle {{ request()->routeIs('library.*') ? 'active' : '' }}" 
+                       href="#" data-bs-toggle="collapse" data-bs-target="#libraryManagement" aria-expanded="{{ request()->routeIs('library.*') ? 'true' : 'false' }}">
+                        <i class="bi bi-book"></i>
+                        <span>Library</span>
+                    </a>
+                    <div class="collapse {{ request()->routeIs('library.*') ? 'show' : '' }}" id="libraryManagement">
+                        <div class="dropdown-menu show">
+                            <a class="dropdown-item {{ request()->routeIs('library.books.index') ? 'active' : '' }}"
+                               href="{{ route('library.books.index') }}">
+                                <i class="bi bi-journal-bookmark me-2"></i>Books
+                            </a>
+                            <a class="dropdown-item {{ request()->routeIs('library.issues.create') ? 'active' : '' }}"
+                               href="{{ route('library.issues.create') }}">
+                                <i class="bi bi-plus-circle me-2"></i>Issue Book
+                            </a>
+                            <a class="dropdown-item {{ request()->routeIs('library.issues.index') ? 'active' : '' }}"
+                               href="{{ route('library.issues.index') }}">
+                                <i class="bi bi-arrow-return-left me-2"></i>Return Books
+                            </a>
+                            <a class="dropdown-item {{ request()->routeIs('library.students') ? 'active' : '' }}"
+                               href="{{ route('library.students') }}">
+                                <i class="bi bi-people me-2"></i>Students
+                            </a>
+                        </div>
+                    </div>
+                </li>
+            </div>
+
+            <!-- View Only Section -->
+            <div class="nav-section">
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('academic.holidays.*') ? 'active' : '' }}" href="{{ route('academic.holidays.index') }}">
+                        <i class="bi bi-calendar-event"></i>
+                        <span>Holidays</span>
+                    </a>
                 </li>
             </div>
             @endif

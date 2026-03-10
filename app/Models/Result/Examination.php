@@ -5,6 +5,7 @@ namespace App\Models\Result;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Examination extends Model
 {
@@ -16,7 +17,7 @@ class Examination extends Model
     }
 
     protected $fillable = [
-        'name', 'code', 'type', 'start_date', 'end_date', 'academic_year', 'status'
+        'name', 'code', 'type', 'start_date', 'end_date', 'academic_year', 'status', 'subject_id'
     ];
 
     protected $casts = [
@@ -27,6 +28,11 @@ class Examination extends Model
     public function studentMarks(): HasMany
     {
         return $this->hasMany(StudentMark::class);
+    }
+
+    public function subject(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\Academic\Subject::class);
     }
 
     public function scopeActive($query)

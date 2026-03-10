@@ -117,7 +117,7 @@ Route::prefix('attendance')->name('attendance.')->group(function () {
 });
 
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'role:admin|principal'])->group(function () {
     // Web-specific route names with 'web.' prefix
     Route::prefix('departments')
         ->name('web.departments.') // ← 'web.' prefix add kiya
@@ -371,6 +371,11 @@ Route::get('/', function() {
         $user = auth()->user();
         $role = $user->roles->first()->name ?? 'student';
 
+        // Fallback for librarian by email
+        if ($role === 'student' && $user->email === 'librarian@schoolerp.com') {
+            $role = 'librarian';
+        }
+
         // Role-based redirect with proper route mapping
         $redirectRoutes = [
             'principal' => 'dashboard.principal',
@@ -379,6 +384,7 @@ Route::get('/', function() {
             'class_teacher' => 'teacher.dashboard',
             'subject_teacher' => 'teacher.dashboard',
             'student' => 'dashboard.student',
+            'accountant' => 'dashboard.accounts_staff',
             'accounts_staff' => 'dashboard.accounts_staff',
             'office' => 'dashboard.office',
             'librarian' => 'dashboard.librarian',
@@ -452,7 +458,7 @@ Route::middleware(['auth'])->group(function () {
 // ============================================
 
 // Examination Management
-Route::middleware(['auth', 'role:admin|teacher|class_teacher|subject_teacher|hod_commerce|hod_science|hod_management|hod_arts'])->prefix('examinations')->name('examinations.')->group(function () {
+Route::middleware(['auth', 'role:admin|principal|teacher|class_teacher|subject_teacher|hod_commerce|hod_science|hod_management|hod_arts'])->prefix('examinations')->name('examinations.')->group(function () {
     Route::get('/', [ExaminationController::class, 'index'])->name('index');
     Route::get('/create', [ExaminationController::class, 'create'])->name('create');
     Route::post('/', [ExaminationController::class, 'store'])->name('store');
@@ -487,6 +493,9 @@ Route::middleware(['auth'])->prefix('reports')->name('reports.')->group(function
 
 // Library Management
 Route::middleware(['auth'])->prefix('library')->name('library.')->group(function () {
+    // Students - Librarian only
+    Route::get('/students', [LibraryController::class, 'students'])->name('students');
+    
     // Books
     Route::prefix('books')->name('books.')->group(function () {
         Route::get('/', [LibraryController::class, 'index'])->name('index');

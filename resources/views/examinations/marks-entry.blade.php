@@ -17,33 +17,44 @@
                 <div class="alert alert-success">{{ session('success') }}</div>
             @endif
 
-            <form method="GET" class="mb-4">
+            @if(session('error'))
+                <div class="alert alert-danger">{{ session('error') }}</div>
+            @endif
+
+            <!-- Exam Info Header -->
+            @if($subject)
+            <div class="alert alert-info mb-4">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-info-circle-fill me-2"></i>
+                    <div>
+                        <strong>Exam:</strong> {{ $examination->name }} &nbsp;|&nbsp;
+                        <strong>Subject:</strong> {{ $subject->name }} ({{ $subject->code }})
+                    </div>
+                </div>
+            </div>
+            @else
+            <div class="alert alert-warning mb-4">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <strong>Warning:</strong> This exam does not have a subject assigned. Please edit the exam and assign a subject first.
+            </div>
+            @endif
+
+            <form method="GET" class="mb-4" id="filterForm">
                 <div class="row">
-                    <div class="col-md-5">
+                    <div class="col-md-6">
                         <label class="form-label">Division *</label>
-                        <select name="division_id" class="form-select" required>
+                        <select name="division_id" id="divisionSelect" class="form-select" required>
                             <option value="">Select Division</option>
                             @foreach($divisions as $division)
                                 <option value="{{ $division->id }}" {{ request('division_id') == $division->id ? 'selected' : '' }}>
-                                    {{ $division->division_name }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-5">
-                        <label class="form-label">Subject *</label>
-                        <select name="subject_id" class="form-select" required>
-                            <option value="">Select Subject</option>
-                            @foreach($subjects as $subject)
-                                <option value="{{ $subject->id }}" {{ request('subject_id') == $subject->id ? 'selected' : '' }}>
-                                    {{ $subject->name }} ({{ $subject->code }})
+                                    {{ $division->division_name }} {{ $division->program ? ' - ' . $division->program->name : '' }}
                                 </option>
                             @endforeach
                         </select>
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">&nbsp;</label>
-                        <button type="submit" class="btn btn-primary w-100">Load Students</button>
+                        <button type="submit" class="btn btn-primary w-100" {{ !$subject ? 'disabled' : '' }}>Load Students</button>
                     </div>
                 </div>
             </form>
@@ -52,7 +63,6 @@
             <form id="marksForm" action="{{ route('examinations.save-marks', $examination) }}" method="POST">
                 @csrf
                 <input type="hidden" name="division_id" value="{{ request('division_id') }}">
-                <input type="hidden" name="subject_id" value="{{ request('subject_id') }}">
                 <input type="hidden" name="max_marks" value="100">
                 
                 <div class="table-responsive">
@@ -113,13 +123,20 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    const divisionSelect = document.getElementById('divisionSelect');
+    const filterForm = document.getElementById('filterForm');
+    
+    // Auto-submit form when division changes
+    divisionSelect.addEventListener('change', function() {
+        filterForm.submit();
+    });
     // Configuration
     const AUTO_SAVE_INTERVAL = 30000; // 30 seconds
     const STORAGE_KEY_PREFIX = 'marks_draft_';
     
     // Get form elements
     const examId = {{ $examination->id }};
-    const subjectId = new URLSearchParams(window.location.search).get('subject_id');
+    const subjectId = {{ $subject ? $subject->id : 'null' }};
     const marksForm = document.getElementById('marksForm');
     const draftStatus = document.getElementById('draftStatus');
     const draftIndicator = document.getElementById('draftIndicator');
@@ -165,7 +182,10 @@ document.addEventListener('DOMContentLoaded', function() {
      * Save draft to server
      */
     function saveDraft() {
-        if (!subjectId) return;
+        if (!subjectId) {
+            console.warn('No subject assigned to this exam');
+            return;
+        }
         
         updateDraftStatus('saving');
         
@@ -207,7 +227,10 @@ document.addEventListener('DOMContentLoaded', function() {
      * Load drafts from server
      */
     function loadDraftsFromServer() {
-        if (!subjectId) return;
+        if (!subjectId) {
+            console.warn('No subject assigned to this exam');
+            return;
+        }
         
         fetch('{{ route("examinations.load-drafts") }}?examination_id=' + examId + '&subject_id=' + subjectId, {
             headers: {
@@ -231,7 +254,10 @@ document.addEventListener('DOMContentLoaded', function() {
      * Clear drafts from server
      */
     function clearDraftsFromServer() {
-        if (!subjectId) return;
+        if (!subjectId) {
+            console.warn('No subject assigned to this exam');
+            return;
+        }
         
         fetch('{{ route("examinations.clear-drafts") }}', {
             method: 'POST',

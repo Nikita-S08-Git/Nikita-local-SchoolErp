@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware(['auth', 'role:teacher|class_teacher|subject_teacher|hod_commerce|hod_science|hod_management|hod_arts'])->prefix('teacher')->name('teacher.')->group(function () {
+Route::middleware(['auth', 'role:admin|teacher|class_teacher|subject_teacher|hod_commerce|hod_science|hod_management|hod_arts'])->prefix('teacher')->name('teacher.')->group(function () {
 
     // Dashboard Home
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');

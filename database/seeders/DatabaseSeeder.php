@@ -34,6 +34,7 @@ class DatabaseSeeder extends Seeder
             
             // Examinations
             ExaminationSeeder::class,
+            ExamSubjectSeeder::class,
             
             // Holidays and Teacher Dashboard
             HolidaySeeder::class,
