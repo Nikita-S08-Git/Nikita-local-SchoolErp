@@ -77,25 +77,25 @@ Route::middleware(['auth'])->prefix('academic')->name('academic.')->group(functi
 });
 
 // Fee Management Routes
-Route::middleware(['auth', 'role:admin|principal|office'])->prefix('fees')->name('fees.')->group(function () {
+Route::middleware(['auth', 'role:admin|principal|office|accountant'])->prefix('fees')->name('fees.')->group(function () {
     // Fee Structures
     Route::resource('structures', \App\Http\Controllers\Web\FeeStructureController::class)
         ->names('structures');
-    
+
     // Fee Assignments
     Route::get('assignments', [\App\Http\Controllers\Web\FeeAssignmentController::class, 'index'])->name('assignments.index');
     Route::post('assignments', [\App\Http\Controllers\Web\FeeAssignmentController::class, 'store'])->name('assignments.store');
-    
+
     // Payment Collection
     Route::get('payments', [\App\Http\Controllers\Web\FeePaymentController::class, 'index'])->name('payments.index');
     Route::get('payments/create', [\App\Http\Controllers\Web\FeePaymentController::class, 'create'])->name('payments.create');
     Route::post('payments', [\App\Http\Controllers\Web\FeePaymentController::class, 'store'])->name('payments.store');
     Route::get('payments/{payment}/receipt', [\App\Http\Controllers\Web\FeePaymentController::class, 'receipt'])->name('payments.receipt');
     Route::get('payments/{payment}/download', [\App\Http\Controllers\Web\FeePaymentController::class, 'downloadReceipt'])->name('payments.download');
-    
+
     // Outstanding Fees
     Route::get('outstanding', [\App\Http\Controllers\Web\FeeOutstandingController::class, 'index'])->name('outstanding.index');
-    
+
     // Scholarships
     Route::resource('scholarships', \App\Http\Controllers\Web\ScholarshipController::class)
         ->names('scholarships');
@@ -115,7 +115,7 @@ Route::middleware(['auth'])->prefix('razorpay')->group(function () {
 Route::post('/razorpay/webhook', [\App\Http\Controllers\Web\RazorpayController::class, 'webhook']);
 
 // Scholarship Application Routes
-Route::middleware(['auth', 'role:admin|principal|office'])->prefix('fees/scholarship-applications')->name('fees.scholarship-applications.')->group(function () {
+Route::middleware(['auth', 'role:admin|principal|office|accountant'])->prefix('fees/scholarship-applications')->name('fees.scholarship-applications.')->group(function () {
     Route::get('/', [\App\Http\Controllers\Web\ScholarshipApplicationController::class, 'index'])->name('index');
     Route::get('/create', [\App\Http\Controllers\Web\ScholarshipApplicationController::class, 'create'])->name('create');
     Route::post('/', [\App\Http\Controllers\Web\ScholarshipApplicationController::class, 'store'])->name('store');
@@ -180,6 +180,9 @@ Route::get('/', function() {
         if ($role === 'admin') {
             return redirect()->route('dashboard.principal');
         }
+        if ($role === 'accountant') {
+            return redirect()->route('dashboard.accountant');
+        }
         return redirect()->route("dashboard.{$role}");
     }
     return redirect()->route('login');
@@ -205,6 +208,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard/teacher', [DashboardController::class, 'teacher'])->name('dashboard.teacher');
     Route::get('/dashboard/office', [DashboardController::class, 'office'])->name('dashboard.office');
     Route::get('/dashboard/accounts_staff', [DashboardController::class, 'accounts_staff'])->name('dashboard.accounts_staff');
+    Route::get('/dashboard/accountant', [DashboardController::class, 'accountant'])->name('dashboard.accountant');
     Route::get('/dashboard/librarian', [DashboardController::class, 'librarian'])->name('dashboard.librarian');
     
     // Student Management

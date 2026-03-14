@@ -37,6 +37,12 @@ class DashboardController extends Controller
     {
         return view('dashboard.librarian');
     }
+
+    public function accountant()
+    {
+        return view('dashboard.accountant');
+    }
+
     public function hod_commerce()
 {
     return view('dashboard.hod_commerce');
