@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Academic\Division;
 use App\Models\Academic\AcademicYear;
 use App\Models\User\Student;
-use App\Models\Attendance\Attendance;
+use App\Models\Academic\Attendance;
 use App\Services\HolidayService;
 use Illuminate\Http\Request;
 use Carbon\Carbon;

@@ -146,9 +146,8 @@
         </div>
         
         @if($admissions->hasPages())
-            <div class="d-flex justify-content-center">
-                {{ $admissions->links() }}
-            </div>
+            <!-- Custom Pagination Component -->
+            <x-pagination :paginator="$admissions" />
         @endif
     </div>
 </div>

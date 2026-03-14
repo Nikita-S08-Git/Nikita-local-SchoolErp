@@ -8,7 +8,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 use Laravel\Sanctum\HasApiTokens;
-use Illuminate\Database\Eloquent\Relations\HasOne; // 👈 ADD THIS
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable
 {
@@ -99,5 +100,49 @@ class User extends Authenticatable
     public function assignedDivision(): HasOne
     {
         return $this->hasOne(\App\Models\Academic\Division::class, 'class_teacher_id');
+    }
+
+    /**
+     * A user (teacher) can have many timetable entries
+     */
+    public function timetables(): HasMany
+    {
+        return $this->hasMany(\App\Models\Academic\Timetable::class, 'teacher_id');
+    }
+    
+    /**
+     * Get all permissions (from role and direct user permissions)
+     */
+    public function getAllPermissionsAttribute(): \Illuminate\Database\Eloquent\Collection
+    {
+        return $this->getAllPermissions();
+    }
+    
+    /**
+     * Check if user has permission to access a module
+     */
+    public function canAccessModule(string $module): bool
+    {
+        return $this->can($module . '.view') || 
+               $this->can($module . '.create') || 
+               $this->can($module . '.edit') || 
+               $this->can($module . '.delete') ||
+               $this->can($module . '.manage');
+    }
+    
+    /**
+     * Get user's role names
+     */
+    public function getRoleNamesListAttribute(): string
+    {
+        return $this->getRoleNames()->implode(', ');
+    }
+    
+    /**
+     * Check if user is active
+     */
+    public function isActive(): bool
+    {
+        return $this->is_active === true;
     }
 }

@@ -160,7 +160,17 @@
                     </thead>
                     <tbody>
                         @forelse($timetables as $index => $timetable)
-                            <tr class="{{ $timetable->status === 'cancelled' ? 'table-danger' : '' }}">
+                            @php
+                                $rowClass = '';
+                                if ($timetable->status === 'cancelled') {
+                                    $rowClass = 'table-danger';
+                                } elseif ($timetable->status === 'completed') {
+                                    $rowClass = 'table-light';
+                                } elseif ($timetable->status === 'closed') {
+                                    $rowClass = 'table-warning';
+                                }
+                            @endphp
+                            <tr class="{{ $rowClass }}">
                                 <td>{{ $timetables->firstItem() + $index }}</td>
                                 <td>
                                     @if($timetable->date)
@@ -190,16 +200,22 @@
                                 <td>
                                     @switch($timetable->status)
                                         @case('active')
-                                            <span class="badge bg-success">Active</span>
+                                            <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Active</span>
                                             @break
                                         @case('cancelled')
-                                            <span class="badge bg-danger">Cancelled</span>
+                                            <span class="badge bg-danger"><i class="bi bi-x-circle me-1"></i>Cancelled</span>
                                             @break
                                         @case('completed')
-                                            <span class="badge bg-secondary">Completed</span>
+                                            <span class="badge bg-info text-dark"><i class="bi bi-check2-all me-1"></i>Completed</span>
+                                            @break
+                                        @case('upcoming')
+                                            <span class="badge bg-info text-dark"><i class="bi bi-clock me-1"></i>Upcoming</span>
+                                            @break
+                                        @case('closed')
+                                            <span class="badge bg-danger"><i class="bi bi-lock me-1"></i>Closed</span>
                                             @break
                                         @default
-                                            <span class="badge bg-secondary">{{ $timetable->status }}</span>
+                                            <span class="badge bg-secondary">{{ ucfirst($timetable->status) }}</span>
                                     @endswitch
                                 </td>
                                 <td>
@@ -255,9 +271,9 @@
                             </span>
                         @endif
                     </div>
-                    <div class="pagination-wrapper">
-                        {{ $timetables->links() }}
-                    </div>
+                    
+                    <!-- Custom Pagination Component -->
+                    <x-pagination :paginator="$timetables" />
                 </div>
             </div>
         </div>

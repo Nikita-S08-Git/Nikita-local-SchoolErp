@@ -48,9 +48,27 @@ return new class extends Migration
 
         // Add unique constraint
         Schema::table('attendance', function (Blueprint $table) {
-            // Drop existing index if it exists (non-unique)
-            $table->dropIndex(['date', 'student_id']);
-            $table->dropIndex(['student_id', 'date']);
+            // Try to drop existing indexes if they exist using raw SQL (ignore errors)
+            try {
+                DB::statement('DROP INDEX IF EXISTS attendance_date_student_id_index ON attendance');
+            } catch (\Exception $e) {
+                // Index may not exist, ignore
+            }
+            try {
+                DB::statement('DROP INDEX IF EXISTS attendance_student_id_date_index ON attendance');
+            } catch (\Exception $e) {
+                // Index may not exist, ignore
+            }
+            try {
+                DB::statement('DROP INDEX IF EXISTS attendance_student_date_unique ON attendance');
+            } catch (\Exception $e) {
+                // Index may not exist, ignore
+            }
+            try {
+                DB::statement('DROP INDEX IF EXISTS attendance_division_student_date_unique ON attendance');
+            } catch (\Exception $e) {
+                // Index may not exist, ignore
+            }
             
             // Add unique index on student_id and date
             $table->unique(['student_id', 'date'], 'attendance_student_date_unique');
@@ -59,7 +77,11 @@ return new class extends Migration
         // Also add unique constraint on division_id + student_id + date
         if (Schema::hasColumn('attendance', 'division_id')) {
             Schema::table('attendance', function (Blueprint $table) {
-                $table->dropUnique(['division_id', 'student_id', 'date']);
+                try {
+                    DB::statement('DROP INDEX IF EXISTS attendance_division_student_date_unique ON attendance');
+                } catch (\Exception $e) {
+                    // Index may not exist, ignore
+                }
                 $table->unique(['division_id', 'student_id', 'date'], 'attendance_division_student_date_unique');
             });
         }
@@ -71,8 +93,16 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('attendance', function (Blueprint $table) {
-            $table->dropUnique('attendance_student_date_unique');
-            $table->dropUnique('attendance_division_student_date_unique');
+            try {
+                DB::statement('DROP INDEX IF EXISTS attendance_student_date_unique ON attendance');
+            } catch (\Exception $e) {
+                // Index may not exist, ignore
+            }
+            try {
+                DB::statement('DROP INDEX IF EXISTS attendance_division_student_date_unique ON attendance');
+            } catch (\Exception $e) {
+                // Index may not exist, ignore
+            }
             
             // Add back non-unique index
             $table->index(['date', 'student_id']);

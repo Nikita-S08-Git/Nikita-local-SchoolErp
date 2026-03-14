@@ -454,6 +454,39 @@
             color: #fff;
         }
 
+        /* Submenu Styles */
+        .sidebar-dropdown-toggle {
+            position: relative;
+        }
+
+        .sidebar-dropdown-toggle .bi-chevron-down {
+            font-size: 0.75rem;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-dropdown-toggle[aria-expanded="true"] .bi-chevron-down {
+            transform: rotate(180deg);
+        }
+
+        #sidebar ul.components ul.collapse {
+            background: rgba(0,0,0,0.15);
+            padding: 0;
+            margin: 0;
+            list-style: none;
+        }
+
+        #sidebar ul.components ul.collapse li a {
+            padding: 0.6rem 1rem 0.6rem 3.5rem;
+            font-size: 0.9rem;
+            border-left: 3px solid transparent;
+        }
+
+        #sidebar ul.components ul.collapse li a:hover,
+        #sidebar ul.components ul.collapse li a.active {
+            background: rgba(255,255,255,0.05);
+            border-left-color: #007bff;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             #sidebar {
@@ -509,14 +542,6 @@
                     </a>
                 </li>
 
-                <!-- My Timetable (Today's Schedule) -->
-                <li>
-                    <a href="{{ route('teacher.attendance.index') }}" class="{{ request()->routeIs('teacher.attendance.index') ? 'active' : '' }}">
-                        <i class="bi bi-calendar-week"></i>
-                        <span>My Timetable</span>
-                    </a>
-                </li>
-
                 <!-- Add Class -->
                 <li>
                     <a href="{{ route('academic.timetable.create') }}" class="{{ request()->routeIs('academic.timetable.create') ? 'active' : '' }}">
@@ -527,12 +552,50 @@
 
                 <div class="sidebar-heading">Assessment</div>
 
-                <!-- Marks Entry - Placeholder -->
+                <!-- Attendance -->
                 <li>
-                    <a href="#" data-bs-toggle="tooltip" title="Coming Soon">
-                        <i class="bi bi-clipboard-data"></i>
-                        <span>Marks & Results</span>
+                    <a href="#" class="sidebar-dropdown-toggle" data-bs-toggle="collapse" data-bs-target="#attendanceSubmenu" aria-expanded="{{ request()->routeIs('teacher.attendance.*') ? 'true' : 'false' }}">
+                        <i class="bi bi-calendar-check"></i>
+                        <span>Attendance</span>
+                        <i class="bi bi-chevron-down ms-auto"></i>
                     </a>
+                    <ul class="collapse {{ request()->routeIs('teacher.attendance.*') ? 'show' : '' }}" id="attendanceSubmenu">
+                        <li>
+                            <a href="{{ route('teacher.attendance.index') }}" class="{{ request()->routeIs('teacher.attendance.index') ? 'active' : '' }}">
+                                <i class="bi bi-house"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('teacher.attendance.history') }}" class="{{ request()->routeIs('teacher.attendance.history') ? 'active' : '' }}">
+                                <i class="bi bi-clock-history"></i>
+                                <span>History</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('teacher.attendance.report') }}" class="{{ request()->routeIs('teacher.attendance.report') ? 'active' : '' }}">
+                                <i class="bi bi-graph-up"></i>
+                                <span>Reports</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <!-- Marks Entry -->
+                <li>
+                    <a href="#" class="sidebar-dropdown-toggle" data-bs-toggle="collapse" data-bs-target="#marksSubmenu" aria-expanded="{{ request()->routeIs('examinations.*') || request()->routeIs('teacher.results.*') ? 'true' : 'false' }}">
+                        <i class="bi bi-clipboard-data"></i>
+                        <span>Marks Entry</span>
+                        <i class="bi bi-chevron-down ms-auto"></i>
+                    </a>
+                    <ul class="collapse {{ request()->routeIs('examinations.*') || request()->routeIs('teacher.results.*') ? 'show' : '' }}" id="marksSubmenu">
+                        <li>
+                            <a href="{{ route('teacher.results.index') }}" class="{{ request()->routeIs('teacher.results.index') ? 'active' : '' }}">
+                                <i class="bi bi-bar-chart"></i>
+                                <span>Teacher Results</span>
+                            </a>
+                        </li>
+                    </ul>
                 </li>
             </ul>
 
@@ -597,6 +660,25 @@
                     </div>
                 </div>
             </nav>
+
+            <!-- Flash Messages -->
+            @if(session('success'))
+                <div class="alert alert-success alert-dismissible fade show mx-4 mt-3" role="alert" id="teacher-success-message">
+                    <i class="bi bi-check-circle me-2"></i>{{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                <script>
+                    // Auto-hide success message after 3 seconds and clear session
+                    setTimeout(function() {
+                        var alert = document.getElementById('teacher-success-message');
+                        if (alert) {
+                            var bsAlert = new bootstrap.Alert(alert);
+                            bsAlert.close();
+                        }
+                    }, 3000);
+                </script>
+                {{ session()->forget('success') }}
+            @endif
 
             <!-- Main Content Area -->
             <div class="main-content">

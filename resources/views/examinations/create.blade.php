@@ -32,6 +32,17 @@
                         </select>
                     </div>
                     <div class="col-md-6 mb-3">
+                        <label class="form-label">Subject</label>
+                        <select name="subject_id" class="form-select">
+                            <option value="">-- Select Subject (Optional) --</option>
+                            @foreach($subjects as $subject)
+                                <option value="{{ $subject->id }}">
+                                    {{ $subject->name }} ({{ $subject->code }}) - {{ $subject->program->name ?? 'No Program' }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
                         <label class="form-label">Academic Year *</label>
                         <input type="text" name="academic_year" class="form-control" placeholder="2024-2025" required>
                     </div>

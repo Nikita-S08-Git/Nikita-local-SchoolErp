@@ -1,34 +1,28 @@
 @echo off
-cls
 echo ========================================
-echo   School ERP - GitHub Upload Script
-echo   Repository: Lemmecode-com/School-Erp
+echo Pushing to GitHub - Branch: Teacher-M/P1-06-dynamic-dashboard-data
 echo ========================================
 echo.
 
-echo STEP 1: Install Git
-echo ====================
+cd /d "%~dp0"
+
+echo Adding all files...
+git add -A
+
 echo.
-echo Git is not installed or not in PATH.
+echo Enter commit message:
+set /p COMMIT_MSG="> "
+
 echo.
-echo Please install Git by following these steps:
+echo Committing changes...
+git commit -m "%COMMIT_MSG%"
+
 echo.
-echo 1. Download Git from: https://git-scm.com/download/win
-echo 2. Run the installer
-echo 3. Use default settings
-echo 4. Complete the installation
+echo Pushing to remote...
+git push origin Teacher-M/P1-06-dynamic-dashboard-data
+
 echo.
-echo After installation, CLOSE this window and double-click this script again.
-echo.
-echo OR manually run these commands in Command Prompt:
-echo.
-echo cd c:\xampp\htdocs\School\School
-echo git init
-echo git add .
-echo git commit -m "Initial commit: School ERP System"
-echo git branch -M develop
-echo git remote add origin https://github.com/Lemmecode-com/School-Erp.git
-echo git push -u origin develop
-echo.
+echo ========================================
+echo Done! Code pushed successfully.
 echo ========================================
 pause

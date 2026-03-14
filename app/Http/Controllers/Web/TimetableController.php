@@ -91,8 +91,12 @@ class TimetableController extends Controller
     public function tableView(Request $request)
     {
         $query = Timetable::withRelationships()
-            ->byStatus($request->get('status', 'active'))
             ->ordered();
+        
+        // Apply status filter only if explicitly provided
+        if ($request->filled('status') && $request->status !== 'all') {
+            $query->byStatus($request->status);
+        }
 
         // Apply filters
         if ($request->filled('division_id')) {
@@ -122,8 +126,10 @@ class TimetableController extends Controller
             $query->byAcademicYear($academicYearId);
         }
 
-        // Pagination - 15 items per page
-        $timetables = $query->paginate(15)->appends($request->query());
+        // Pagination - with customizable per page
+        $perPage = $request->input('per_page', 15);
+        $perPage = in_array($perPage, [10, 15, 25, 50]) ? (int) $perPage : 15;
+        $timetables = $query->paginate($perPage)->appends($request->query());
 
         // Get filter options
         $divisions = $this->getAccessibleDivisions();
@@ -140,7 +146,8 @@ class TimetableController extends Controller
             'academicYears',
             'programs',
             'subjects',
-            'rooms'
+            'rooms',
+            'perPage'
         ));
     }
 
@@ -154,7 +161,7 @@ class TimetableController extends Controller
     {
         $divisionId = $request->get('division_id');
         $academicYearId = $request->get('academic_year_id', AcademicYear::getCurrentAcademicYearId());
-        $status = $request->get('status', 'active');
+        $status = $request->get('status'); // Show all statuses by default
         $dayOfWeek = $request->get('day_of_week');
         $teacherId = $request->get('teacher_id');
         $search = $request->get('search');
@@ -175,7 +182,8 @@ class TimetableController extends Controller
             $query->byDivision($divisionId);
         }
         
-        if ($status) {
+        // Only filter by status if explicitly provided in request
+        if ($status && $status !== 'all') {
             $query->byStatus($status);
         }
         
@@ -361,6 +369,15 @@ class TimetableController extends Controller
                         ->withInput()
                         ->with('error', 'This date is marked as Holiday. Attendance and Timetable cannot be added.');
                 }
+                
+                // Also check if it's a Sunday
+                $selectedDate = Carbon::parse($date);
+                if ($selectedDate->dayOfWeek === Carbon::SUNDAY) {
+                    DB::rollBack();
+                    return back()
+                        ->withInput()
+                        ->with('error', 'Sundays are weekly off days. Cannot schedule classes on Sundays.');
+                }
             }
 
             // Get time values from time_slot_id or direct input
@@ -387,6 +404,16 @@ class TimetableController extends Controller
                 return back()
                     ->withInput()
                     ->with('error', 'Please select either a day of the week or a specific date.');
+            }
+            
+            // Validate that day_of_week is not Sunday (for recurring schedules)
+            if ($dayOfWeek && !$date) {
+                if ($dayOfWeek === 'sunday') {
+                    DB::rollBack();
+                    return back()
+                        ->withInput()
+                        ->with('error', 'Sundays are weekly off days. Cannot schedule recurring classes on Sundays.');
+                }
             }
 
             // Validate we have the required time values
@@ -465,6 +492,46 @@ class TimetableController extends Controller
             Log::error('Timetable creation failed: ' . $e->getMessage() . ' | Trace: ' . $e->getTraceAsString());
             return back()->with('error', 'Failed to create timetable entry: ' . $e->getMessage())->withInput();
         }
+    }
+
+    /**
+     * Compute status based on the timetable date.
+     * 
+     * - Past date (yesterday or older): 'closed'
+     * - Today's date: 'active'
+     * - Future date: 'upcoming'
+     * - No date (weekly timetable): 'active'
+     *
+     * @param string|null $date
+     * @return string
+     */
+    private function computeStatus(?string $date): string
+    {
+        // If no specific date, treat as regular weekly timetable
+        if (empty($date)) {
+            return Timetable::STATUS_ACTIVE;
+        }
+        
+        $timetableDate = Carbon::parse($date)->format('Y-m-d');
+        $today = now()->format('Y-m-d');
+        $yesterday = now()->subDay()->format('Y-m-d');
+        
+        // If date is yesterday or older, it's closed
+        if ($timetableDate <= $yesterday) {
+            return Timetable::STATUS_CLOSED;
+        }
+        
+        // If date is today, it's active
+        if ($timetableDate == $today) {
+            return Timetable::STATUS_ACTIVE;
+        }
+        
+        // If date is in the future, it's upcoming
+        if ($timetableDate > $today) {
+            return Timetable::STATUS_UPCOMING;
+        }
+        
+        return Timetable::STATUS_ACTIVE;
     }
 
     /**
@@ -917,6 +984,17 @@ class TimetableController extends Controller
                         'errors' => ['date' => ['This date is marked as Holiday.']]
                     ], 422);
                 }
+                
+                // Also check if it's a Sunday
+                $selectedDate = Carbon::parse($date);
+                if ($selectedDate->dayOfWeek === Carbon::SUNDAY) {
+                    DB::rollBack();
+                    return response()->json([
+                        'error' => true,
+                        'message' => 'Sundays are weekly off days. Cannot schedule classes on Sundays.',
+                        'errors' => ['date' => ['Sundays are weekly off days.']]
+                    ], 422);
+                }
             }
 
             // Get time values
@@ -928,6 +1006,18 @@ class TimetableController extends Controller
                 $dayOfWeek = Carbon::parse($request->date)->format('l');
             }
             $dayOfWeek = strtolower($dayOfWeek);
+
+            // Validate that day_of_week is not Sunday (for recurring schedules)
+            if ($dayOfWeek && !$date) {
+                if ($dayOfWeek === 'sunday') {
+                    DB::rollBack();
+                    return response()->json([
+                        'error' => true,
+                        'message' => 'Sundays are weekly off days. Cannot schedule recurring classes on Sundays.',
+                        'errors' => ['day_of_week' => ['Sundays are weekly off days.']]
+                    ], 422);
+                }
+            }
 
             // Check for conflicts before creating
             $conflicts = $this->checkTimetableConflicts(
@@ -1051,7 +1141,10 @@ class TimetableController extends Controller
                 'period_name' => $request->period_name,
                 'room_number' => $request->room_number,
                 'academic_year_id' => $request->academic_year_id,
-                'status' => $request->status ?? $timetable->status,
+                // Auto-compute status based on date, unless explicitly overridden by admin
+                'status' => $request->filled('status') && in_array($request->status, ['active', 'cancelled', 'completed']) 
+                    ? $request->status 
+                    : $this->computeStatus($date),
                 'notes' => $request->notes,
             ]);
 

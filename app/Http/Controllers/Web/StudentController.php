@@ -18,6 +18,10 @@ class StudentController extends Controller
      */
     public function index(Request $request)
     {
+        // Default per page is 20, allow user to customize
+        $perPage = $request->input('per_page', 20);
+        $perPage = in_array($perPage, [10, 15, 20, 25, 50]) ? (int) $perPage : 20;
+
         $query = Student::with(['program', 'division', 'academicSession']);
 
         if ($request->filled('program_id')) {
@@ -40,10 +44,19 @@ class StudentController extends Controller
             });
         }
 
-        $students = $query->paginate(20);
+        // Sorting
+        $sortBy = $request->query('sort', 'created_at');
+        $sortDir = $request->query('dir', 'desc');
+        $allowedSorts = ['first_name', 'last_name', 'admission_number', 'roll_number', 'email', 'created_at', 'student_status'];
+        if (!in_array($sortBy, $allowedSorts)) {
+            $sortBy = 'created_at';
+        }
+        $sortDir = in_array($sortDir, ['asc', 'desc']) ? $sortDir : 'desc';
+
+        $students = $query->orderBy($sortBy, $sortDir)->paginate($perPage)->appends($request->query());
         $programs = Program::where('is_active', true)->get();
 
-        return view('dashboard.students.index', compact('students', 'programs'));
+        return view('dashboard.students.index', compact('students', 'programs', 'sortBy', 'sortDir', 'perPage'));
     }
 
     /**
@@ -264,6 +277,21 @@ public function update(Request $request, Student $student)
      */
     public function destroy(Student $student)
     {
+        // Check for related fee records
+        if ($student->fees()->exists()) {
+            return redirect()
+                ->route('dashboard.students.index')
+                ->with('error', 'Student has fee records. Please clear fees before deletion.');
+        }
+
+        // Check for attendance records
+        if ($student->attendances()->exists()) {
+            return redirect()
+                ->route('dashboard.students.index')
+                ->with('error', 'Student has attendance records. Cannot delete.');
+        }
+
+        // Delete student photos if exists
         if ($student->photo_path && Storage::disk('public')->exists($student->photo_path)) {
             Storage::disk('public')->delete($student->photo_path);
         }
@@ -319,5 +347,58 @@ public function update(Request $request, Student $student)
             'admission_number' => $programCode . $yearSuffix . str_pad($sequence, 4, '0', STR_PAD_LEFT),
             'roll_number' => $rollNumber
         ];
+    }
+
+    /**
+     * Bulk action on students (delete, activate, deactivate)
+     */
+    public function bulkAction(Request $request)
+    {
+        $ids = $request->student_ids;
+        $action = $request->action;
+
+        if (!$ids) {
+            return redirect()->back()->with('error', 'No students selected');
+        }
+
+        if ($action == 'delete') {
+            // Check for related records before deletion
+            $studentsWithFees = Student::whereIn('id', $ids)->whereHas('fees')->pluck('id');
+            $studentsWithAttendance = Student::whereIn('id', $ids)->whereHas('attendances')->pluck('id');
+            
+            $protectedIds = $studentsWithFees->merge($studentsWithAttendance)->unique();
+            $deletableIds = collect($ids)->diff($protectedIds);
+
+            if ($deletableIds->isNotEmpty()) {
+                // Delete student photos
+                $students = Student::whereIn('id', $deletableIds)->get();
+                foreach ($students as $student) {
+                    if ($student->photo_path && Storage::disk('public')->exists($student->photo_path)) {
+                        Storage::disk('public')->delete($student->photo_path);
+                    }
+                    if ($student->signature_path && Storage::disk('public')->exists($student->signature_path)) {
+                        Storage::disk('public')->delete($student->signature_path);
+                    }
+                }
+                Student::whereIn('id', $deletableIds)->delete();
+            }
+
+            if ($protectedIds->isNotEmpty()) {
+                return redirect()->back()->with('warning', 'Some students could not be deleted due to related records (fees/attendance)');
+            }
+            return redirect()->back()->with('success', 'Selected students deleted successfully');
+        }
+
+        if ($action == 'activate') {
+            Student::whereIn('id', $ids)->update(['student_status' => 'active']);
+            return redirect()->back()->with('success', 'Selected students activated successfully');
+        }
+
+        if ($action == 'deactivate') {
+            Student::whereIn('id', $ids)->update(['student_status' => 'suspended']);
+            return redirect()->back()->with('success', 'Selected students deactivated successfully');
+        }
+
+        return redirect()->back()->with('error', 'Invalid action');
     }
 }

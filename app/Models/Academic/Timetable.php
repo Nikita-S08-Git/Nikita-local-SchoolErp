@@ -43,10 +43,19 @@ class Timetable extends Model
 
     /**
      * Status constants
+     * 
+     * - closed: Past date (yesterday or older) - cannot mark attendance
+     * - active: Today's date - can mark attendance
+     * - upcoming: Future date - cannot mark attendance yet
+     * - active: Weekly timetable (no specific date) - can mark attendance
+     * - cancelled: Manually cancelled
+     * - completed: Completed
      */
     const STATUS_ACTIVE = 'active';
     const STATUS_CANCELLED = 'cancelled';
     const STATUS_COMPLETED = 'completed';
+    const STATUS_UPCOMING = 'upcoming';
+    const STATUS_CLOSED = 'closed';
 
     /**
      * Days of the week
@@ -115,10 +124,180 @@ class Timetable extends Model
      * @var array<string, mixed>
      */
     protected $attributes = [
-        'status' => self::STATUS_ACTIVE,
+        'status' => 'upcoming',
         'is_active' => true,
         'is_break_time' => false,
     ];
+
+    /**
+     * ============================================================
+     * AUTOMATIC STATUS BASED ON DATE
+     * ============================================================
+     */
+
+    /**
+     * Determine the appropriate status based on the timetable date.
+     * 
+     * - Past date (yesterday or older): 'closed'
+     * - Today's date: 'active'
+     * - Future date: 'upcoming'
+     * - No date (weekly timetable): 'active'
+     *
+     * @return string
+     */
+    public function getComputedStatusAttribute(): string
+    {
+        $today = now()->format('Y-m-d');
+        $yesterday = now()->subDay()->format('Y-m-d');
+        
+        // If has a specific date, compute based on that date
+        if (!empty($this->date)) {
+            $timetableDate = $this->date instanceof \Carbon\Carbon 
+                ? $this->date->format('Y-m-d') 
+                : $this->date;
+            
+            // If date is yesterday or older, it's closed
+            if ($timetableDate <= $yesterday) {
+                return self::STATUS_CLOSED;
+            }
+            
+            // If date is today, it's active
+            if ($timetableDate == $today) {
+                return self::STATUS_ACTIVE;
+            }
+            
+            // If date is in the future, it's upcoming
+            if ($timetableDate > $today) {
+                return self::STATUS_UPCOMING;
+            }
+        }
+        
+        // If using day_of_week instead of specific date
+        if (!empty($this->day_of_week)) {
+            $todayDay = strtolower(now()->format('l'));
+            $timetableDay = strtolower($this->day_of_week);
+            
+            // If today matches the day_of_week, it's active
+            if ($todayDay === $timetableDay) {
+                return self::STATUS_ACTIVE;
+            }
+            
+            // Otherwise, it's upcoming (will be active on the scheduled day)
+            return self::STATUS_UPCOMING;
+        }
+        
+        // Fallback to stored status or active
+        return $this->status ?? self::STATUS_ACTIVE;
+    }
+
+    /**
+     * Check if attendance can be marked
+     * 
+     * Attendance can be marked when:
+     * - Timetable date is today (for date-based timetables)
+     * - Timetable day_of_week is today (for day-based timetables)
+     * - Status is NOT closed
+     * 
+     * @return bool
+     */
+    public function isActiveForAttendance(): bool
+    {
+        // Get computed status (automatic based on date)
+        $computedStatus = $this->computed_status ?? $this->status;
+        
+        // If status is closed, cannot mark attendance
+        if ($computedStatus === self::STATUS_CLOSED) {
+            return false;
+        }
+        
+        // If has a specific date, check if date is today
+        if (!empty($this->date)) {
+            $timetableDate = $this->date instanceof \Carbon\Carbon 
+                ? $this->date->format('Y-m-d') 
+                : $this->date;
+            
+            $today = now()->format('Y-m-d');
+            
+            // If date is in the past, cannot mark attendance
+            if ($timetableDate < $today) {
+                return false;
+            }
+            
+            // If date is in the future, cannot mark attendance
+            if ($timetableDate > $today) {
+                return false;
+            }
+            
+            // Date is today - allow attendance
+            return true;
+        }
+        
+        // If using day_of_week instead of specific date
+        if (!empty($this->day_of_week)) {
+            $today = strtolower(now()->format('l'));
+            $timetableDay = strtolower($this->day_of_week);
+            
+            // If today matches the day_of_week, allow attendance
+            return $today === $timetableDay;
+        }
+        
+        // Fallback: allow if not closed (for timetables without date or day_of_week)
+        return $computedStatus !== self::STATUS_CLOSED;
+    }
+
+    /**
+     * Check if the timetable is closed (past date)
+     * 
+     * @return bool
+     */
+    public function isClosed(): bool
+    {
+        if (empty($this->date)) {
+            return false;
+        }
+        
+        $timetableDate = $this->date instanceof \Carbon\Carbon 
+            ? $this->date->format('Y-m-d') 
+            : $this->date;
+        
+        $yesterday = now()->subDay()->format('Y-m-d');
+        
+        return $timetableDate <= $yesterday || $this->status === self::STATUS_CLOSED;
+    }
+
+    /**
+     * Get human-readable status text
+     * 
+     * @return string
+     */
+    public function getStatusTextAttribute(): string
+    {
+        if (!empty($this->date)) {
+            $timetableDate = $this->date instanceof \Carbon\Carbon 
+                ? $this->date->format('Y-m-d') 
+                : $this->date;
+            
+            $today = now()->format('Y-m-d');
+            $yesterday = now()->subDay()->format('Y-m-d');
+            
+            if ($timetableDate <= $yesterday) {
+                return 'Closed';
+            }
+            if ($timetableDate == $today) {
+                return 'Active';
+            }
+            return 'Upcoming';
+        }
+        
+        return match($this->status) {
+            self::STATUS_ACTIVE => 'Active',
+            self::STATUS_CANCELLED => 'Cancelled',
+            self::STATUS_COMPLETED => 'Completed',
+            self::STATUS_UPCOMING => 'Upcoming',
+            self::STATUS_CLOSED => 'Closed',
+            default => ucfirst($this->status),
+        };
+    }
 
     /**
      * ============================================================

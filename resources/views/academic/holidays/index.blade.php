@@ -213,9 +213,9 @@
                         Showing <strong>{{ $holidays->firstItem() ?? 0 }}</strong> to <strong>{{ $holidays->lastItem() ?? 0 }}</strong>
                         of <strong>{{ $holidays->total() }}</strong> entries
                     </div>
-                    <div class="pagination-wrapper">
-                        {{ $holidays->links() }}
-                    </div>
+                    
+                    <!-- Custom Pagination Component -->
+                    <x-pagination :paginator="$holidays" />
                 </div>
             </div>
         @endif

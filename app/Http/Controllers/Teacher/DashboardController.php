@@ -6,9 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Models\TeacherProfile;
 use App\Models\User;
 use App\Models\Academic\Division;
+use App\Models\Academic\AcademicYear;
+use App\Models\Holiday;
 use App\Models\User\Student;
 use App\Models\StudentProfile;
 use App\Models\Academic\Attendance;
+use App\Models\Result\StudentMark;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -232,44 +235,19 @@ class DashboardController extends Controller
                 return $division;
             });
 
-        return view('teacher.divisions.index', compact('teacher', 'divisions'));
-    }
-
-    /**
-     * Display students in a specific division
-     */
-    public function divisionStudents($divisionId)
-    {
-        $teacher = Auth::user();
-
-        // Check if teacher has access to this division
-        $hasAccess = DB::table('teacher_assignments')
-            ->where('teacher_id', $teacher->id)
-            ->where('division_id', $divisionId)
-            ->where('assignment_type', 'division')
-            ->exists();
-
-        if (!$hasAccess) {
-            abort(403, 'You do not have access to this division.');
+        // Check if today is a holiday
+        $today = now()->format('Y-m-d');
+        $academicYearId = AcademicYear::getCurrentAcademicYearId();
+        $todayHoliday = null;
+        if ($academicYearId) {
+            $todayHoliday = Holiday::where('is_active', true)
+                ->where('academic_year_id', $academicYearId)
+                ->where('start_date', '<=', $today)
+                ->where('end_date', '>=', $today)
+                ->first();
         }
 
-        $division = Division::with(['academicYear'])->findOrFail($divisionId);
-
-        $students = Student::where('division_id', $divisionId)
-            ->where('student_status', 'active')
-            ->with(['user', 'studentProfile'])
-            ->orderBy('first_name')
-            ->paginate(15);
-
-        // Calculate attendance percentage for each student
-        $students->each(function ($student) {
-            $student->attendance_percentage = StudentProfile::getAttendancePercentageForStudent(
-                $student->id,
-                $student->division_id
-            );
-        });
-
-        return view('teacher.divisions.students', compact('division', 'students'));
+        return view('teacher.divisions.index', compact('teacher', 'divisions', 'todayHoliday'));
     }
 
     /**
@@ -307,7 +285,32 @@ class DashboardController extends Controller
             ->limit(10)
             ->get();
 
-        return view('teacher.students.details', compact('student', 'attendancePercentage', 'recentAttendance'));
+        // Get student marks/results
+        $marks = StudentMark::where('student_id', $student->id)
+            ->with(['subject', 'examination'])
+            ->orderBy('examination_id')
+            ->get();
+
+        // Calculate overall percentage from marks
+        $totalMarksObtained = $marks->sum('marks_obtained');
+        $totalMaxMarks = $marks->sum('max_marks');
+        $overallPercentage = $totalMaxMarks > 0 ? ($totalMarksObtained / $totalMaxMarks) * 100 : 0;
+
+        // Check if current user is admin or principal (can see full details)
+        // OR if the current user is the student themselves
+        $currentUser = auth()->user();
+        $canViewFullDetails = $currentUser->hasRole(['admin', 'principal']) || $currentUser->id == $student->user_id;
+
+        return view('teacher.students.details', compact(
+            'student', 
+            'attendancePercentage', 
+            'recentAttendance',
+            'marks',
+            'overallPercentage',
+            'totalMarksObtained',
+            'totalMaxMarks',
+            'canViewFullDetails'
+        ));
     }
 
     /**
@@ -423,5 +426,56 @@ class DashboardController extends Controller
             'start_date' => $startDate,
             'end_date' => $endDate
         ]);
+    }
+
+    /**
+     * Display students for a specific division (route: /teacher/divisions/{divisionId}/students)
+     */
+    public function divisionStudents(Request $request, $divisionId)
+    {
+        $teacher = Auth::user();
+        
+        // Verify teacher has access to this division
+        $hasAccess = DB::table('teacher_assignments')
+            ->where('teacher_id', $teacher->id)
+            ->where('division_id', $divisionId)
+            ->where('assignment_type', 'division')
+            ->exists();
+
+        if (!$hasAccess) {
+            abort(403, 'You do not have access to this division.');
+        }
+
+        $division = Division::with(['program', 'session'])->findOrFail($divisionId);
+        
+        // Check if today is a holiday
+        $today = now()->format('Y-m-d');
+        $academicYearId = AcademicYear::getCurrentAcademicYearId();
+        $todayHoliday = null;
+        if ($academicYearId) {
+            $todayHoliday = Holiday::where('is_active', true)
+                ->where('academic_year_id', $academicYearId)
+                ->where('start_date', '<=', $today)
+                ->where('end_date', '>=', $today)
+                ->first();
+        }
+        
+        $query = Student::where('division_id', $divisionId)
+            ->where('student_status', 'active')
+            ->with(['user']);
+        
+        if ($request->filled('search')) {
+            $query->where(function($q) use ($request) {
+                $q->where('first_name', 'like', '%' . $request->search . '%')
+                  ->orWhere('last_name', 'like', '%' . $request->search . '%')
+                  ->orWhere('roll_number', 'like', '%' . $request->search . '%');
+            });
+        }
+        
+        $perPage = $request->input('per_page', 15);
+        $perPage = in_array($perPage, [10, 15, 25, 50]) ? (int) $perPage : 15;
+        $students = $query->orderBy('roll_number')->paginate($perPage)->appends($request->query());
+        
+        return view('teacher.divisions.students', compact('students', 'division', 'todayHoliday'));
     }
 }

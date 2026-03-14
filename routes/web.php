@@ -16,8 +16,17 @@ use App\Http\Controllers\Web\ExaminationController;
 use App\Http\Controllers\Web\LibraryController;
 use App\Http\Controllers\Web\StaffController;
 use App\Http\Controllers\Web\TimeSlotController;
+use App\Http\Controllers\Web\LeaveController;
+use App\Http\Controllers\Teacher\AttendanceController;
+use App\Http\Controllers\Web\AcademicRuleController;
 use App\Http\Controllers\Student\AuthController as StudentAuthController;
 use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
+
+// Bulk action route - moved inside auth middleware
+// Route::post('/dashboard/students/bulk-action', [StudentController::class, 'bulkAction'])->name('dashboard.students.bulkAction');
+// Route::get('/dashboard/students/bulk-action', function() {
+//     return redirect()->route('dashboard.students.index');
+// });
 
 // ============================================
 // STUDENT AUTH ROUTES (Guest)
@@ -108,7 +117,7 @@ Route::prefix('attendance')->name('attendance.')->group(function () {
 });
 
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'role:admin|principal'])->group(function () {
     // Web-specific route names with 'web.' prefix
     Route::prefix('departments')
         ->name('web.departments.') // ← 'web.' prefix add kiya
@@ -121,6 +130,22 @@ Route::middleware(['auth'])->group(function () {
             Route::put('/{department}', [DepartmentController::class, 'update'])->name('update');
             Route::delete('/{department}', [DepartmentController::class, 'destroy'])->name('destroy');
         });
+});
+
+// ============================================
+// Role & Permission Management Routes
+// ============================================
+Route::middleware(['auth', 'role:super_admin|admin'])->prefix('admin')->name('admin.')->group(function () {
+    // Roles Management
+    Route::resource('roles', \App\Http\Controllers\Web\RoleController::class);
+    Route::get('roles/{role}/permissions', [\App\Http\Controllers\Web\RoleController::class, 'permissions'])->name('roles.permissions');
+    Route::put('roles/{role}/permissions', [\App\Http\Controllers\Web\RoleController::class, 'updatePermissions'])->name('roles.permissions.update');
+    
+    // Permissions Management
+    Route::resource('permissions', \App\Http\Controllers\Web\PermissionController::class);
+    
+    // Activity Logs
+    Route::get('activity-logs', [\App\Http\Controllers\Web\ActivityLogController::class, 'index'])->name('activity-logs.index');
 });
 
 // Academic Management
@@ -227,6 +252,37 @@ Route::middleware(['auth'])->prefix('academic')->name('academic.')->group(functi
     Route::resource('holidays', \App\Http\Controllers\Web\HolidayController::class)->names('holidays');
     Route::post('holidays/{holiday}/toggle-status', [\App\Http\Controllers\Web\HolidayController::class, 'toggleStatus'])->name('holidays.toggle-status');
     Route::get('holidays/check-date', [\App\Http\Controllers\Web\HolidayController::class, 'checkDate'])->name('holidays.check-date');
+    
+    // Leave Management
+    Route::resource('leaves', \App\Http\Controllers\Web\LeaveController::class)->names('leaves');
+    Route::get('leaves/my-leaves', [\App\Http\Controllers\Web\LeaveController::class, 'myLeaves'])->name('leaves.my-leaves');
+    Route::post('leaves/{leave}/approve', [\App\Http\Controllers\Web\LeaveController::class, 'approve'])->name('leaves.approve');
+    Route::post('leaves/{leave}/reject', [\App\Http\Controllers\Web\LeaveController::class, 'reject'])->name('leaves.reject');
+});
+
+// Teacher Attendance Routes - additional routes for teacher functionality
+Route::middleware(['auth', 'role:teacher|class_teacher|subject_teacher|hod_commerce|hod_science|hod_management|hod_arts'])->group(function () {
+    Route::get('/teacher/attendance/create/{timetableId}', [\App\Http\Controllers\Teacher\AttendanceController::class, 'create'])->name('teacher.attendance.create');
+    Route::post('/teacher/attendance/store/{timetableId}', [\App\Http\Controllers\Teacher\AttendanceController::class, 'store'])->name('teacher.attendance.store');
+});
+
+// Academic Rules Management
+Route::middleware(['auth', 'role:admin|principal'])->prefix('academic')->name('academic.')->group(function () {
+    Route::resource('rules', \App\Http\Controllers\Web\AcademicRuleController::class);
+    Route::post('rules/{rule}/toggle-status', [\App\Http\Controllers\Web\AcademicRuleController::class, 'toggleStatus'])->name('rules.toggle-status');
+    Route::get('rules/clear-cache', [\App\Http\Controllers\Web\AcademicRuleController::class, 'clearCache'])->name('rules.clear-cache');
+});
+
+// Student Promotion Management
+Route::middleware(['auth', 'role:admin|principal'])->prefix('academic')->name('academic.')->group(function () {
+    Route::get('promotions', [\App\Http\Controllers\Web\PromotionController::class, 'index'])->name('promotions.index');
+    Route::get('promotions/get-divisions', [\App\Http\Controllers\Web\PromotionController::class, 'getDivisions'])->name('promotions.getDivisions');
+    Route::get('promotions/get-next-session', [\App\Http\Controllers\Web\PromotionController::class, 'getNextSession'])->name('promotions.getNextSession');
+    Route::post('promotions/preview', [\App\Http\Controllers\Web\PromotionController::class, 'preview'])->name('promotions.preview');
+    Route::post('promotions/promote', [\App\Http\Controllers\Web\PromotionController::class, 'promote'])->name('promotions.promote');
+    Route::post('promotions/promote/{studentId}', [\App\Http\Controllers\Web\PromotionController::class, 'promoteStudent'])->name('promotions.promoteStudent');
+    Route::get('promotions/history', [\App\Http\Controllers\Web\PromotionController::class, 'history'])->name('promotions.history');
+    Route::post('promotions/{logId}/rollback', [\App\Http\Controllers\Web\PromotionController::class, 'rollback'])->name('promotions.rollback');
 });
 
 // Fee Management Routes
@@ -283,6 +339,51 @@ Route::middleware(['auth'])->group(function () {
         return view('test-storage', compact('students'));
     });
     
+    // Test route to add holiday for today
+    Route::get('/test-add-holiday', function() {
+        $today = now()->format('Y-m-d');
+        
+        // Get current academic year using the proper method
+        $academicYearId = \App\Models\Academic\AcademicYear::getCurrentAcademicYearId();
+        
+        if (!$academicYearId) {
+            // Create academic year if none exists
+            $academicYear = \App\Models\Academic\AcademicYear::create([
+                'name' => '2025-2026',
+                'start_date' => '2025-06-01',
+                'end_date' => '2026-05-31',
+                'is_active' => true,
+            ]);
+            $academicYearId = $academicYear->id;
+        }
+        
+        // Delete any existing holiday for today
+        \App\Models\Holiday::where('start_date', '<=', $today)
+            ->where('end_date', '>=', $today)
+            ->delete();
+        
+        // Create holiday for today
+        $holiday = \App\Models\Holiday::create([
+            'title' => 'Test Holiday - School Closed Today!',
+            'description' => 'This is a test holiday added via test route',
+            'start_date' => $today,
+            'end_date' => $today,
+            'type' => 'school_holiday',
+            'is_recurring' => false,
+            'academic_year_id' => $academicYearId,
+            'is_active' => true,
+        ]);
+        
+        return redirect()->route('teacher.divisions.index')->with('success', 'Holiday added for today: ' . $holiday->title);
+    });
+    
+    // Bulk action route - inside auth middleware (must be before wildcard route)
+    Route::post('/dashboard/students/bulk-action', [StudentController::class, 'bulkAction'])->name('dashboard.students.bulkAction');
+    Route::delete('/dashboard/students/bulk-action', [StudentController::class, 'bulkAction']);
+    Route::get('/dashboard/students/bulk-action', function() {
+        return redirect()->route('dashboard.students.index');
+    });
+    
     // Dashboard student routes
     Route::get('/dashboard/students', [StudentController::class, 'index'])->name('dashboard.students.index');
     Route::get('/dashboard/students/create', [StudentController::class, 'create'])->name('dashboard.students.create');
@@ -324,6 +425,11 @@ Route::get('/', function() {
         $user = auth()->user();
         $role = $user->roles->first()->name ?? 'student';
 
+        // Fallback for librarian by email
+        if ($role === 'student' && $user->email === 'librarian@schoolerp.com') {
+            $role = 'librarian';
+        }
+
         // Role-based redirect with proper route mapping
         $redirectRoutes = [
             'principal' => 'dashboard.principal',
@@ -332,6 +438,7 @@ Route::get('/', function() {
             'class_teacher' => 'teacher.dashboard',
             'subject_teacher' => 'teacher.dashboard',
             'student' => 'dashboard.student',
+            'accountant' => 'dashboard.accounts_staff',
             'accounts_staff' => 'dashboard.accounts_staff',
             'office' => 'dashboard.office',
             'librarian' => 'dashboard.librarian',
@@ -370,6 +477,11 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/principal/remove-assignment/{assignmentId}', [\App\Http\Controllers\Web\PrincipalDashboardController::class, 'removeAssignment'])
         ->name('principal.remove-assignment')
         ->middleware('role:principal|admin');
+
+    // Principal/Admin Results Routes
+    Route::get('/principal/results', [\App\Http\Controllers\Web\PrincipalDashboardController::class, 'results'])
+        ->name('principal.results')
+        ->middleware('role:principal|admin');
     
     Route::get('/dashboard/admin', [\App\Http\Controllers\Web\PrincipalDashboardController::class, 'index'])
         ->name('dashboard.admin');
@@ -400,7 +512,7 @@ Route::middleware(['auth'])->group(function () {
 // ============================================
 
 // Examination Management
-Route::middleware(['auth'])->prefix('examinations')->name('examinations.')->group(function () {
+Route::middleware(['auth', 'role:admin|principal|teacher|class_teacher|subject_teacher|hod_commerce|hod_science|hod_management|hod_arts'])->prefix('examinations')->name('examinations.')->group(function () {
     Route::get('/', [ExaminationController::class, 'index'])->name('index');
     Route::get('/create', [ExaminationController::class, 'create'])->name('create');
     Route::post('/', [ExaminationController::class, 'store'])->name('store');
@@ -410,6 +522,11 @@ Route::middleware(['auth'])->prefix('examinations')->name('examinations.')->grou
     Route::get('/{examination}/marks-entry', [ExaminationController::class, 'marksEntry'])->name('marks-entry');
     Route::post('/{examination}/save-marks', [ExaminationController::class, 'saveMarks'])->name('save-marks');
     Route::delete('/{examination}', [ExaminationController::class, 'destroy'])->name('destroy');
+
+    // Draft marks endpoints for auto-save
+    Route::post('/save-draft', [ExaminationController::class, 'saveDraft'])->name('save-draft');
+    Route::get('/load-drafts', [ExaminationController::class, 'loadDrafts'])->name('load-drafts');
+    Route::post('/clear-drafts', [ExaminationController::class, 'clearDrafts'])->name('clear-drafts');
 });
 
 // Results Management
@@ -430,6 +547,9 @@ Route::middleware(['auth'])->prefix('reports')->name('reports.')->group(function
 
 // Library Management
 Route::middleware(['auth'])->prefix('library')->name('library.')->group(function () {
+    // Students - Librarian only
+    Route::get('/students', [LibraryController::class, 'students'])->name('students');
+    
     // Books
     Route::prefix('books')->name('books.')->group(function () {
         Route::get('/', [LibraryController::class, 'index'])->name('index');
@@ -462,3 +582,4 @@ Route::middleware(['auth'])->prefix('staff')->name('staff.')->group(function () 
 
 // Teacher Dashboard Routes
 require __DIR__ . '/teacher.php';
+

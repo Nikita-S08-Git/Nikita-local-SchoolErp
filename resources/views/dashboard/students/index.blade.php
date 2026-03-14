@@ -145,22 +145,65 @@
             <small class="text-muted">Showing {{ $students->firstItem() ?? 0 }} to {{ $students->lastItem() ?? 0 }} of {{ $students->total() }} students</small>
         </div>
         <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th style="width: 60px;">Photo</th>
-                            <th>Student Details</th>
-                            <th>Academic Info</th>
-                            <th>Contact</th>
-                            <th>Status</th>
-                            <th class="text-end" style="width: 120px;">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($students as $student)
+            <form method="POST" action="{{ route('dashboard.students.bulkAction') }}" id="bulkActionForm">
+                @csrf
+                <div class="mb-3 px-3 pt-3">
+                    <div class="d-flex gap-2 align-items-center">
+                        <select name="action" id="bulkActionSelect" class="form-select" style="width: auto;" required>
+                            <option value="">Bulk Action</option>
+                            <option value="delete">Delete Selected</option>
+                            <option value="activate">Activate Selected</option>
+                            <option value="deactivate">Deactivate Selected</option>
+                        </select>
+                        <button type="button" class="btn btn-primary" onclick="confirmBulkAction()">
+                            <i class="bi bi-check2-circle me-1"></i>Apply
+                        </button>
+                        <span class="text-muted ms-2" id="selectedCount">0 selected</span>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
                             <tr>
-                                <td class="text-center">
+                                <th style="width: 40px;">
+                                    <input type="checkbox" id="selectAll" class="form-check-input">
+                                </th>
+                                <th style="width: 60px;">Photo</th>
+                                <th>
+                                    <a href="?sort=first_name&dir={{ $sortDir === 'asc' ? 'desc' : 'asc' }}" class="text-decoration-none text-dark">
+                                        Student Details
+                                        @if($sortBy === 'first_name' || $sortBy === 'last_name')
+                                            <i class="bi bi-sort-{{ $sortDir }}"></i>
+                                        @endif
+                                    </a>
+                                </th>
+                                <th>
+                                    <a href="?sort=admission_number&dir={{ $sortDir === 'asc' ? 'desc' : 'asc' }}" class="text-decoration-none text-dark">
+                                        Academic Info
+                                        @if($sortBy === 'admission_number')
+                                            <i class="bi bi-sort-{{ $sortDir }}"></i>
+                                        @endif
+                                    </a>
+                                </th>
+                                <th>Contact</th>
+                                <th>
+                                    <a href="?sort=student_status&dir={{ $sortDir === 'asc' ? 'desc' : 'asc' }}" class="text-decoration-none text-dark">
+                                        Status
+                                        @if($sortBy === 'student_status')
+                                            <i class="bi bi-sort-{{ $sortDir }}"></i>
+                                        @endif
+                                    </a>
+                                </th>
+                                <th class="text-end" style="width: 120px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($students as $student)
+                                <tr>
+                                    <td>
+                                        <input type="checkbox" name="student_ids[]" value="{{ $student->id }}" class="form-check-input student-checkbox">
+                                    </td>
+                                    <td class="text-center">
                                     @if($student->photo_path)
                                         <img src="{{ asset('storage/' . $student->photo_path) }}" 
                                              class="rounded-circle" 
@@ -235,7 +278,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="text-center py-5">
+                                <td colspan="7" class="text-center py-5">
                                     <div class="text-muted">
                                         <i class="bi bi-people fs-1 mb-3 d-block"></i>
                                         <h5>No students found</h5>
@@ -266,7 +309,53 @@
                     </div>
                 </div>
             @endif
+            </form>
         </div>
     </div>
 </div>
+
+<script>
+document.getElementById('selectAll').addEventListener('change', function() {
+    document.querySelectorAll('.student-checkbox').forEach(cb => {
+        cb.checked = this.checked;
+    });
+    updateSelectedCount();
+});
+
+document.querySelectorAll('.student-checkbox').forEach(cb => {
+    cb.addEventListener('change', updateSelectedCount);
+});
+
+function updateSelectedCount() {
+    const count = document.querySelectorAll('.student-checkbox:checked').length;
+    document.getElementById('selectedCount').textContent = count + ' selected';
+}
+
+function confirmBulkAction() {
+    const selectedCount = document.querySelectorAll('.student-checkbox:checked').length;
+    if (selectedCount === 0) {
+        alert('Please select at least one student');
+        return;
+    }
+
+    const action = document.getElementById('bulkActionSelect').value;
+    if (!action) {
+        alert('Please select an action');
+        return;
+    }
+
+    let confirmMessage = '';
+    if (action === 'delete') {
+        confirmMessage = 'Are you sure you want to delete ' + selectedCount + ' student(s)? This action cannot be undone.';
+    } else if (action === 'activate') {
+        confirmMessage = 'Are you sure you want to activate ' + selectedCount + ' student(s)?';
+    } else if (action === 'deactivate') {
+        confirmMessage = 'Are you sure you want to deactivate ' + selectedCount + ' student(s)?';
+    }
+
+    if (confirm(confirmMessage)) {
+        document.getElementById('bulkActionForm').submit();
+    }
+}
+</script>
 @endsection

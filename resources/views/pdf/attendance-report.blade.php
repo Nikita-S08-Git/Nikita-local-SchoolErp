@@ -27,41 +27,27 @@
     <table>
         <thead>
             <tr>
-                <th class="text-center">Date</th>
                 <th class="text-center">Roll No</th>
                 <th>Student Name</th>
-                <th class="text-center">DOB</th>
-                <th class="text-center">Gender</th>
-                <th>Father Name</th>
-                <th>Father Phone</th>
-                <th>Mother Name</th>
-                <th>Guardian Name</th>
-                <th>Guardian Phone</th>
-                <th class="text-center">Status</th>
-                <th class="text-center">Teacher Name</th>
+                <th class="text-center">Total Days</th>
+                <th class="text-center">Present</th>
+                <th class="text-center">Absent</th>
+                <th class="text-center">Percentage</th>
             </tr>
         </thead>
         <tbody>
-            @forelse($attendanceRecords as $record)
+            @forelse($report as $item)
             <tr>
-                <td class="text-center">{{ \Carbon\Carbon::parse($record->date)->format('d M Y') }}</td>
-                <td class="text-center">{{ $record->student->roll_number ?? 'N/A' }}</td>
-                <td>{{ $record->student->full_name ?? 'N/A' }}</td>
-                <td class="text-center">{{ $record->student->date_of_birth ? \Carbon\Carbon::parse($record->student->date_of_birth)->format('d M Y') : 'N/A' }}</td>
-                <td class="text-center">{{ ucfirst($record->student->gender ?? 'N/A') }}</td>
-                <td>{{ $record->student->studentProfile->father_name ?? 'N/A' }}</td>
-                <td>{{ $record->student->studentProfile->father_phone ?? 'N/A' }}</td>
-                <td>{{ $record->student->studentProfile->mother_name ?? 'N/A' }}</td>
-                <td>{{ $record->student->studentProfile->guardian_name ?? 'N/A' }}</td>
-                <td>{{ $record->student->studentProfile->guardian_phone ?? 'N/A' }}</td>
-                <td class="text-center {{ $record->status }}">
-                    {{ ucfirst($record->status) }}
-                </td>
-                <td class="text-center">{{ $record->markedBy->name ?? 'N/A' }}</td>
+                <td class="text-center">{{ $item['total'] }}</td>
+                <td class="text-center">{{ $item['student']->roll_number ?? 'N/A' }}</td>
+                <td>{{ $item['student']->first_name ?? '' }} {{ $item['student']->last_name ?? '' }}</td>
+                <td class="text-center">{{ $item['present'] }}</td>
+                <td class="text-center">{{ $item['absent'] }}</td>
+                <td class="text-center">{{ number_format($item['percentage'], 1) }}%</td>
             </tr>
             @empty
             <tr>
-                <td colspan="12" class="text-center">No attendance records found</td>
+                <td colspan="6" class="text-center">No records found</td>
             </tr>
             @endforelse
         </tbody>

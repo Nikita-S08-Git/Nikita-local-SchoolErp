@@ -50,10 +50,31 @@
                 <table class="table table-hover mb-0">
                     <thead class="table-light">
                         <tr>
-                            <th>Teacher Details</th>
-                            <th>Email</th>
+                            <th>
+                                <a href="?sort=name&dir={{ $sortDir === 'asc' ? 'desc' : 'asc' }}" class="text-decoration-none text-dark">
+                                    Teacher Details
+                                    @if($sortBy === 'name')
+                                        <i class="bi bi-sort-{{ $sortDir }}"></i>
+                                    @endif
+                                </a>
+                            </th>
+                            <th>
+                                <a href="?sort=email&dir={{ $sortDir === 'asc' ? 'desc' : 'asc' }}" class="text-decoration-none text-dark">
+                                    Email
+                                    @if($sortBy === 'email')
+                                        <i class="bi bi-sort-{{ $sortDir }}"></i>
+                                    @endif
+                                </a>
+                            </th>
                             <th>Division Assignment</th>
-                            <th>Joined</th>
+                            <th>
+                                <a href="?sort=created_at&dir={{ $sortDir === 'asc' ? 'desc' : 'asc' }}" class="text-decoration-none text-dark">
+                                    Joined
+                                    @if($sortBy === 'created_at')
+                                        <i class="bi bi-sort-{{ $sortDir }}"></i>
+                                    @endif
+                                </a>
+                            </th>
                             <th class="text-end" style="width: 120px;">Actions</th>
                         </tr>
                     </thead>
