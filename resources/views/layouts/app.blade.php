@@ -1107,10 +1107,21 @@
         <div class="content-area">
             <!-- Flash Messages -->
             @if(session('success'))
-                <div class="alert alert-success alert-dismissible fade show mx-4 mt-3" role="alert">
+                <div class="alert alert-success alert-dismissible fade show mx-4 mt-3" role="alert" id="success-message">
                     <i class="bi bi-check-circle me-2"></i>{{ session('success') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
+                <script>
+                    // Auto-hide success message after 3 seconds
+                    setTimeout(function() {
+                        var alert = document.getElementById('success-message');
+                        if (alert) {
+                            var bsAlert = new bootstrap.Alert(alert);
+                            bsAlert.close();
+                        }
+                    }, 3000);
+                </script>
+                {{ session()->forget('success') }}
             @endif
             
             @if(session('error'))

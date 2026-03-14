@@ -109,4 +109,40 @@ class User extends Authenticatable
     {
         return $this->hasMany(\App\Models\Academic\Timetable::class, 'teacher_id');
     }
+    
+    /**
+     * Get all permissions (from role and direct user permissions)
+     */
+    public function getAllPermissionsAttribute(): \Illuminate\Database\Eloquent\Collection
+    {
+        return $this->getAllPermissions();
+    }
+    
+    /**
+     * Check if user has permission to access a module
+     */
+    public function canAccessModule(string $module): bool
+    {
+        return $this->can($module . '.view') || 
+               $this->can($module . '.create') || 
+               $this->can($module . '.edit') || 
+               $this->can($module . '.delete') ||
+               $this->can($module . '.manage');
+    }
+    
+    /**
+     * Get user's role names
+     */
+    public function getRoleNamesListAttribute(): string
+    {
+        return $this->getRoleNames()->implode(', ');
+    }
+    
+    /**
+     * Check if user is active
+     */
+    public function isActive(): bool
+    {
+        return $this->is_active === true;
+    }
 }

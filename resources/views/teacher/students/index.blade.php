@@ -162,9 +162,9 @@
                         Showing <strong>{{ $students->firstItem() ?? 0 }}</strong> to <strong>{{ $students->lastItem() ?? 0 }}</strong>
                         of <strong>{{ $students->total() }}</strong> students
                     </div>
-                    <div class="pagination-wrapper">
-                        {{ $students->links() }}
-                    </div>
+                    
+                    <!-- Custom Pagination Component -->
+                    <x-pagination :paginator="$students" />
                 </div>
             </div>
         @endif

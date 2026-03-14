@@ -14,6 +14,10 @@ class TeacherController extends Controller
 {
     public function index(Request $request)
     {
+        // Default per page is 15, allow user to customize
+        $perPage = $request->input('per_page', 15);
+        $perPage = in_array($perPage, [10, 15, 25, 50]) ? (int) $perPage : 15;
+
         $sortBy = $request->query('sort', 'created_at');
         $sortDir = $request->query('dir', 'desc');
         $allowedSorts = ['name', 'email', 'created_at'];
@@ -24,9 +28,9 @@ class TeacherController extends Controller
 
         $teachers = User::role('teacher')
             ->orderBy($sortBy, $sortDir)
-            ->paginate(15)->appends($request->query());
+            ->paginate($perPage)->appends($request->query());
 
-        return view('dashboard.teachers.index', compact('teachers', 'sortBy', 'sortDir'));
+        return view('dashboard.teachers.index', compact('teachers', 'sortBy', 'sortDir', 'perPage'));
     }
 
     public function create()

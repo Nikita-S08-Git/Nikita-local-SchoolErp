@@ -57,7 +57,8 @@
                         </table>
                     </div>
                     
-                    {{ $payments->links() }}
+                    <!-- Custom Pagination Component -->
+                    <x-pagination :paginator="$payments" />
                 </div>
             </div>
         </div>

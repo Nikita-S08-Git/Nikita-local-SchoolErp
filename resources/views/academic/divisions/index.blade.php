@@ -137,7 +137,9 @@
                     </tbody>
                 </table>
             </div>
-            {{ $divisions->links() }}
+            
+            <!-- Custom Pagination -->
+            <x-pagination :paginator="$divisions" />
         </div>
     </div>
 </div>

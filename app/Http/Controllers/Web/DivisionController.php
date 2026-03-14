@@ -17,6 +17,10 @@ class DivisionController extends Controller
 {
     public function index(Request $request): View
     {
+        // Default per page is 15, allow user to customize
+        $perPage = $request->input('per_page', 15);
+        $perPage = in_array($perPage, [10, 15, 25, 50]) ? (int) $perPage : 15;
+
         $query = Division::with(['program', 'session', 'classTeacher', 'teachers'])
             ->withCount(['students' => fn($q) => $q->where('student_status', 'active')])
             ->when($request->filled('program_id'), fn($q) => $q->where('program_id', $request->program_id))
@@ -25,11 +29,11 @@ class DivisionController extends Controller
             ->when($request->filled('status'), fn($q) => $q->where('is_active', $request->status === 'active'))
             ->latest();
 
-        $divisions = $query->paginate(15)->appends($request->query());
+        $divisions = $query->paginate($perPage)->appends($request->query());
         $programs = Program::where('is_active', true)->get();
         $sessions = AcademicSession::where('is_active', true)->get();
 
-        return view('academic.divisions.index', compact('divisions', 'programs', 'sessions'));
+        return view('academic.divisions.index', compact('divisions', 'programs', 'sessions', 'perPage'));
     }
 
     public function create(): View

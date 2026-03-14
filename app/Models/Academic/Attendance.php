@@ -72,6 +72,15 @@ class Attendance extends Model
     ];
 
     /**
+     * Mutator: Automatically convert status to lowercase before saving
+     * This fixes case mismatch between request (Present) and database (present)
+     */
+    public function setStatusAttribute($value)
+    {
+        $this->attributes['status'] = strtolower($value);
+    }
+
+    /**
      * Get the student for this attendance record.
      */
     public function student(): BelongsTo

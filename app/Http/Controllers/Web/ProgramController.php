@@ -16,6 +16,10 @@ class ProgramController extends Controller
      */
     public function index(Request $request): View
     {
+        // Default per page is 15, allow user to customize
+        $perPage = $request->input('per_page', 15);
+        $perPage = in_array($perPage, [10, 15, 25, 50]) ? (int) $perPage : 15;
+
         $query = Program::with('department')
             ->withCount(['students' => function($q) {
                 $q->where('student_status', 'active');
@@ -31,10 +35,10 @@ class ProgramController extends Controller
             })
             ->latest();
 
-        $programs = $query->paginate(15)->appends($request->query());
+        $programs = $query->paginate($perPage)->appends($request->query());
         $departments = Department::where('is_active', true)->get();
 
-        return view('academic.programs.index', compact('programs', 'departments'));
+        return view('academic.programs.index', compact('programs', 'departments', 'perPage'));
     }
 
     /**

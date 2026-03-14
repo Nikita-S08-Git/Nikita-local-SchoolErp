@@ -4,6 +4,23 @@
 
 @section('content')
 <div class="container-fluid">
+    <!-- Holiday Alert -->
+    @if($todayHoliday)
+        <div class="alert alert-danger d-flex align-items-center mb-4" role="alert" style="border-radius: 12px; border: none; background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%); color: white;">
+            <i class="bi bi-exclamation-triangle-fill fs-4 me-3"></i>
+            <div class="flex-grow-1">
+                <strong>Today is a Holiday!</strong> - {{ $todayHoliday->title }}
+                @if($todayHoliday->start_date != $todayHoliday->end_date)
+                    <span class="ms-2">
+                        (Holiday from {{ \Carbon\Carbon::parse($todayHoliday->start_date)->format('d M') }} to {{ \Carbon\Carbon::parse($todayHoliday->end_date)->format('d M Y') }})
+                    </span>
+                @else
+                    <span class="ms-2">({{ \Carbon\Carbon::parse($todayHoliday->start_date)->format('d M Y') }})</span>
+                @endif
+            </div>
+        </div>
+    @endif
+
     <div class="row mb-4">
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center">
@@ -40,11 +57,27 @@
     <div class="row justify-content-center">
         <div class="col-lg-8">
             <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
+                <div class="card-header {{ ($todayHoliday || $isSunday || !$hasTimetableToday) ? 'bg-secondary' : 'bg-primary' }} text-white">
                     <h5 class="mb-0"><i class="bi bi-calendar-check me-2"></i>Mark Attendance</h5>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('academic.attendance.mark') }}" method="POST" id="markForm">
+                    @if($todayHoliday)
+                        <div class="alert alert-danger mb-3" style="background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%); color: white; border: none;">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            <strong>Today is a Holiday ({{ $todayHoliday->title }})!</strong> Attendance cannot be marked on holidays.
+                        </div>
+                    @elseif($isSunday)
+                        <div class="alert alert-warning mb-3">
+                            <i class="bi bi-calendar-event me-2"></i>
+                            <strong>Today is Sunday!</strong> Attendance cannot be marked on Sundays (weekly off).
+                        </div>
+                    @elseif(!$hasTimetableToday)
+                        <div class="alert alert-info mb-3">
+                            <i class="bi bi-calendar-x me-2"></i>
+                            <strong>No Timetable for Today!</strong> There is no class scheduled for today.
+                        </div>
+                    @endif
+                    <form action="{{ route('academic.attendance.mark') }}" method="POST" id="markForm" class="{{ $todayHoliday ? 'opacity-50' : '' }}">
                         @csrf
                         
                         <div class="row">
@@ -105,8 +138,19 @@
                         </div>
 
                         <div class="text-center">
-                            <button type="submit" class="btn btn-success btn-lg" id="markAttendanceBtn">
-                                <i class="bi bi-arrow-right-circle"></i> Proceed to Mark Attendance
+                            @php
+                                $canMarkAttendance = !$todayHoliday && !$isSunday && $hasTimetableToday;
+                            @endphp
+                            <button type="submit" class="btn {{ $canMarkAttendance ? 'btn-success' : 'btn-secondary' }} btn-lg" id="markAttendanceBtn" {{ $canMarkAttendance ? '' : 'disabled' }}>
+                                @if($todayHoliday)
+                                    <i class="bi bi-calendar-x"></i> Holiday - Cannot Mark Attendance
+                                @elseif($isSunday)
+                                    <i class="bi bi-calendar-event"></i> Sunday - Cannot Mark Attendance
+                                @elseif(!$hasTimetableToday)
+                                    <i class="bi bi-calendar-x"></i> No Class Today
+                                @else
+                                    <i class="bi bi-arrow-right-circle"></i> Proceed to Mark Attendance
+                                @endif
                             </button>
                         </div>
                     </form>

@@ -18,6 +18,10 @@ class StudentController extends Controller
      */
     public function index(Request $request)
     {
+        // Default per page is 20, allow user to customize
+        $perPage = $request->input('per_page', 20);
+        $perPage = in_array($perPage, [10, 15, 20, 25, 50]) ? (int) $perPage : 20;
+
         $query = Student::with(['program', 'division', 'academicSession']);
 
         if ($request->filled('program_id')) {
@@ -49,10 +53,10 @@ class StudentController extends Controller
         }
         $sortDir = in_array($sortDir, ['asc', 'desc']) ? $sortDir : 'desc';
 
-        $students = $query->orderBy($sortBy, $sortDir)->paginate(20)->appends($request->query());
+        $students = $query->orderBy($sortBy, $sortDir)->paginate($perPage)->appends($request->query());
         $programs = Program::where('is_active', true)->get();
 
-        return view('dashboard.students.index', compact('students', 'programs', 'sortBy', 'sortDir'));
+        return view('dashboard.students.index', compact('students', 'programs', 'sortBy', 'sortDir', 'perPage'));
     }
 
     /**

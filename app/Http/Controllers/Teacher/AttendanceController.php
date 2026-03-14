@@ -163,6 +163,28 @@ class AttendanceController extends Controller
         
         $timetable = Timetable::findOrFail($timetableId);
         
+        // Get the computed status (automatic based on date)
+        $computedStatus = $timetable->computed_status ?? $timetable->status;
+        $timetableDate = $timetable->date ? $timetable->date->format('Y-m-d') : null;
+        $today = now()->format('Y-m-d');
+        $todayDay = strtolower(now()->format('l'));
+        
+        // Check if attendance can be marked
+        if (!$timetable->isActiveForAttendance()) {
+            // Provide specific error messages based on the reason
+            if ($timetableDate && $timetableDate < $today) {
+                return back()->with('error', 'Cannot mark attendance. The timetable date has passed (' . $timetableDate . ') and is now closed.');
+            } elseif ($timetableDate && $timetableDate > $today) {
+                return back()->with('error', 'Cannot mark attendance. The timetable is scheduled for a future date (' . $timetableDate . ').');
+            } elseif (!empty($timetable->day_of_week) && strtolower($timetable->day_of_week) !== $todayDay) {
+                return back()->with('error', 'Cannot mark attendance. Today is ' . ucfirst($todayDay) . ' but the timetable is scheduled for ' . ucfirst($timetable->day_of_week) . '.');
+            } elseif ($computedStatus === 'closed') {
+                return back()->with('error', 'Cannot mark attendance. The timetable is closed.');
+            } else {
+                return back()->with('error', 'Cannot mark attendance. The timetable is not active for today.');
+            }
+        }
+        
         // Verify teacher is assigned to this timetable
         if ($timetable->teacher_id != $teacher->id) {
             abort(403, 'Unauthorized');

@@ -132,6 +132,22 @@ Route::middleware(['auth', 'role:admin|principal'])->group(function () {
         });
 });
 
+// ============================================
+// Role & Permission Management Routes
+// ============================================
+Route::middleware(['auth', 'role:super_admin|admin'])->prefix('admin')->name('admin.')->group(function () {
+    // Roles Management
+    Route::resource('roles', \App\Http\Controllers\Web\RoleController::class);
+    Route::get('roles/{role}/permissions', [\App\Http\Controllers\Web\RoleController::class, 'permissions'])->name('roles.permissions');
+    Route::put('roles/{role}/permissions', [\App\Http\Controllers\Web\RoleController::class, 'updatePermissions'])->name('roles.permissions.update');
+    
+    // Permissions Management
+    Route::resource('permissions', \App\Http\Controllers\Web\PermissionController::class);
+    
+    // Activity Logs
+    Route::get('activity-logs', [\App\Http\Controllers\Web\ActivityLogController::class, 'index'])->name('activity-logs.index');
+});
+
 // Academic Management
 Route::middleware(['auth'])->prefix('academic')->name('academic.')->group(function () {
     // Programs
@@ -321,6 +337,44 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/test-storage', function() {
         $students = \App\Models\User\Student::with(['program', 'division'])->limit(5)->get();
         return view('test-storage', compact('students'));
+    });
+    
+    // Test route to add holiday for today
+    Route::get('/test-add-holiday', function() {
+        $today = now()->format('Y-m-d');
+        
+        // Get current academic year using the proper method
+        $academicYearId = \App\Models\Academic\AcademicYear::getCurrentAcademicYearId();
+        
+        if (!$academicYearId) {
+            // Create academic year if none exists
+            $academicYear = \App\Models\Academic\AcademicYear::create([
+                'name' => '2025-2026',
+                'start_date' => '2025-06-01',
+                'end_date' => '2026-05-31',
+                'is_active' => true,
+            ]);
+            $academicYearId = $academicYear->id;
+        }
+        
+        // Delete any existing holiday for today
+        \App\Models\Holiday::where('start_date', '<=', $today)
+            ->where('end_date', '>=', $today)
+            ->delete();
+        
+        // Create holiday for today
+        $holiday = \App\Models\Holiday::create([
+            'title' => 'Test Holiday - School Closed Today!',
+            'description' => 'This is a test holiday added via test route',
+            'start_date' => $today,
+            'end_date' => $today,
+            'type' => 'school_holiday',
+            'is_recurring' => false,
+            'academic_year_id' => $academicYearId,
+            'is_active' => true,
+        ]);
+        
+        return redirect()->route('teacher.divisions.index')->with('success', 'Holiday added for today: ' . $holiday->title);
     });
     
     // Bulk action route - inside auth middleware (must be before wildcard route)

@@ -37,7 +37,36 @@ class AttendanceController extends Controller
             ->get();
         $sessions = AcademicSession::where('is_active', true)->get();
 
-        return view('academic.attendance.index', compact('divisions', 'sessions'));
+        // Check if today is a holiday
+        $today = now()->format('Y-m-d');
+        $todayHoliday = null;
+        $isSunday = false;
+        $hasTimetableToday = true;
+        $academicYearId = \App\Models\Academic\AcademicYear::getCurrentAcademicYearId();
+        
+        // Check if today is Sunday
+        if (now()->dayOfWeek === 0) {
+            $isSunday = true;
+        }
+        
+        if ($academicYearId) {
+            $todayHoliday = \App\Models\Holiday::where('is_active', true)
+                ->where('academic_year_id', $academicYearId)
+                ->where('start_date', '<=', $today)
+                ->where('end_date', '>=', $today)
+                ->first();
+                
+            // Check if there's any timetable entry for today
+            $dayOfWeek = strtolower(now()->format('l'));
+            $hasTimetableToday = \App\Models\Academic\Timetable::where('academic_year_id', $academicYearId)
+                ->where(function($query) use ($dayOfWeek, $today) {
+                    $query->where('day_of_week', $dayOfWeek)
+                          ->orWhereDate('date', $today);
+                })
+                ->exists();
+        }
+
+        return view('academic.attendance.index', compact('divisions', 'sessions', 'todayHoliday', 'isSunday', 'hasTimetableToday'));
     }
 
     public function create()
@@ -77,8 +106,24 @@ class AttendanceController extends Controller
         );
 
         if (!$holidayCheck['valid'] && $holidayCheck['is_holiday']) {
+            $holidayName = $holidayCheck['holiday_title'] ?? 'Holiday';
             return redirect()->route('academic.attendance.index')
-                ->with('error', 'This date is marked as Holiday. Attendance and Timetable cannot be added.');
+                ->with('error', "Today is a Holiday ({$holidayName}). Attendance cannot be marked on holidays.");
+        }
+
+        // Check if there's timetable for the selected date
+        $dayOfWeek = strtolower($selectedDate->format('l'));
+        $selectedDateStr = $validated['date'];
+        $hasTimetable = \App\Models\Academic\Timetable::where('academic_year_id', $division->academic_year_id)
+            ->where(function($query) use ($dayOfWeek, $selectedDateStr) {
+                $query->where('day_of_week', $dayOfWeek)
+                      ->orWhereDate('date', $selectedDateStr);
+            })
+            ->exists();
+            
+        if (!$hasTimetable) {
+            return redirect()->route('academic.attendance.index')
+                ->with('error', 'No timetable entry found for the selected date. Cannot mark attendance.');
         }
 
         // Get ALL students of that division

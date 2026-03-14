@@ -97,6 +97,7 @@
                     <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
                         <option value="active" {{ request('status', 'active') == 'active' ? 'selected' : '' }}>Active</option>
                         <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                        <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed</option>
                         <option value="" {{ request('status') === '' ? 'selected' : '' }}>All</option>
                     </select>
                 </div>
@@ -171,12 +172,23 @@
                             <th>Class / Division</th>
                             <th>Start Time</th>
                             <th>End Time</th>
+                            <th>Status</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($timetables as $index => $timetable)
-                            <tr class="{{ $timetable->status === 'cancelled' ? 'table-danger' : '' }}">
+                            @php
+                                $rowClass = '';
+                                if ($timetable->status === 'cancelled') {
+                                    $rowClass = 'table-danger';
+                                } elseif ($timetable->status === 'completed') {
+                                    $rowClass = 'table-light';
+                                } elseif ($timetable->status === 'closed') {
+                                    $rowClass = 'table-warning';
+                                }
+                            @endphp
+                            <tr class="{{ $rowClass }}">
                                 <td>{{ $timetables->firstItem() + $index }}</td>
                                 <td>
                                     @if($timetable->date)
@@ -230,6 +242,27 @@
                                     </div>
                                 </td>
                                 <td>
+                                    @switch($timetable->status)
+                                        @case('active')
+                                            <span class="badge bg-success">Active</span>
+                                            @break
+                                        @case('cancelled')
+                                            <span class="badge bg-danger">Cancelled</span>
+                                            @break
+                                        @case('completed')
+                                            <span class="badge bg-secondary">Completed</span>
+                                            @break
+                                        @case('upcoming')
+                                            <span class="badge bg-info text-dark">Upcoming</span>
+                                            @break
+                                        @case('closed')
+                                            <span class="badge bg-danger">Closed</span>
+                                            @break
+                                        @default
+                                            <span class="badge bg-secondary">{{ ucfirst($timetable->status) }}</span>
+                                    @endswitch
+                                </td>
+                                <td>
                                     @role('admin|principal')
                                     <div class="btn-group btn-group-sm d-flex gap-1">
                                         <a href="{{ route('academic.timetable.edit', $timetable->id) }}" 
@@ -276,9 +309,9 @@
                         <div class="text-muted small">
                             Showing {{ $timetables->firstItem() ?? 0 }} to {{ $timetables->lastItem() ?? 0 }} of {{ $timetables->total() }} entries
                         </div>
-                        <div>
-                            {{ $timetables->links() }}
-                        </div>
+                        
+                        <!-- Custom Pagination Component -->
+                        <x-pagination :paginator="$timetables" />
                     </div>
                 </div>
             @endif

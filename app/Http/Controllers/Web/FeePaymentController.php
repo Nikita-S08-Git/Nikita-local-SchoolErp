@@ -15,6 +15,10 @@ class FeePaymentController extends Controller
 {
     public function index(Request $request)
     {
+        // Default per page is 15, allow user to customize
+        $perPage = $request->input('per_page', 15);
+        $perPage = in_array($perPage, [10, 15, 25, 50]) ? (int) $perPage : 15;
+
         $sortBy = $request->query('sort', 'payment_date');
         $sortDir = $request->query('dir', 'desc');
         $allowedSorts = ['payment_date', 'amount', 'payment_mode', 'transaction_id', 'created_at'];
@@ -25,8 +29,8 @@ class FeePaymentController extends Controller
 
         $payments = FeePayment::with(['studentFee.student', 'studentFee.feeStructure.feeHead'])
             ->orderBy($sortBy, $sortDir)
-            ->paginate(15)->appends($request->query());
-        return view('fees.payments.index', compact('payments', 'sortBy', 'sortDir'));
+            ->paginate($perPage)->appends($request->query());
+        return view('fees.payments.index', compact('payments', 'sortBy', 'sortDir', 'perPage'));
     }
 
     public function create()
