@@ -23,9 +23,12 @@ class AdmissionService
             $user = \App\Models\User::create([
                 'name' => $data['first_name'] . ' ' . ($data['middle_name'] ?? '') . ' ' . $data['last_name'],
                 'email' => $data['email'],
-                'password' => bcrypt('password123'), // Default password
-                'role' => 'student',
+                'password' => bcrypt('password#@23'), // Default password
+                'password_changed_at' => null, // Track if password has been changed
             ]);
+            
+            // Assign student role
+            $user->assignRole('student');
             
             // Map fields to students table
             // roll_number = admission_number (they are the same)

@@ -37,7 +37,7 @@
 
     <!-- Statistics Cards -->
     <div class="row g-4 mb-4">
-        <div class="col-md-3">
+        <div class="col-md-6">
             <div class="card stats-card h-100 border-0" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
@@ -56,7 +56,7 @@
             </div>
         </div>
 
-        <div class="col-md-3">
+        <div class="col-md-6">
             <div class="card stats-card h-100 border-0" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
@@ -80,49 +80,11 @@
                 </div>
             </div>
         </div>
-
-        <div class="col-md-3">
-            <div class="card stats-card h-100 border-0" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <p class="mb-1 opacity-75">Present Days</p>
-                            <h2 class="mb-0 fw-bold">{{ $attendanceSummary['present'] }}/{{ $attendanceSummary['total'] }}</h2>
-                        </div>
-                        <div style="width: 60px; height: 60px; background: rgba(255,255,255,0.2); border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem;">
-                            <i class="bi bi-check-circle"></i>
-                        </div>
-                    </div>
-                    <div class="mt-2">
-                        <small class="opacity-75"><i class="bi bi-graph-up me-1"></i>{{ $attendanceSummary['total'] - $attendanceSummary['present'] }} days absent</small>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="card stats-card h-100 border-0" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white;">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <p class="mb-1 opacity-75">Notifications</p>
-                            <h2 class="mb-0 fw-bold">{{ $student->unreadNotificationsCount() }}</h2>
-                        </div>
-                        <div style="width: 60px; height: 60px; background: rgba(255,255,255,0.2); border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem;">
-                            <i class="bi bi-bell"></i>
-                        </div>
-                    </div>
-                    <div class="mt-2">
-                        <small class="opacity-75"><i class="bi bi-envelope me-1"></i>Unread messages</small>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 
-    <!-- Today's Timetable & Upcoming Classes -->
+    <!-- Today's Timetable -->
     <div class="row g-4 mb-4">
-        <div class="col-md-8">
+        <div class="col-12">
             <div class="card border-0 shadow-sm" style="border-radius: 15px;">
                 <div class="card-header bg-white border-0 py-3">
                     <h5 class="fw-bold mb-0">
@@ -159,6 +121,11 @@
                                 </tbody>
                             </table>
                         </div>
+                        <div class="mt-3">
+                            <a href="{{ route('student.timetable') }}" class="btn btn-sm btn-outline-primary">
+                                View Full Timetable <i class="bi bi-arrow-right ms-1"></i>
+                            </a>
+                        </div>
                     @else
                         <div class="text-center py-5">
                             <i class="bi bi-calendar-x text-muted" style="font-size: 3rem;"></i>
@@ -169,90 +136,42 @@
                 </div>
             </div>
         </div>
-
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm" style="border-radius: 15px;">
-                <div class="card-header bg-white border-0 py-3">
-                    <h5 class="fw-bold mb-0">
-                        <i class="bi bi-bell me-2 text-warning"></i>Recent Notifications
-                    </h5>
-                </div>
-                <div class="card-body">
-                    @if($notifications->count() > 0)
-                        <div class="list-group list-group-flush">
-                            @foreach($notifications as $notification)
-                                <div class="list-group-item px-0 {{ !$notification->is_read ? 'bg-light' : '' }}">
-                                    <div class="d-flex w-100 justify-content-between">
-                                        <small class="text-muted mb-1">{{ $notification->created_at->diffForHumans() }}</small>
-                                        @if(!$notification->is_read)
-                                            <span class="badge bg-primary">New</span>
-                                        @endif
-                                    </div>
-                                    <p class="mb-1 small">{{ Str::limit($notification->message, 50) }}</p>
-                                </div>
-                            @endforeach
-                        </div>
-                        <a href="{{ route('student.notifications') }}" class="btn btn-sm btn-outline-primary mt-3 w-100">
-                            View All Notifications
-                        </a>
-                    @else
-                        <div class="text-center py-4">
-                            <i class="bi bi-bell-slash text-muted" style="font-size: 2rem;"></i>
-                            <p class="text-muted mt-2 small">No notifications</p>
-                        </div>
-                    @endif
-                </div>
-            </div>
-        </div>
     </div>
 
-    <!-- Quick Actions -->
+    <!-- Attendance Summary -->
     <div class="row">
         <div class="col-12">
             <div class="card border-0 shadow-sm" style="border-radius: 15px;">
                 <div class="card-header bg-white border-0 py-3">
                     <h5 class="fw-bold mb-0">
-                        <i class="bi bi-lightning-charge me-2 text-warning"></i>Quick Actions
+                        <i class="bi bi-calendar-check me-2 text-success"></i>Attendance Summary
                     </h5>
                 </div>
                 <div class="card-body">
                     <div class="row g-3">
-                        <div class="col-md-2 col-6">
-                            <a href="{{ route('student.timetable') }}" class="btn btn-outline-primary w-100 py-3" style="border-radius: 12px;">
-                                <i class="bi bi-calendar-week d-block mb-2" style="font-size: 2rem;"></i>
-                                <span>Timetable</span>
-                            </a>
+                        <div class="col-md-4">
+                            <div class="bg-light p-3 rounded-3">
+                                <p class="text-muted mb-1">Total Lectures</p>
+                                <h4 class="fw-bold">{{ $attendanceSummary['total'] }}</h4>
+                            </div>
                         </div>
-                        <div class="col-md-2 col-6">
-                            <a href="{{ route('student.attendance') }}" class="btn btn-outline-success w-100 py-3" style="border-radius: 12px;">
-                                <i class="bi bi-calendar-check d-block mb-2" style="font-size: 2rem;"></i>
-                                <span>Attendance</span>
-                            </a>
+                        <div class="col-md-4">
+                            <div class="bg-light p-3 rounded-3">
+                                <p class="text-muted mb-1">Present</p>
+                                <h4 class="fw-bold text-success">{{ $attendanceSummary['present'] }}</h4>
+                            </div>
                         </div>
-                        <div class="col-md-2 col-6">
-                            <a href="{{ route('student.profile') }}" class="btn btn-outline-info w-100 py-3" style="border-radius: 12px;">
-                                <i class="bi bi-person-circle d-block mb-2" style="font-size: 2rem;"></i>
-                                <span>Profile</span>
-                            </a>
+                        <div class="col-md-4">
+                            <div class="bg-light p-3 rounded-3">
+                                <p class="text-muted mb-1">Attendance %</p>
+                                <h4 class="fw-bold text-primary">{{ $attendanceSummary['percentage'] }}%</h4>
+                            </div>
                         </div>
-                        <div class="col-md-2 col-6">
-                            <a href="{{ route('student.notifications') }}" class="btn btn-outline-warning w-100 py-3" style="border-radius: 12px;">
-                                <i class="bi bi-bell d-block mb-2" style="font-size: 2rem;"></i>
-                                <span>Notifications</span>
-                            </a>
-                        </div>
-                        <div class="col-md-2 col-6">
-                            <a href="{{ route('student.fees') }}" class="btn btn-outline-danger w-100 py-3" style="border-radius: 12px;">
-                                <i class="bi bi-currency-dollar d-block mb-2" style="font-size: 2rem;"></i>
-                                <span>Fees</span>
-                            </a>
-                        </div>
-                        <div class="col-md-2 col-6">
-                            <a href="{{ route('student.results') }}" class="btn btn-outline-secondary w-100 py-3" style="border-radius: 12px;">
-                                <i class="bi bi-clipboard-data d-block mb-2" style="font-size: 2rem;"></i>
-                                <span>Results</span>
-                            </a>
-                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <a href="{{ route('student.attendance') }}" class="btn btn-sm btn-outline-success">
+                            View Detailed Attendance <i class="bi bi-arrow-right ms-1"></i>
+                        </a>
                     </div>
                 </div>
             </div>

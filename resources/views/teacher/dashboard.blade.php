@@ -232,10 +232,20 @@
                                                         <i class="bi bi-geo-alt me-1"></i>{{ $class->room ?? 'TBA' }}
                                                     </span>
                                                 </div>
-                                                <a href="{{ route('teacher.attendance.create', $class->id) }}"
-                                                   class="btn btn-sm btn-outline-success">
-                                                    <i class="bi bi-check-circle me-1"></i>Mark Attendance
-                                                </a>
+                                                @if($class->attendance_marked)
+                                                    <span class="btn btn-sm btn-success disabled">
+                                                        <i class="bi bi-check-circle me-1"></i>Attendance Marked
+                                                    </span>
+                                                @elseif(!$class->is_active)
+                                                    <span class="btn btn-sm btn-secondary disabled">
+                                                        <i class="bi bi-clock me-1"></i>Not Active
+                                                    </span>
+                                                @else
+                                                    <a href="{{ route('teacher.attendance.create', $class->id) }}"
+                                                       class="btn btn-sm btn-outline-success">
+                                                        <i class="bi bi-check-circle me-1"></i>Mark Attendance
+                                                    </a>
+                                                @endif
                                             </div>
                                         </div>
                                     </div>

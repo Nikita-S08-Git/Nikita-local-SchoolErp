@@ -28,7 +28,7 @@ class AttendanceController extends Controller
     }
 
     /**
-     * Mark attendance for students in a division
+     * Mark attendance for students in a specific lecture
      * 
      * @param Request $request
      * @return JsonResponse
@@ -38,7 +38,7 @@ class AttendanceController extends Controller
     {
         // Validation
         $request->validate([
-            'division_id' => 'required|exists:divisions,id',
+            'timetable_id' => 'required|exists:timetables,id',
             'date' => 'required|date',
             'attendance' => 'required|array',
             'attendance.*.student_id' => 'required|exists:students,id',
@@ -47,8 +47,18 @@ class AttendanceController extends Controller
             'attendance.*.remarks' => 'nullable|string',
         ]);
 
+        $timetable = \App\Models\Academic\Timetable::find($request->timetable_id);
+        
+        // Check if timetable is active for attendance
+        if (!$timetable->isActiveForAttendance()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Attendance cannot be marked for this lecture at this time'
+            ], 422);
+        }
+
         // Check if the date is a holiday
-        $division = Division::find($request->division_id);
+        $division = $timetable->division;
         $academicYearId = $division?->academic_year_id ?? AcademicYear::getCurrentAcademicYearId();
         
         $holidayCheck = $this->holidayService->validateAttendanceDate($request->date, $academicYearId);
@@ -65,10 +75,19 @@ class AttendanceController extends Controller
         // Get authenticated user ID (guaranteed by middleware)
         $userId = auth()->id();
 
+        // Verify user has permission to mark attendance for this timetable
+        if ($timetable->teacher_id && $timetable->teacher_id !== $userId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized to mark attendance for this lecture'
+            ], 403);
+        }
+
         foreach ($request->attendance as $record) {
             Attendance::updateOrCreate(
                 [
                     'student_id' => $record['student_id'],
+                    'timetable_id' => $request->timetable_id,
                     'date' => $request->date,
                 ],
                 [
@@ -76,6 +95,7 @@ class AttendanceController extends Controller
                     'check_in_time' => $record['check_in_time'] ?? null,
                     'remarks' => $record['remarks'] ?? null,
                     'marked_by' => $userId,
+                    'division_id' => $timetable->division_id,
                 ]
             );
         }

@@ -40,21 +40,10 @@ class DashboardController extends Controller
         // Get attendance summary
         $attendanceSummary = $this->getAttendanceSummary($student);
 
-        // Get recent notifications
-        $notifications = $student->notifications()
-            ->latest()
-            ->take(5)
-            ->get();
-
-        // Get upcoming classes (next 7 days)
-        $upcomingClasses = $this->getUpcomingClasses($student);
-
         return view('student.dashboard', compact(
             'student',
             'todayClasses',
-            'attendanceSummary',
-            'notifications',
-            'upcomingClasses'
+            'attendanceSummary'
         ));
     }
 
@@ -128,7 +117,7 @@ class DashboardController extends Controller
 
         $validated = $request->validate([
             'current_password' => 'required',
-            'password' => 'required|min:8|confirmed',
+            'password' => 'required|min:8|confirmed|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/',
         ]);
 
         // Verify current password
@@ -139,8 +128,9 @@ class DashboardController extends Controller
         }
 
         // Update password
-        $student->update([
+        $student->user->update([
             'password' => Hash::make($validated['password']),
+            'password_changed_at' => now(),
         ]);
 
         return redirect()->route('student.profile')

@@ -57,40 +57,72 @@ class AuthController extends Controller
      */
     public function login(Request $request): JsonResponse
     {
-        // Step 1: Validate input data
-        // Makes sure email and password are provided and email is valid format
         $request->validate([
             'email' => 'required|email',
             'password' => 'required',
         ]);
 
-        // Step 2: Try to authenticate user
-        // Auth::attempt() checks email/password against users table
-        // It automatically hashes the password and compares with stored hash
-        if (Auth::attempt($request->only('email', 'password'))) {
-            // Step 3: Login successful - get user and create token
-            $user = Auth::user();  // Get the logged-in user from database
-            
-            // Create JWT token for API authentication
-            // This token will be sent with every future API request
-            $token = $user->createToken('auth_token')->plainTextToken;
+        // First, check if user exists in main users table (admin, teacher, etc.)
+        $user = User::where('email', $request->email)->first();
+        
+        if ($user) {
+            if (\Hash::check($request->password, $user->password)) {
+                if (!$user->isActive()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Your account is inactive. Please contact administration.'
+                    ], 401);
+                }
 
-            // Step 4: Return success response with user data and token
-            return response()->json([
-                'success' => true,
-                'message' => 'Login successful',
-                'data' => [
-                    'user' => $user->load('roles'),  // Include user roles (Principal, HOD, etc.)
-                    'token' => $token,  // JWT token for future requests
-                ]
-            ]);
+                $token = $user->createToken('auth_token')->plainTextToken;
+                
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Login successful',
+                    'data' => [
+                        'user' => $user->load('roles')->makeVisible(['password_changed_at'])->toArray(),
+                        'token' => $token,
+                    ]
+                ]);
+            }
+        } else {
+            // Check if student exists
+            $student = \App\Models\User\Student::where('email', $request->email)->first();
+            
+            if ($student) {
+                if (!$student->user) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Student account configuration error'
+                    ], 401);
+                }
+
+                if (\Hash::check($request->password, $student->user->password)) {
+                    if ($student->student_status !== 'active') {
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Your account is inactive. Please contact administration.'
+                        ], 401);
+                    }
+
+                    $token = $student->user->createToken('auth_token')->plainTextToken;
+                    
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Login successful',
+                        'data' => [
+                            'user' => $student->user->load('roles')->makeVisible(['password_changed_at'])->toArray(),
+                            'token' => $token,
+                        ]
+                    ]);
+                }
+            }
         }
 
-        // Step 5: Login failed - return error
         return response()->json([
             'success' => false,
             'message' => 'Invalid credentials'
-        ], 401);  // 401 = Unauthorized HTTP status code
+        ], 401);
     }
 
     /**

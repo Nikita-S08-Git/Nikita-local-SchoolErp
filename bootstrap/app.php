@@ -29,6 +29,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'check.division.capacity' => \App\Http\Middleware\CheckDivisionCapacity::class,
             'role' => \App\Http\Middleware\CheckRole::class,
             'security.headers' => \App\Http\Middleware\SecurityHeaders::class,
+            'check.user.role' => \App\Http\Middleware\CheckUserRole::class,
+            'force.password.change' => \App\Http\Middleware\ForcePasswordChange::class,
         ]);
 
         $middleware->validateCsrfTokens(except: [

@@ -47,6 +47,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 
 class StudentController extends Controller
 {
@@ -178,11 +180,19 @@ class StudentController extends Controller
         return DB::transaction(function () use ($request) {
             
             // Step 3: Create user account for student login
+            $defaultPassword = 'password#@23'; // Default password for all students
             $user = User::create([
                 'name' => trim($request->first_name . ' ' . $request->last_name),
                 // If no email provided, create a default one
                 'email' => $request->email ?: $request->first_name . '.' . $request->last_name . '@student.local',
-                'password' => Hash::make('student123'), // Default password (should be changed)
+                'password' => Hash::make($defaultPassword), // Hash the password
+                'password_changed_at' => null, // Indicate password hasn't been changed yet
+            ]);
+            
+            // Log student creation
+            Log::info('Student created with default password', [
+                'student_id' => $student->id,
+                'email' => $user->email,
             ]);
 
             // Step 4: Assign student role for permissions

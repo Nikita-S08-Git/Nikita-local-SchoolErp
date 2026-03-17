@@ -21,7 +21,7 @@ class ProfileController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
-            'password' => 'nullable|string|min:8|confirmed',
+            'password' => 'nullable|string|min:8|confirmed|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/',
             'photo' => 'nullable|image|max:2048',
         ]);
 
@@ -31,7 +31,10 @@ class ProfileController extends Controller
         ]);
 
         if ($request->filled('password')) {
-            $user->update(['password' => Hash::make($validated['password'])]);
+            $user->update([
+                'password' => Hash::make($validated['password']),
+                'password_changed_at' => now(),
+            ]);
         }
 
         if ($request->hasFile('photo')) {

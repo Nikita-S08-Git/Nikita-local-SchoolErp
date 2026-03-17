@@ -70,6 +70,15 @@ class DashboardController extends Controller
         // Combine both schedules (date-specific takes precedence for duplicates)
         $todaySchedule = $dateSpecificSchedule->concat($weeklySchedule);
 
+        // Check if attendance is already marked and if lecture is active
+        foreach ($todaySchedule as $lecture) {
+            $lecture->attendance_marked = Attendance::where('timetable_id', $lecture->id)
+                ->where('date', $todayDate)
+                ->exists();
+            
+            $lecture->is_active = $lecture->isActiveForAttendance();
+        }
+
         // Get attendance stats for this month
         $attendanceStats = $this->getAttendanceStats($teacher, $divisionIds);
 

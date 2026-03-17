@@ -59,9 +59,16 @@ class AuthController extends Controller
             ]);
         }
 
+        // Check if password has been changed
+        if (empty($user->password_changed_at)) {
+            Auth::guard('student')->login($student, $request->filled('remember'));
+            $request->session()->regenerate();
+            
+            return redirect()->route('student.profile.change-password')->with('warning', 'Please change your temporary password');
+        }
+
         // Login the student
         Auth::guard('student')->login($student, $request->filled('remember'));
-
         $request->session()->regenerate();
 
         return redirect()->intended(route('student.dashboard'));

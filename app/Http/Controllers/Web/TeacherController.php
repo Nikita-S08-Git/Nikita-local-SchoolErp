@@ -1,3 +1,4 @@
+
 <?php
 
 namespace App\Http\Controllers\Web;
@@ -45,7 +46,7 @@ class TeacherController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8|confirmed',
+            'password' => 'required|string|min:8|confirmed|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/',
             'department_id' => 'nullable|exists:departments,id',
             'phone' => 'nullable|string|max:15',
             'photo' => 'nullable|image|max:2048',
@@ -97,7 +98,10 @@ class TeacherController extends Controller
         ]);
 
         if ($request->filled('password')) {
-            $teacher->update(['password' => Hash::make($validated['password'])]);
+            $teacher->update([
+                'password' => Hash::make($validated['password']),
+                'password_changed_at' => now(),
+            ]);
         }
 
         if ($request->hasFile('photo')) {

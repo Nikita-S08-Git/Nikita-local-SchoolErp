@@ -39,7 +39,7 @@ Route::middleware('guest:student')->group(function () {
 // ============================================
 // STUDENT AUTHENTICATED ROUTES
 // ============================================
-Route::middleware('auth:student')->prefix('student')->name('student.')->group(function () {
+Route::middleware(['auth:student', 'check.user.role'])->prefix('student')->name('student.')->group(function () {
     // Logout
     Route::post('/logout', [StudentAuthController::class, 'logout'])->name('logout');
     
@@ -423,28 +423,20 @@ Route::post('/apply', [AdmissionController::class, 'apply'])->name('admissions.a
 
 // Root route - redirect to login if not authenticated
 Route::get('/', function() {
-    if (auth()->check()) {
+    if (auth()->guard('student')->check()) {
+        return redirect()->route('student.dashboard');
+    } elseif (auth()->check()) {
         $user = auth()->user();
         $role = $user->roles->first()->name ?? 'student';
 
-        // Fallback for librarian by email
-        if ($role === 'student' && $user->email === 'librarian@schoolerp.com') {
-            $role = 'librarian';
-        }
-        if ($role === 'accountant') {
-            return redirect()->route('dashboard.accountant');
-        }
-        return redirect()->route("dashboard.{$role}");
-
-        // Role-based redirect with proper route mapping
         $redirectRoutes = [
             'principal' => 'dashboard.principal',
             'admin' => 'dashboard.admin',
             'teacher' => 'teacher.dashboard',
             'class_teacher' => 'teacher.dashboard',
             'subject_teacher' => 'teacher.dashboard',
-            'student' => 'dashboard.student',
-            'accountant' => 'dashboard.accounts_staff',
+            'student' => 'student.dashboard',
+            'accountant' => 'dashboard.accountant',
             'accounts_staff' => 'dashboard.accounts_staff',
             'office' => 'dashboard.office',
             'librarian' => 'dashboard.librarian',
@@ -454,10 +446,10 @@ Route::get('/', function() {
             'hod_arts' => 'teacher.dashboard',
         ];
 
-        $route = $redirectRoutes[$role] ?? 'dashboard.student';
-
+        $route = $redirectRoutes[$role] ?? 'student.dashboard';
         return redirect()->route($route);
     }
+    
     return redirect()->route('login');
 });
 

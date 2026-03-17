@@ -1,3 +1,4 @@
+
 <?php
 
 namespace App\Http\Controllers\Web;
@@ -135,12 +136,22 @@ public function store(Request $request)
         $validated['academic_year']
     );
 
+    // Create user account for student login
+    $defaultPassword = 'password#@23';
+    $user = \App\Models\User::create([
+        'name' => trim($validated['first_name'] . ' ' . ($validated['middle_name'] ?? '') . ' ' . $validated['last_name']),
+        'email' => $validated['email'] ?: $validated['first_name'] . '.' . $validated['last_name'] . '@student.local',
+        'password' => bcrypt($defaultPassword),
+        'password_changed_at' => null,
+    ]);
+    $user->assignRole('student');
+    
     // Add generated numbers + null values for PRN/Seat + user_id
     $validated['admission_number'] = $numbers['admission_number'];
     $validated['roll_number'] = $numbers['roll_number'];
     $validated['prn'] = null;
     $validated['university_seat_number'] = null;
-    $validated['user_id'] = auth()->id(); // 👈 CRITICAL FIX
+    $validated['user_id'] = $user->id;
 
     // Handle file uploads
     if ($request->hasFile('photo')) {

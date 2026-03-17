@@ -194,8 +194,8 @@ class Timetable extends Model
      * Check if attendance can be marked
      * 
      * Attendance can be marked when:
-     * - Timetable date is today (for date-based timetables)
-     * - Timetable day_of_week is today (for day-based timetables)
+     * - Timetable date is today (for date-based timetables) OR day_of_week is today (for day-based timetables)
+     * - Current time is within lecture's start and end time (or a reasonable window)
      * - Status is NOT closed
      * 
      * @return bool
@@ -210,39 +210,43 @@ class Timetable extends Model
             return false;
         }
         
-        // If has a specific date, check if date is today
+        $currentTime = now();
+        
+        // If has a specific date, check if date is today and time is within lecture window
         if (!empty($this->date)) {
             $timetableDate = $this->date instanceof \Carbon\Carbon 
                 ? $this->date->format('Y-m-d') 
                 : $this->date;
             
-            $today = now()->format('Y-m-d');
+            $today = $currentTime->format('Y-m-d');
             
-            // If date is in the past, cannot mark attendance
-            if ($timetableDate < $today) {
+            // If date is in the past or future, cannot mark attendance
+            if ($timetableDate < $today || $timetableDate > $today) {
                 return false;
             }
-            
-            // If date is in the future, cannot mark attendance
-            if ($timetableDate > $today) {
-                return false;
-            }
-            
-            // Date is today - allow attendance
-            return true;
-        }
-        
+        } 
         // If using day_of_week instead of specific date
-        if (!empty($this->day_of_week)) {
-            $today = strtolower(now()->format('l'));
+        elseif (!empty($this->day_of_week)) {
+            $today = strtolower($currentTime->format('l'));
             $timetableDay = strtolower($this->day_of_week);
             
-            // If today matches the day_of_week, allow attendance
-            return $today === $timetableDay;
+            // If today doesn't match the day_of_week, cannot mark attendance
+            if ($today !== $timetableDay) {
+                return false;
+            }
         }
         
-        // Fallback: allow if not closed (for timetables without date or day_of_week)
-        return $computedStatus !== self::STATUS_CLOSED;
+        // Check if current time is within the lecture's time window
+        $startTime = Carbon::createFromFormat('H:i', $this->start_time);
+        $endTime = Carbon::createFromFormat('H:i', $this->end_time);
+        
+        // Allow attendance 15 minutes before start time and 30 minutes after end time
+        $allowedStartTime = $startTime->copy()->subMinutes(15);
+        $allowedEndTime = $endTime->copy()->addMinutes(30);
+        
+        $currentTimeOfDay = Carbon::createFromTime($currentTime->hour, $currentTime->minute);
+        
+        return $currentTimeOfDay->between($allowedStartTime, $allowedEndTime);
     }
 
     /**

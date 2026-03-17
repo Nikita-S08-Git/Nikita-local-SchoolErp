@@ -27,6 +27,28 @@ class Student extends Model implements Authenticatable
     use AuthenticatableTrait;  // For authentication
     use HasFactory;    // Enables creating fake data for testing
     use SoftDeletes;   // Enables "soft delete" - marks as deleted without actually deleting
+    
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array
+     */
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+    
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'date_of_birth' => 'date',      // String to Carbon date object
+        'admission_date' => 'date',     // String to Carbon date object
+        'annual_income' => 'decimal:2', // String to decimal with 2 places
+        'password' => 'hashed',        // Auto-hash password when setting
+    ];
 
     /**
      * FACTORY METHOD - For creating test data
