@@ -24,7 +24,7 @@ class Admission extends Model
         'gender',
         'blood_group',
         'religion',
-        // 'caste' removed (category captures equivalent info)
+        'caste',
         'category',
         'aadhar_number',
         'mobile_number',
@@ -43,13 +43,16 @@ class Admission extends Model
         'verified_by',
         'verified_at',
         'rejection_reason',
+        'rejected_by',
+        'rejected_at',
         'application_fee',
-        'application_fee_paid'
+        'application_fee_paid',
     ];
 
     protected $casts = [
         'date_of_birth' => 'date',
         'verified_at' => 'datetime',
+        'rejected_at' => 'datetime',
         'tenth_percentage' => 'decimal:2',
         'twelfth_percentage' => 'decimal:2',
         'application_fee' => 'decimal:2',
@@ -80,6 +83,11 @@ class Admission extends Model
     public function verifiedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'verified_by');
+    }
+
+    public function rejectedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'rejected_by');
     }
 
     public function documents(): HasMany

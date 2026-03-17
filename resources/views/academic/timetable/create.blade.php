@@ -1,366 +1,347 @@
 @extends('layouts.app')
 
-@section('page-title', 'Create Timetable Entry')
+@section('title', 'Add Class to Timetable')
 
 @section('content')
-<style>
-    .form-card {
-        border: none;
-        border-radius: 12px;
-        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-    }
-    
-    .form-card-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-radius: 12px 12px 0 0;
-        border: none;
-        padding: 1.25rem 1.5rem;
-    }
-    
-    .form-card-header h5 {
-        color: white;
-        font-weight: 600;
-        margin: 0;
-    }
-    
-    .form-section {
-        background: #f8f9ff;
-        border-radius: 10px;
-        padding: 1.25rem;
-        margin-bottom: 1.5rem;
-    }
-    
-    .form-section-title {
-        color: #667eea;
-        font-weight: 600;
-        font-size: 0.95rem;
-        margin-bottom: 1rem;
-        display: flex;
-        align-items: center;
-    }
-    
-    .form-section-title i {
-        margin-right: 8px;
-        font-size: 1.1rem;
-    }
-    
-    .form-label {
-        font-weight: 500;
-        color: #4a5568;
-        margin-bottom: 0.5rem;
-    }
-    
-    .form-select, .form-control {
-        border: 2px solid #e2e8f0;
-        border-radius: 8px;
-        padding: 0.625rem 1rem;
-        transition: all 0.2s ease;
-    }
-    
-    .form-select:focus, .form-control:focus {
-        border-color: #667eea;
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
-    }
-    
-    .form-text {
-        font-size: 0.8rem;
-        color: #718096;
-        margin-top: 0.35rem;
-    }
-    
-    .required-mark {
-        color: #e53e3e;
-        margin-left: 2px;
-    }
-    
-    .btn-primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border: none;
-        padding: 0.75rem 2rem;
-        border-radius: 8px;
-        font-weight: 600;
-        transition: all 0.2s ease;
-    }
-    
-    .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-    }
-    
-    .btn-secondary {
-        padding: 0.75rem 2rem;
-        border-radius: 8px;
-        font-weight: 600;
-    }
-    
-    .alert {
-        border-radius: 10px;
-        border: none;
-        padding: 1rem 1.25rem;
-    }
-    
-    .slot-available {
-        background: linear-gradient(135deg, #c6f6d5 0%, #9ae6b4 100%);
-        color: #22543d;
-    }
-    
-    .slot-conflict {
-        background: linear-gradient(135deg, #fed7d7 0%, #feb2b2 100%);
-        color: #742a2a;
-    }
-</style>
-
-<div class="container-fluid px-4 py-4">
-    <div class="row">
+<div class="container-fluid">
+    <div class="row mb-4">
         <div class="col-12">
-            <div class="card shadow-sm form-card">
-                <div class="form-card-header d-flex justify-content-between align-items-center">
-                    <h5>
-                        <i class="bi bi-calendar-plus me-2"></i>Create Timetable Entry
-                    </h5>
-                    <a href="{{ route('academic.timetable.index') }}" class="btn btn-light btn-sm">
-                        <i class="bi bi-arrow-left"></i> Back
-                    </a>
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2><i class="bi bi-plus-circle me-2"></i>Add Class to Timetable</h2>
+                    <p class="text-muted mb-0">Schedule a new class</p>
                 </div>
-                <div class="card-body p-4">
-                    <form method="POST" action="{{ route('academic.timetable.store') }}" id="timetableForm">
+                <a href="{{ route('academic.timetable.index') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Back
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-calendar-event me-2"></i>Class Details</h5>
+                </div>
+                <div class="card-body">
+                    <form action="{{ route('academic.timetable.store') }}" method="POST">
                         @csrf
 
-                        <!-- Division Selection -->
-                        <div class="form-section">
-                            <div class="form-section-title">
-                                <i class="bi bi-people"></i>
-                                Division Selection
+                        <input type="hidden" name="academic_year_id" value="{{ $academicYears->first()->id ?? 1 }}">
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="division_id" class="form-label">Division <span class="text-danger">*</span></label>
+                                <select name="division_id" id="division_id" class="form-select @error('division_id') is-invalid @enderror" required>
+                                    <option value="">-- Select Division --</option>
+                                    @foreach($divisions as $division)
+                                        <option value="{{ $division->id }}" {{ old('division_id') == $division->id ? 'selected' : '' }}>
+                                            {{ $division->division_name }} - {{ $division->program->name ?? 'N/A' }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('division_id')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="division_id" class="form-label">
-                                            Division <span class="required-mark">*</span>
-                                        </label>
-                                        <select name="division_id" id="division_id" class="form-select" required onchange="checkSlotAvailability()">
-                                            <option value="">Select Division</option>
-                                            @foreach($divisions as $division)
-                                                <option value="{{ $division->id }}">
-                                                    {{ $division->academicYear->name ?? 'N/A' }} - {{ $division->division_name }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                        <div class="form-text">Select a division to schedule classes</div>
-                                    </div>
+
+                            <div class="col-md-6">
+                                <label for="subject_id" class="form-label">Subject <span class="text-danger">*</span></label>
+                                <select name="subject_id" id="subject_id" class="form-select @error('subject_id') is-invalid @enderror" required>
+                                    <option value="">-- Select Subject --</option>
+                                    @foreach($subjects as $subject)
+                                        <option value="{{ $subject->id }}" {{ old('subject_id') == $subject->id ? 'selected' : '' }}>
+                                            {{ $subject->code }} - {{ $subject->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('subject_id')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="teacher_id" class="form-label">Teacher <span class="text-danger">*</span></label>
+                                <select name="teacher_id" id="teacher_id" class="form-select @error('teacher_id') is-invalid @enderror" required>
+                                    <option value="">-- Select Teacher --</option>
+                                    @foreach($teachers as $teacher)
+                                        <option value="{{ $teacher->id }}" {{ old('teacher_id') == $teacher->id ? 'selected' : '' }}>
+                                            {{ $teacher->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('teacher_id')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="date" class="form-label">Specific Date <span class="text-danger">*</span></label>
+                                <input type="date" name="date" id="date" 
+                                       class="form-control @error('date') is-invalid @enderror" 
+                                       value="{{ old('date') }}" 
+                                       min="{{ date('Y-m-d') }}"
+                                       required
+                                       onchange="checkHolidayOnDate(); autoDetectDay();">
+                                @error('date')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                <div class="form-text">
+                                    <i class="bi bi-info-circle"></i> Select a date - day will be auto-detected
+                                </div>
+                                <div id="holidayWarning" class="alert alert-warning mt-2 d-none">
+                                    <i class="bi bi-exclamation-triangle"></i>
+                                    <span id="holidayWarningText"></span>
+                                </div>
+                            </div>
+
+                            <!-- Hidden Day Field (auto-calculated from date) -->
+                            <input type="hidden" name="day_of_week" id="day_of_week" value="">
+
+                            <div class="col-md-6">
+                                <label for="room_id" class="form-label">Room</label>
+                                <select name="room_id" id="room_id" class="form-select @error('room_id') is-invalid @enderror">
+                                    <option value="">-- Select Room (Optional) --</option>
+                                    @foreach($rooms as $room)
+                                        <option value="{{ $room->id }}" {{ old('room_id') == $room->id ? 'selected' : '' }}>
+                                            {{ $room->room_number }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('room_id')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="room_number" class="form-label">Room Number (Manual)</label>
+                                <input type="text" name="room_number" id="room_number" class="form-control @error('room_number') is-invalid @enderror" 
+                                       value="{{ old('room_number') }}" placeholder="e.g., Room 101">
+                                @error('room_number')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <!-- Start Time -->
+                            <div class="col-md-6">
+                                <label for="start_time" class="form-label">Start Time <span class="text-danger">*</span></label>
+                                <input type="time" name="start_time" id="start_time" class="form-control @error('start_time') is-invalid @enderror" 
+                                       value="{{ old('start_time') }}" required>
+                                @error('start_time')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <!-- End Time -->
+                            <div class="col-md-6">
+                                <label for="end_time" class="form-label">End Time <span class="text-danger">*</span></label>
+                                <input type="time" name="end_time" id="end_time" class="form-control @error('end_time') is-invalid @enderror" 
+                                       value="{{ old('end_time') }}" required>
+                                <div class="form-text">Must be after start time</div>
+                                @error('end_time')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="status" class="form-label">Status</label>
+                                <select name="status" id="status" class="form-select">
+                                    <option value="active" {{ old('status', 'active') == 'active' ? 'selected' : '' }}>Active</option>
+                                    <option value="cancelled" {{ old('status') == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                                </select>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="form-check">
+                                    <input type="checkbox" name="is_active" id="is_active" class="form-check-input" value="1" {{ old('is_active', true) ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="is_active">Active</label>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Class Details -->
-                        <div class="form-section">
-                            <div class="form-section-title">
-                                <i class="bi bi-book"></i>
-                                Class Details
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="subject_id" class="form-label">
-                                            Subject <span class="required-mark">*</span>
-                                        </label>
-                                        <select name="subject_id" id="subject_id" class="form-select" required>
-                                            <option value="">Select Subject</option>
-                                            @foreach($subjects as $subject)
-                                                <option value="{{ $subject->id }}">
-                                                    {{ $subject->name }} ({{ $subject->code }})
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="teacher_id" class="form-label">
-                                            Teacher <span class="required-mark">*</span>
-                                        </label>
-                                        <select name="teacher_id" id="teacher_id" class="form-select" required>
-                                            <option value="">Select Teacher</option>
-                                            @foreach($teachers as $teacher)
-                                                <option value="{{ $teacher->id }}">
-                                                    {{ $teacher->name }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        <hr class="my-4">
 
-                        <!-- Schedule Details -->
-                        <div class="form-section">
-                            <div class="form-section-title">
-                                <i class="bi bi-clock"></i>
-                                Schedule Details
-                            </div>
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="mb-3">
-                                        <label for="day_of_week" class="form-label">
-                                            Day of Week <span class="required-mark">*</span>
-                                        </label>
-                                        <select name="day_of_week" id="day_of_week" class="form-select" required onchange="checkSlotAvailability()">
-                                            <option value="">Select Day</option>
-                                            <option value="Monday">Monday</option>
-                                            <option value="Tuesday">Tuesday</option>
-                                            <option value="Wednesday">Wednesday</option>
-                                            <option value="Thursday">Thursday</option>
-                                            <option value="Friday">Friday</option>
-                                            <option value="Saturday">Saturday</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="mb-3">
-                                        <label for="start_time" class="form-label">
-                                            Start Time <span class="required-mark">*</span>
-                                        </label>
-                                        <input type="time" name="start_time" id="start_time" class="form-control" required onchange="checkSlotAvailability()">
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="mb-3">
-                                        <label for="end_time" class="form-label">
-                                            End Time <span class="required-mark">*</span>
-                                        </label>
-                                        <input type="time" name="end_time" id="end_time" class="form-control" required onchange="checkSlotAvailability()">
-                                        <div id="timeConflict" class="invalid-feedback"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Room Allocation -->
-                        <div class="form-section">
-                            <div class="form-section-title">
-                                <i class="bi bi-geo-alt"></i>
-                                Room Allocation
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="room" class="form-label">Room Number</label>
-                                        <select name="room" id="room" class="form-select">
-                                            <option value="">Select Room (Optional)</option>
-                                            @foreach($rooms as $room)
-                                                <option value="{{ $room }}">{{ $room }}</option>
-                                            @endforeach
-                                        </select>
-                                        <div class="form-text">Select from available rooms or enter custom room</div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="custom_room" class="form-label">Custom Room</label>
-                                        <input type="text" name="custom_room" id="custom_room" class="form-control" placeholder="Enter custom room number">
-                                        <div class="form-text">Leave room dropdown empty if using custom room</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Slot Availability Status -->
-                        <div id="slotStatus" class="alert d-none">
-                            <i class="bi bi-info-circle me-2"></i>
-                            <span id="slotStatusMessage">Checking availability...</span>
-                        </div>
-
-                        <!-- Form Actions -->
-                        <div class="d-flex gap-2 mt-4">
-                            <button type="submit" class="btn btn-primary" id="submitBtn">
-                                <i class="bi bi-check-lg me-1"></i>Create Entry
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> Schedule Class
                             </button>
-                            <a href="{{ route('academic.timetable.index') }}" class="btn btn-secondary">
-                                <i class="bi bi-x-lg me-1"></i>Cancel
+                            <a href="{{ route('academic.timetable.index') }}" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle"></i> Cancel
                             </a>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>Information</h5>
+                </div>
+                <div class="card-body">
+                    <h6>Guidelines:</h6>
+                    <ul class="small mb-0">
+                        <li>Select a division to schedule classes for</li>
+                        <li>Choose the subject to be taught</li>
+                        <li>Assign a teacher to the class</li>
+                        <li>Select day and time slot</li>
+                        <li>System will check for teacher conflicts</li>
+                        <li>Optionally assign a room</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mt-3">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="bi bi-exclamation-triangle me-2"></i>Conflict Check</h5>
+                </div>
+                <div class="card-body">
+                    <p class="small mb-0">
+                        The system automatically checks for:
+                    </p>
+                    <ul class="small mt-2 mb-0">
+                        <li>Teacher availability</li>
+                        <li>Division schedule conflicts</li>
+                        <li>Time slot overlaps</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
+@push('scripts')
 <script>
-// Check slot availability via AJAX
-function checkSlotAvailability() {
-    const divisionId = document.getElementById('division_id').value;
-    const dayOfWeek = document.getElementById('day_of_week').value;
-    const startTime = document.getElementById('start_time').value;
-    const endTime = document.getElementById('end_time').value;
-    const slotStatus = document.getElementById('slotStatus');
-    const slotStatusMessage = document.getElementById('slotStatusMessage');
-    const timeConflict = document.getElementById('timeConflict');
-    const submitBtn = document.getElementById('submitBtn');
+document.addEventListener('DOMContentLoaded', function() {
+    const teacherSelect = document.getElementById('teacher_id');
+    const daySelect = document.getElementById('day_of_week');
+    const timeSlotSelect = document.getElementById('time_slot_id');
+    const availabilityDiv = document.getElementById('teacher-availability');
 
-    if (!divisionId || !dayOfWeek || !startTime || !endTime) {
-        slotStatus.classList.add('d-none');
-        return;
-    }
+    function checkAvailability() {
+        const teacherId = teacherSelect.value;
+        const dayOfWeek = daySelect.value;
+        const timeSlotId = timeSlotSelect.value;
 
-    fetch("{{ route('academic.timetable.check-availability') }}", {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': "{{ csrf_token() }}"
-        },
-        body: JSON.stringify({
-            division_id: divisionId,
-            day_of_week: dayOfWeek,
-            start_time: startTime,
-            end_time: endTime
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        slotStatus.classList.remove('d-none', 'slot-available', 'slot-conflict');
-
-        if (data.available) {
-            slotStatus.classList.add('slot-available');
-            slotStatusMessage.innerHTML = '<i class="bi bi-check-circle me-2"></i>' + data.message;
-            timeConflict.textContent = '';
-            submitBtn.disabled = false;
-        } else {
-            slotStatus.classList.add('slot-conflict');
-            slotStatusMessage.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>' + data.message;
-            timeConflict.textContent = data.message;
-            submitBtn.disabled = true;
+        if (!teacherId || !dayOfWeek || !timeSlotId) {
+            availabilityDiv.innerHTML = '';
+            availabilityDiv.className = 'form-text';
+            return;
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        slotStatus.classList.remove('d-none');
-        slotStatus.classList.add('alert-warning');
-        slotStatusMessage.textContent = 'Unable to check availability. Please proceed with caution.';
-    });
-}
 
-// Handle custom room input
-document.getElementById('custom_room').addEventListener('input', function() {
-    const roomSelect = document.getElementById('room');
-    if (this.value) {
-        roomSelect.value = '';
+        fetch("{{ route('academic.timetable.check-availability') }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({
+                teacher_id: teacherId,
+                day_of_week: dayOfWeek,
+                time_slot_id: timeSlotId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.available) {
+                availabilityDiv.innerHTML = '<i class="bi bi-check-circle text-success"></i> ' + data.message;
+                availabilityDiv.className = 'form-text text-success';
+            } else {
+                availabilityDiv.innerHTML = '<i class="bi bi-x-circle text-danger"></i> ' + data.message;
+                availabilityDiv.className = 'form-text text-danger';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
     }
-});
 
-document.getElementById('room').addEventListener('change', function() {
-    if (this.value) {
-        document.getElementById('custom_room').value = '';
+    teacherSelect.addEventListener('change', checkAvailability);
+    daySelect.addEventListener('change', checkAvailability);
+    timeSlotSelect.addEventListener('change', checkAvailability);
+    
+    // Auto-populate day_of_week when date is selected
+    const dateInput = document.getElementById('date');
+    if (dateInput) {
+        dateInput.addEventListener('change', function() {
+            const selectedDate = this.value;
+            if (selectedDate) {
+                const dateObj = new Date(selectedDate + 'T00:00:00'); // Fix timezone issue
+                const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+                
+                // Update hidden day_of_week field
+                daySelect.value = dayName;
+                
+                // Check for holiday
+                checkHolidayOnDate();
+                
+                // Visual feedback
+                dateInput.classList.add('border-success');
+                setTimeout(() => {
+                    dateInput.classList.remove('border-success');
+                }, 2000);
+            }
+        });
     }
-});
-
-document.getElementById('timetableForm').addEventListener('submit', function(e) {
-    const room = document.getElementById('room').value;
-    const customRoom = document.getElementById('custom_room').value;
-
-    if (customRoom && !room) {
-        document.getElementById('room').value = customRoom;
+    
+    // Holiday check function
+    window.checkHolidayOnDate = function() {
+        const dateInput = document.getElementById('date');
+        const holidayWarning = document.getElementById('holidayWarning');
+        const holidayWarningText = document.getElementById('holidayWarningText');
+        
+        if (!dateInput || !dateInput.value) {
+            if (holidayWarning) holidayWarning.classList.add('d-none');
+            return;
+        }
+        
+        fetch("{{ route('academic.attendance.check-holiday') }}?date=" + dateInput.value)
+            .then(response => response.json())
+            .then(data => {
+                if (data.is_holiday) {
+                    if (holidayWarning) {
+                        holidayWarningText.textContent = 'This date is marked as Holiday. Attendance and Timetable cannot be added.';
+                        holidayWarning.classList.remove('d-none');
+                    }
+                } else {
+                    if (holidayWarning) holidayWarning.classList.add('d-none');
+                }
+            })
+            .catch(error => {
+                console.error('Holiday check error:', error);
+            });
+    };
+    
+    // Auto-detect day from date
+    window.autoDetectDay = function() {
+        const dateInput = document.getElementById('date');
+        const dayField = document.getElementById('day_of_week');
+        
+        if (dateInput && dayField && dateInput.value) {
+            const dateObj = new Date(dateInput.value + 'T00:00:00');
+            const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+            dayField.value = dayName;
+        }
+    };
+    
+    // Form validation - ensure either date or day_of_week is selected
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const dateValue = dateInput?.value;
+            const dayValue = daySelect?.value;
+            
+            if (!dateValue && !dayValue) {
+                e.preventDefault();
+                alert('Please select either a specific date or a day of the week');
+                if (daySelect) daySelect.focus();
+                return false;
+            }
+        });
     }
 });
 </script>
+@endpush
 @endsection

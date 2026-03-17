@@ -10,10 +10,14 @@ use Illuminate\Http\Request;
 
 class FeeStructureController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $feeStructures = FeeStructure::with(['program', 'feeHead'])->paginate(10);
-        return view('fees.structures.index', compact('feeStructures'));
+        // Default per page is 10, allow user to customize
+        $perPage = $request->input('per_page', 10);
+        $perPage = in_array($perPage, [10, 15, 25, 50]) ? (int) $perPage : 10;
+
+        $feeStructures = FeeStructure::with(['program', 'feeHead'])->paginate($perPage)->appends($request->query());
+        return view('fees.structures.index', compact('feeStructures', 'perPage'));
     }
 
     public function create()

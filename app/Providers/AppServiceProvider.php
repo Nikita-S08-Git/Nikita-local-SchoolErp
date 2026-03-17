@@ -6,6 +6,9 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\View;
+use Illuminate\Console\Scheduling\Schedule;
+use App\Http\ViewComposers\StudentViewComposer;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -28,5 +31,17 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('login', function (Request $request) {
             return Limit::perMinute(5)->by($request->ip());
         });
+        
+        // Share student variable with all student views
+        View::composer('student.*', StudentViewComposer::class);
+    }
+    
+    /**
+     * Define the application's command schedule.
+     */
+    protected function schedule(Schedule $schedule): void
+    {
+        // Run timetable status update every hour
+        $schedule->command('timetable:mark-completed')->hourly();
     }
 }

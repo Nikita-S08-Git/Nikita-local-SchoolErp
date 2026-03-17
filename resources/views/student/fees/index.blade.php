@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('student.layouts.app')
 
 @section('title', 'My Fees')
 @section('page-title', 'My Fees')
@@ -69,7 +69,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse($studentFees as $fee)
+                                @forelse($feeRecords as $fee)
                                 <tr>
                                     <td><strong>{{ $fee->feeStructure->feeHead->name }}</strong></td>
                                     <td>₹{{ number_format($fee->total_amount, 2) }}</td>
@@ -112,7 +112,7 @@
         </div>
     </div>
     
-    @if($studentFees->count() > 0)
+    @if($feeRecords->count() > 0)
     <div class="row mt-4">
         <div class="col-12">
             <div class="card shadow">
@@ -132,7 +132,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($studentFees as $fee)
+                                @foreach($feeRecords as $fee)
                                     @foreach($fee->payments as $payment)
                                     <tr>
                                         <td><strong>{{ $payment->receipt_number }}</strong></td>

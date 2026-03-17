@@ -20,6 +20,10 @@ class SubjectController extends Controller
     public function index(Request $request): JsonResponse
     {
         try {
+            // Default per page is 20, allow user to customize
+            $perPage = $request->input('per_page', 20);
+            $perPage = in_array($perPage, [10, 20, 25, 50, 100]) ? $perPage : 20;
+
             $query = Subject::with(['program', 'academicYear']);
 
             // Filter by program
@@ -55,11 +59,19 @@ class SubjectController extends Controller
                 $query->where('is_active', true);
             }
 
-            $subjects = $query->orderBy('semester')->orderBy('name')->paginate(20);
+            $subjects = $query->orderBy('semester')->orderBy('name')->paginate($perPage);
 
             return response()->json([
                 'success' => true,
-                'data' => $subjects
+                'data' => $subjects,
+                'pagination' => [
+                    'current_page' => $subjects->currentPage(),
+                    'per_page' => $subjects->perPage(),
+                    'total' => $subjects->total(),
+                    'last_page' => $subjects->lastPage(),
+                    'from' => $subjects->firstItem(),
+                    'to' => $subjects->lastItem()
+                ]
             ]);
         } catch (\Exception $e) {
             return response()->json([

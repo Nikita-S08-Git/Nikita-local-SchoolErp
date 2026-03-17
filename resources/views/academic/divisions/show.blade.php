@@ -56,6 +56,81 @@
         </div>
     </div>
 
+    <!-- Teachers Assigned to Division -->
+    <div class="card mb-4">
+        <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="bi bi-people me-2"></i>Teachers Assigned to {{ $division->division_name }}</h5>
+            <span class="badge bg-light text-info">{{ $division->teachers->count() }} Teachers</span>
+        </div>
+        <div class="card-body">
+            @if($division->teachers->count() > 0)
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Teacher</th>
+                                <th>Email</th>
+                                <th>Mobile</th>
+                                <th>Subjects</th>
+                                <th>Classes Scheduled</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @php
+                                $teacherSubjects = [];
+                                $teacherClassCount = [];
+                                foreach($division->timetables->groupBy('teacher_id') as $teacherId => $timetables) {
+                                    $teacherSubjects[$teacherId] = $timetables->pluck('subject.name')->unique()->join(', ');
+                                    $teacherClassCount[$teacherId] = $timetables->count();
+                                }
+                            @endphp
+                            @foreach($division->teachers as $teacher)
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar bg-primary text-white rounded-circle me-2" 
+                                                 style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                                                {{ strtoupper(substr($teacher->name, 0, 1)) }}
+                                            </div>
+                                            <strong>{{ $teacher->name }}</strong>
+                                            @if($division->classTeacherId == $teacher->id)
+                                                <span class="badge bg-primary ms-2">Class Teacher</span>
+                                            @endif
+                                        </div>
+                                    </td>
+                                    <td>{{ $teacher->email }}</td>
+                                    <td>{{ $teacher->mobile_number ?? 'N/A' }}</td>
+                                    <td>
+                                        @if(isset($teacherSubjects[$teacher->id]))
+                                            <span class="badge bg-info">{{ $teacherSubjects[$teacher->id] }}</span>
+                                        @else
+                                            <span class="text-muted">No subjects</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if(isset($teacherClassCount[$teacher->id]))
+                                            <span class="badge bg-success">{{ $teacherClassCount[$teacher->id] }} classes/week</span>
+                                        @else
+                                            <span class="text-muted">No classes</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @else
+                <div class="text-center py-4">
+                    <i class="bi bi-inbox fs-1 text-muted d-block mb-2"></i>
+                    <p class="text-muted">No teachers assigned yet. Create timetable entries to assign teachers.</p>
+                    <a href="{{ route('academic.timetable.create', ['division_id' => $division->id]) }}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> Create Timetable Entry
+                    </a>
+                </div>
+            @endif
+        </div>
+    </div>
+
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Assigned Students ({{ $division->students->count() }})</h5>

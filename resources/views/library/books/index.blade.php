@@ -58,7 +58,9 @@
                     </tbody>
                 </table>
             </div>
-            {{ $books->links() }}
+            
+            <!-- Custom Pagination Component -->
+            <x-pagination :paginator="$books" />
         </div>
     </div>
 </div>

@@ -4,14 +4,16 @@
     <meta charset="utf-8">
     <title>Attendance Report</title>
     <style>
-        body { font-family: Arial, sans-serif; font-size: 12px; }
-        .header { text-align: center; margin-bottom: 20px; }
+        body { font-family: Arial, sans-serif; font-size: 9px; }
+        .header { text-align: center; margin-bottom: 15px; }
         .header h2 { margin: 5px 0; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #000; padding: 8px; text-align: center; }
-        th { background-color: #f0f0f0; font-weight: bold; }
-        .good { color: green; font-weight: bold; }
-        .poor { color: red; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #000; padding: 4px; text-align: left; }
+        th { background-color: #f0f0f0; font-weight: bold; font-size: 8px; }
+        .present { color: green; }
+        .absent { color: red; }
+        .late { color: orange; }
+        .text-center { text-align: center; }
     </style>
 </head>
 <body>
@@ -19,37 +21,39 @@
         <h2>School ERP System</h2>
         <h3>Attendance Report</h3>
         <p><strong>Division:</strong> {{ $division->division_name }}</p>
-        <p><strong>Period:</strong> {{ $request->from_date }} to {{ $request->to_date }}</p>
+        <p><strong>Period:</strong> {{ $startDate }} to {{ $endDate }}</p>
     </div>
 
     <table>
         <thead>
             <tr>
-                <th>Roll No</th>
+                <th class="text-center">Roll No</th>
                 <th>Student Name</th>
-                <th>Total Days</th>
-                <th>Present</th>
-                <th>Absent</th>
-                <th>Attendance %</th>
+                <th class="text-center">Total Days</th>
+                <th class="text-center">Present</th>
+                <th class="text-center">Absent</th>
+                <th class="text-center">Percentage</th>
             </tr>
         </thead>
         <tbody>
-            @foreach($report as $row)
+            @forelse($report as $item)
             <tr>
-                <td>{{ $row['student']->roll_number }}</td>
-                <td style="text-align: left;">{{ $row['student']->first_name }} {{ $row['student']->last_name }}</td>
-                <td>{{ $row['total'] }}</td>
-                <td>{{ $row['present'] }}</td>
-                <td>{{ $row['absent'] }}</td>
-                <td class="{{ $row['percentage'] >= 75 ? 'good' : 'poor' }}">
-                    {{ number_format($row['percentage'], 2) }}%
-                </td>
+                <td class="text-center">{{ $item['total'] }}</td>
+                <td class="text-center">{{ $item['student']->roll_number ?? 'N/A' }}</td>
+                <td>{{ $item['student']->first_name ?? '' }} {{ $item['student']->last_name ?? '' }}</td>
+                <td class="text-center">{{ $item['present'] }}</td>
+                <td class="text-center">{{ $item['absent'] }}</td>
+                <td class="text-center">{{ number_format($item['percentage'], 1) }}%</td>
             </tr>
-            @endforeach
+            @empty
+            <tr>
+                <td colspan="6" class="text-center">No records found</td>
+            </tr>
+            @endforelse
         </tbody>
     </table>
 
-    <div style="margin-top: 40px;">
+    <div style="margin-top: 30px;">
         <p><strong>Generated on:</strong> {{ date('d M Y, h:i A') }}</p>
     </div>
 </body>

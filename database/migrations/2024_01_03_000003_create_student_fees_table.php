@@ -20,6 +20,7 @@ return new class extends Migration
             $table->enum('status', ['pending', 'partial', 'paid'])->default('pending');
             $table->timestamps();
 
+            $table->unique(['student_id', 'fee_structure_id']); // Prevent duplicate fee assignments
             $table->index(['student_id', 'status']);
         });
     }

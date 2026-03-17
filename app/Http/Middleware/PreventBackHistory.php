@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class PreventBackHistory
 {
@@ -23,6 +24,11 @@ class PreventBackHistory
     {
         /** @var Response $response */
         $response = $next($request);
+
+        // Don't add headers to StreamedResponse (used for file downloads)
+        if ($response instanceof StreamedResponse) {
+            return $response;
+        }
 
         return $response
             ->header('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate')

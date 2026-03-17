@@ -118,19 +118,19 @@ return new class extends Migration
             ], 'unique_rule_context');
 
             // Index for rule lookup
-            $table->index('academic_rule_id');
+            $table->index('academic_rule_id', 'rc_rule_idx');
 
             // Index for session lookup
-            $table->index('academic_session_id');
+            $table->index('academic_session_id', 'rc_session_idx');
 
             // Index for program lookup
-            $table->index('program_id');
+            $table->index('program_id', 'rc_program_idx');
 
             // Index for active configurations
-            $table->index('is_active');
+            $table->index('is_active', 'rc_active_idx');
 
             // Index for override tracking
-            $table->index(['is_override', 'override_approved_by']);
+            $table->index(['is_override', 'override_approved_by'], 'rc_override_idx');
 
             // Composite index for rule resolution
             $table->index([
@@ -139,6 +139,7 @@ return new class extends Migration
                 'program_id',
                 'is_active'
             ], 'rule_resolution_idx');
+            ], 'rc_resolution_idx');
         });
     }
 

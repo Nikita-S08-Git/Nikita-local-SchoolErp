@@ -3,6 +3,12 @@
 <head>
     <meta charset="utf-8">
     <title>Fee Receipt - {{ $payment->receipt_number }}</title>
+    @php
+    // Include the numberToWords helper if not already loaded
+    if (!function_exists('numberToWords')) {
+        require_once app_path('Helpers/NumberToWords.php');
+    }
+    @endphp
     <style>
         body { font-family: Arial, sans-serif; font-size: 14px; }
         .header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
@@ -54,7 +60,7 @@
     <div class="amount-box">
         <p style="margin: 0;">Amount Paid</p>
         <h3>₹ {{ number_format($payment->amount, 2) }}</h3>
-        <p style="margin: 0; font-size: 12px;">{{ ucwords(\Illuminate\Support\Str::of($payment->amount)->toWords()) }} Only</p>
+        <p style="margin: 0; font-size: 12px;">{{ ucwords(numberToWords($payment->amount)) }}</p>
     </div>
 
     <div class="receipt-info">

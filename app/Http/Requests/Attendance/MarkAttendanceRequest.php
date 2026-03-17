@@ -2,10 +2,14 @@
 
 namespace App\Http\Requests\Attendance;
 
+use App\Models\Academic\Division;
+use App\Models\User\Student;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
  * Form Request for Marking Attendance
+ * 
+ * Validates that ALL students in the division have attendance marked
  */
 class MarkAttendanceRequest extends FormRequest
 {
@@ -71,14 +75,70 @@ class MarkAttendanceRequest extends FormRequest
     public function withValidator($validator): void
     {
         $validator->after(function ($validator) {
-            // Check if attendance already exists for this date and division
-            $existingAttendance = \App\Models\Academic\Attendance::where('division_id', $this->division_id)
-                ->whereDate('date', $this->date)
-                ->exists();
+            // Check if attendance already exists for this date and division (only for new attendance)
+            if (!$this->isUpdate()) {
+                $existingAttendance = \App\Models\Academic\Attendance::where('division_id', $this->division_id)
+                    ->whereDate('date', $this->date)
+                    ->exists();
 
-            if ($existingAttendance) {
-                $validator->errors()->add('date', 'Attendance has already been marked for this division on this date. Please use the update functionality.');
+                if ($existingAttendance) {
+                    $validator->errors()->add('date', 'Attendance has already been marked for this division on this date. Please use the edit functionality.');
+                }
             }
+
+            // Validate that ALL students in the division have attendance marked
+            $this->validateAllStudentsMarked($validator);
         });
+    }
+
+    /**
+     * Check if this is an update request
+     */
+    protected function isUpdate(): bool
+    {
+        // Check for spoofed method (Laravel's _method field) or actual HTTP method
+        $method = $this->input('_method', $this->method());
+        return in_array(strtoupper($method), ['PUT', 'PATCH']);
+    }
+
+    /**
+     * Validate that all students in the division have attendance marked
+     */
+    protected function validateAllStudentsMarked($validator): void
+    {
+        if (!$this->filled('division_id') || !$this->filled('date')) {
+            return;
+        }
+
+        // Get all active students in the division
+        $allStudentsInDivision = Student::where('division_id', $this->division_id)
+            ->where('student_status', 'active')
+            ->pluck('id')
+            ->toArray();
+
+        // Get students with attendance marked
+        $markedStudentIds = collect($this->students ?? [])
+            ->pluck('student_id')
+            ->toArray();
+
+        // Check if all students have attendance marked
+        $missingStudents = array_diff($allStudentsInDivision, $markedStudentIds);
+
+        if (!empty($missingStudents)) {
+            // Get names of missing students
+            $missingStudentNames = Student::whereIn('id', $missingStudents)
+                ->pluck('full_name')
+                ->take(5)
+                ->implode(', ');
+
+            $countMissing = count($missingStudents);
+            $message = "Please mark attendance for all students. {$countMissing} student(s) missing attendance.";
+            
+            if ($countMissing <= 5) {
+                $message = "Please mark attendance for all students. Missing: {$missingStudentNames}";
+            }
+
+            $validator->errors()->add('students', $message);
+        }
     }
 }

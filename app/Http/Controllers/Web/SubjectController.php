@@ -12,6 +12,10 @@ class SubjectController extends Controller
 {
     public function index(Request $request)
     {
+        // Default per page is 15, allow user to customize
+        $perPage = $request->input('per_page', 15);
+        $perPage = in_array($perPage, [10, 15, 25, 50]) ? (int) $perPage : 15;
+
         $query = Subject::with('program')
             ->when($request->filled('search'), function ($q) use ($request) {
                 $q->where('name', 'like', '%' . $request->search . '%')
@@ -21,10 +25,10 @@ class SubjectController extends Controller
                 $q->where('program_id', $request->program_id);
             });
 
-        $subjects = $query->paginate(15);
+        $subjects = $query->paginate($perPage)->appends($request->query());
         $programs = Program::where('is_active', true)->get();
 
-        return view('academic.subjects.index', compact('subjects', 'programs'));
+        return view('academic.subjects.index', compact('subjects', 'programs', 'perPage'));
     }
 
     public function create()

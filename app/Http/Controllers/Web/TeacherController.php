@@ -12,13 +12,25 @@ use Spatie\Permission\Models\Role;
 
 class TeacherController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $teachers = User::role('teacher')
-            ->latest()
-            ->paginate(15);
+        // Default per page is 15, allow user to customize
+        $perPage = $request->input('per_page', 15);
+        $perPage = in_array($perPage, [10, 15, 25, 50]) ? (int) $perPage : 15;
 
-        return view('dashboard.teachers.index', compact('teachers'));
+        $sortBy = $request->query('sort', 'created_at');
+        $sortDir = $request->query('dir', 'desc');
+        $allowedSorts = ['name', 'email', 'created_at'];
+        if (!in_array($sortBy, $allowedSorts)) {
+            $sortBy = 'created_at';
+        }
+        $sortDir = in_array($sortDir, ['asc', 'desc']) ? $sortDir : 'desc';
+
+        $teachers = User::role('teacher')
+            ->orderBy($sortBy, $sortDir)
+            ->paginate($perPage)->appends($request->query());
+
+        return view('dashboard.teachers.index', compact('teachers', 'sortBy', 'sortDir', 'perPage'));
     }
 
     public function create()
@@ -99,6 +111,20 @@ class TeacherController extends Controller
 
     public function destroy(User $teacher)
     {
+        // Check for timetable assignments
+        if ($teacher->timetables()->exists()) {
+            return redirect()
+                ->route('dashboard.teachers.index')
+                ->with('error', 'Teacher is assigned to timetable. Please remove assignments first.');
+        }
+
+        // Check for class teacher assignment
+        if ($teacher->assignedDivision()->exists()) {
+            return redirect()
+                ->route('dashboard.teachers.index')
+                ->with('error', 'Teacher is assigned as class teacher. Please reassign the class first.');
+        }
+
         $teacher->delete();
         return redirect()->route('dashboard.teachers.index')
             ->with('success', 'Teacher deleted successfully!');

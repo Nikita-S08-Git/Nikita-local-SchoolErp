@@ -16,6 +16,10 @@ class ProgramController extends Controller
      */
     public function index(Request $request): View
     {
+        // Default per page is 15, allow user to customize
+        $perPage = $request->input('per_page', 15);
+        $perPage = in_array($perPage, [10, 15, 25, 50]) ? (int) $perPage : 15;
+
         $query = Program::with('department')
             ->withCount(['students' => function($q) {
                 $q->where('student_status', 'active');
@@ -31,10 +35,10 @@ class ProgramController extends Controller
             })
             ->latest();
 
-        $programs = $query->paginate(15)->appends($request->query());
+        $programs = $query->paginate($perPage)->appends($request->query());
         $departments = Department::where('is_active', true)->get();
 
-        return view('academic.programs.index', compact('programs', 'departments'));
+        return view('academic.programs.index', compact('programs', 'departments', 'perPage'));
     }
 
     /**
@@ -63,7 +67,7 @@ class ProgramController extends Controller
             'university_affiliation' => 'nullable|string|max:100',
             'university_program_code' => 'nullable|string|max:20',
             'default_grade_scale_name' => 'required|string|max:100',
-            'is_active' => 'boolean'
+            'is_active' => 'nullable|boolean'
         ]);
 
         Program::create([
@@ -120,7 +124,7 @@ class ProgramController extends Controller
             'university_affiliation' => 'nullable|string|max:100',
             'university_program_code' => 'nullable|string|max:20',
             'default_grade_scale_name' => 'required|string|max:100',
-            'is_active' => 'boolean'
+            'is_active' => 'nullable|boolean'
         ]);
 
         $program->update([

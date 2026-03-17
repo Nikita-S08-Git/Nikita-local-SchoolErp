@@ -41,8 +41,10 @@ class DepartmentController extends Controller
      */
     public function create(): View
     {
-        // ❌ is_active removed
-        $users = User::orderBy('name')->get();
+        // Only get teachers for HOD selection
+        $users = User::whereHas('roles', function($query) {
+            $query->where('name', 'teacher');
+        })->orderBy('name')->get();
 
         return view('departments.create', compact('users'));
     }
@@ -87,8 +89,10 @@ class DepartmentController extends Controller
      */
     public function edit(Department $department): View
     {
-        // ❌ is_active removed
-        $users = User::orderBy('name')->get();
+        // Only get teachers for HOD selection
+        $users = User::whereHas('roles', function($query) {
+            $query->where('name', 'teacher');
+        })->orderBy('name')->get();
 
         return view('departments.edit', compact('department', 'users'));
     }

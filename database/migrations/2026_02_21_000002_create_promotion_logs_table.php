@@ -168,19 +168,20 @@ return new class extends Migration
             // INDEXES FOR PERFORMANCE
             // ========================================
             // Index for student promotion history
-            $table->index('student_id');
+            $table->index('student_id', 'pl_student_idx');
 
             // Index for session-wise promotions
             $table->index(['from_academic_session_id', 'to_academic_session_id'], 'session_promotion_idx');
+            $table->index(['from_academic_session_id', 'to_academic_session_id'], 'pl_session_idx');
 
             // Index for override tracking
-            $table->index(['is_override', 'promoted_by']);
+            $table->index(['is_override', 'promoted_by'], 'pl_override_idx');
 
             // Index for promotion type analysis
-            $table->index('promotion_type');
+            $table->index('promotion_type', 'pl_type_idx');
 
             // Composite index for audit queries
-            $table->index(['promoted_by', 'created_at']);
+            $table->index(['promoted_by', 'created_at'], 'pl_audit_idx');
         });
     }
 

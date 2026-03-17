@@ -28,7 +28,8 @@ class FeePaymentRequest extends BaseFormRequest
             'student_fee_id' => ['required', 'exists:student_fees,id'],
             'amount' => ['required', 'numeric', 'min:0.01', 'max:9999999.99'],
             'payment_date' => ['required', 'date', 'before_or_equal:today'],
-            'payment_method' => ['required', Rule::in(['cash', 'card', 'upi', 'net_banking', 'cheque', 'bank_transfer'])],
+            'payment_method' => ['nullable', Rule::in(['cash', 'card', 'upi', 'net_banking', 'cheque', 'bank_transfer', 'online', 'dd'])],
+            'payment_mode' => ['nullable', Rule::in(['cash', 'card', 'upi', 'net_banking', 'cheque', 'bank_transfer', 'online', 'dd'])],
             'transaction_id' => ['nullable', 'string', 'max:255'],
             'remarks' => ['nullable', 'string', 'max:500'],
             'receipt_number' => ['nullable', 'string', 'max:50'],
@@ -56,6 +57,18 @@ class FeePaymentRequest extends BaseFormRequest
     public function withValidator($validator): void
     {
         $validator->after(function ($validator) {
+            // Check that at least one of payment_method or payment_mode is provided
+            $paymentMethod = $this->payment_method;
+            $paymentMode = $this->payment_mode;
+            
+            if (empty($paymentMethod) && empty($paymentMode)) {
+                $validator->errors()->add(
+                    'payment_method',
+                    'Payment method is required.'
+                );
+                return;
+            }
+            
             $studentFee = \App\Models\Fee\StudentFee::find($this->student_fee_id);
 
             if ($studentFee && $this->amount > $studentFee->outstanding_amount) {

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api\Attendance;
 
 use App\Http\Controllers\Controller;
-use App\Models\Attendance\Timetable;
+use App\Models\Academic\Timetable;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
@@ -14,10 +14,11 @@ class TimetableController extends Controller
         $request->validate([
             'division_id' => 'required|exists:divisions,id',
             'subject_id' => 'required|exists:subjects,id',
+            'academic_year_id' => 'required|exists:academic_years,id',
             'day_of_week' => 'required|in:monday,tuesday,wednesday,thursday,friday,saturday',
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i|after:start_time',
-            'room' => 'nullable|string|max:50',
+            'room_number' => 'nullable|string|max:50',
             'teacher_id' => 'nullable|exists:users,id',
         ]);
 
@@ -65,7 +66,7 @@ class TimetableController extends Controller
         $request->validate([
             'start_time' => 'nullable|date_format:H:i',
             'end_time' => 'nullable|date_format:H:i|after:start_time',
-            'room' => 'nullable|string|max:50',
+            'room_number' => 'nullable|string|max:50',
             'teacher_id' => 'nullable|exists:users,id',
         ]);
 

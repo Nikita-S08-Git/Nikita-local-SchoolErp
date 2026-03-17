@@ -56,7 +56,9 @@
                     </tbody>
                 </table>
             </div>
-            {{ $staff->links() }}
+            
+            <!-- Custom Pagination Component -->
+            <x-pagination :paginator="$staff" />
         </div>
     </div>
 </div>

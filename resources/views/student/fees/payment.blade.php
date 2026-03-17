@@ -47,7 +47,15 @@
                             <input type="number" name="amount" id="amount" class="form-control" 
                                    min="1" max="{{ $studentFee->outstanding_amount }}" 
                                    value="{{ $studentFee->outstanding_amount }}" required>
-                            <small class="text-muted">You can pay partial amount</small>
+                            @php
+                                $installments = $studentFee->feeStructure->installments ?? 1;
+                                $singleInstallment = $installments > 1 ? $studentFee->final_amount / $installments : $studentFee->outstanding_amount;
+                            @endphp
+                            @if($installments > 1)
+                                <small class="text-muted">{{ $installments }} installments (₹{{ number_format($singleInstallment, 2) }} per installment). You can pay one installment at a time.</small>
+                            @else
+                                <small class="text-muted">Full payment required. Partial payments are not allowed.</small>
+                            @endif
                         </div>
 
                         <button type="button" id="payButton" class="btn btn-success btn-lg w-100">
