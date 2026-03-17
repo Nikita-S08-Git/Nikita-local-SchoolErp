@@ -138,6 +138,7 @@ return new class extends Migration
                 'academic_session_id',
                 'program_id',
                 'is_active'
+            ], 'rule_resolution_idx');
             ], 'rc_resolution_idx');
         });
     }

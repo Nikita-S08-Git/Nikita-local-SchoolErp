@@ -171,6 +171,7 @@ return new class extends Migration
             $table->index('student_id', 'pl_student_idx');
 
             // Index for session-wise promotions
+            $table->index(['from_academic_session_id', 'to_academic_session_id'], 'session_promotion_idx');
             $table->index(['from_academic_session_id', 'to_academic_session_id'], 'pl_session_idx');
 
             // Index for override tracking
