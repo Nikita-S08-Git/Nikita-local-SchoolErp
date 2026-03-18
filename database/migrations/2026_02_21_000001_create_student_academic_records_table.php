@@ -163,7 +163,7 @@ return new class extends Migration
             $table->index(['academic_session_id', 'result_status'], 'sas_result_idx');
 
             // Index for promotion queries
-            $table->index(['academic_session_id', 'promotion_status'], 'sas_promo_idx');
+            $table->index(['academic_session_id', 'promotion_status'], 'session_promotion_idx');
 
             // Index for ATKT tracking
             $table->index(['result_status', 'backlog_count'], 'result_backlog_idx');
