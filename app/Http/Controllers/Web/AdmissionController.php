@@ -82,16 +82,16 @@ class AdmissionController extends Controller
         $studentData = $validated;
         
         if ($request->hasFile('photo') && $request->file('photo')->isValid()) {
-            $studentData['photo_path'] = $request->file('photo')->store('student-photos', 'public');
+            $studentData['photo_path'] = $request->file('photo')->store('uploads/students/photos', 'public');
         }
         if ($request->hasFile('signature') && $request->file('signature')->isValid()) {
-            $studentData['signature_path'] = $request->file('signature')->store('student-signatures', 'public');
+            $studentData['signature_path'] = $request->file('signature')->store('uploads/students/signatures', 'public');
         }
         if ($request->hasFile('twelfth_marksheet') && $request->file('twelfth_marksheet')->isValid()) {
-            $studentData['marksheet_path'] = $request->file('twelfth_marksheet')->store('student-documents', 'public');
+            $studentData['marksheet_path'] = $request->file('twelfth_marksheet')->store('uploads/students/documents', 'public');
         }
         if ($request->hasFile('cast_certificate') && $request->file('cast_certificate')->isValid()) {
-            $studentData['cast_certificate_path'] = $request->file('cast_certificate')->store('student-documents', 'public');
+            $studentData['cast_certificate_path'] = $request->file('cast_certificate')->store('uploads/students/documents', 'public');
         }
 
         // Add admission number and status

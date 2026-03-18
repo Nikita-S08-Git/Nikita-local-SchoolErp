@@ -6,263 +6,153 @@ use App\Http\Controllers\Controller;
 use App\Models\User\Student;
 use App\Models\User\Teacher;
 use App\Models\Academic\Admission;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Gate;
 use App\Models\ActivityLog;
 
 class DocumentDownloadController extends Controller
 {
-    /**
-     * Download student document with authentication and authorization
-     * 
-     * Access Control:
-     * - Student: Own documents only
-     * - Parent: Child's documents only
-     * - Teacher: Assigned division students
-     * - Principal: All school students
-     * - Admin: All documents
-     */
     public function downloadStudentDocument(Student $student, string $documentType)
     {
-        // Check authentication
-        if (!auth()->check()) {
-            abort(401, 'Authentication required');
-        }
-
         $user = auth()->user();
 
-        // Check authorization using policy
-        if (!Gate::allows('viewDocument', $student)) {
+        if (!$this->canAccessStudentDocument($user, $student)) {
             abort(403, 'You are not authorized to access this document');
         }
 
-        // Get the file path based on document type
-        $filePath = $this->getStudentDocumentPath($student, $documentType);
+        $filePath = match($documentType) {
+            'photo'                => $student->photo_path,
+            'signature'            => $student->signature_path,
+            'cast_certificate'     => $student->cast_certificate_path,
+            'marksheet'            => $student->marksheet_path,
+            'aadhar'               => $student->aadhar_path,
+            'income_certificate'   => $student->income_certificate_path,
+            'domicile_certificate' => $student->domicile_certificate_path,
+            default                => null,
+        };
 
         if (!$filePath || !Storage::disk('public')->exists($filePath)) {
             abort(404, 'Document not found');
         }
 
-        // Log the download
-        ActivityLog::logEvent(
-            $student,
-            'document_downloaded',
-            null,
-            [
-                'document_type' => $documentType,
-                'file_path' => $filePath,
-                'downloaded_by' => $user->name,
-                'user_role' => $user->getRoleNames()->first(),
-            ]
-        );
-
-        // Return the file with proper headers
-        $fileName = $this->getDocumentFileName($student, $documentType);
-        
-        // Use response()->file() for private storage
-        $fullPath = storage_path('app/private/' . $filePath);
-        
-        if (!file_exists($fullPath)) {
-            abort(404, 'Document file not found on server');
+        try {
+            ActivityLog::log(
+                $user,
+                'document_downloaded',
+                'students',
+                "Downloaded {$documentType} for student ID {$student->id}",
+            );
+        } catch (\Exception $e) {
+            // Logging failure must never block file serving
         }
-        
+
+        $fullPath = Storage::disk('public')->path($filePath);
+        $mimeType = mime_content_type($fullPath);
+        $isImage  = str_starts_with($mimeType, 'image/');
+
         return response()->file($fullPath, [
-            'Content-Type' => mime_content_type($fullPath),
-            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+            'Content-Type'        => $mimeType,
+            'Content-Disposition' => ($isImage ? 'inline' : 'attachment') . '; filename="' . basename($filePath) . '"',
         ]);
     }
 
-    /**
-     * Download teacher document with authentication
-     */
     public function downloadTeacherDocument(Teacher $teacher, string $documentType)
     {
-        if (!auth()->check()) {
-            abort(401, 'Authentication required');
-        }
-
         $user = auth()->user();
 
-        // Only admin, principal, or the teacher themselves can download
         if (!$user->hasAnyRole(['admin', 'principal']) && $user->id !== $teacher->user_id) {
             abort(403, 'You are not authorized to access this document');
         }
 
-        $filePath = $this->getTeacherDocumentPath($teacher, $documentType);
+        $filePath = match($documentType) {
+            'photo'                     => $teacher->photo_path,
+            'signature'                 => $teacher->signature_path ?? null,
+            'qualification_certificate' => $teacher->qualification_certificate_path ?? null,
+            'experience_certificate'    => $teacher->experience_certificate_path ?? null,
+            default                     => null,
+        };
 
         if (!$filePath || !Storage::disk('public')->exists($filePath)) {
             abort(404, 'Document not found');
         }
 
-        // Log the download
-        ActivityLog::logEvent(
-            $teacher,
-            'document_downloaded',
-            null,
-            [
-                'document_type' => $documentType,
-                'file_path' => $filePath,
-                'downloaded_by' => $user->name,
-                'user_role' => $user->getRoleNames()->first(),
-            ]
-        );
+        try {
+            ActivityLog::log($user, 'document_downloaded', 'teachers', "Downloaded {$documentType} for teacher ID {$teacher->id}");
+        } catch (\Exception $e) {}
 
-        $fileName = $this->getTeacherDocumentFileName($teacher, $documentType);
+        $fullPath = Storage::disk('public')->path($filePath);
+        $mimeType = mime_content_type($fullPath);
+        $isImage  = str_starts_with($mimeType, 'image/');
 
-        // Use response()->file() for private storage
-        $fullPath = storage_path('app/private/' . $filePath);
-        
-        if (!file_exists($fullPath)) {
-            abort(404, 'Document file not found on server');
-        }
-        
         return response()->file($fullPath, [
-            'Content-Type' => mime_content_type($fullPath),
-            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+            'Content-Type'        => $mimeType,
+            'Content-Disposition' => ($isImage ? 'inline' : 'attachment') . '; filename="' . basename($filePath) . '"',
         ]);
     }
 
-    /**
-     * Download admission document with authentication
-     */
     public function downloadAdmissionDocument(Admission $admission, string $documentType)
     {
-        if (!auth()->check()) {
-            abort(401, 'Authentication required');
-        }
-
         $user = auth()->user();
 
-        // Only admin, principal, admission officer, or the applicant can download
         if (!$user->hasAnyRole(['admin', 'principal', 'student_section'])) {
             abort(403, 'You are not authorized to access this document');
         }
 
-        $filePath = $this->getAdmissionDocumentPath($admission, $documentType);
+        $document = $admission->documents()
+            ->where('document_type', $documentType)
+            ->latest()
+            ->first();
+
+        $filePath = $document?->file_path;
 
         if (!$filePath || !Storage::disk('public')->exists($filePath)) {
             abort(404, 'Document not found');
         }
 
-        // Log the download
-        ActivityLog::logEvent(
-            $admission,
-            'document_downloaded',
-            null,
-            [
-                'document_type' => $documentType,
-                'file_path' => $filePath,
-                'downloaded_by' => $user->name,
-                'user_role' => $user->getRoleNames()->first(),
-            ]
-        );
+        try {
+            ActivityLog::log($user, 'document_downloaded', 'admissions', "Downloaded {$documentType} for admission ID {$admission->id}");
+        } catch (\Exception $e) {}
 
-        $fileName = $this->getAdmissionDocumentFileName($admission, $documentType);
+        $fullPath = Storage::disk('public')->path($filePath);
+        $mimeType = mime_content_type($fullPath);
+        $isImage  = str_starts_with($mimeType, 'image/');
 
-        // Use response()->file() for private storage
-        $fullPath = storage_path('app/private/' . $filePath);
-        
-        if (!file_exists($fullPath)) {
-            abort(404, 'Document file not found on server');
-        }
-        
         return response()->file($fullPath, [
-            'Content-Type' => mime_content_type($fullPath),
-            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+            'Content-Type'        => $mimeType,
+            'Content-Disposition' => ($isImage ? 'inline' : 'attachment') . '; filename="' . basename($filePath) . '"',
         ]);
     }
 
-    /**
-     * Get student document path based on type
-     */
-    private function getStudentDocumentPath(Student $student, string $documentType): ?string
+    private function canAccessStudentDocument($user, Student $student): bool
     {
-        return match($documentType) {
-            'photo' => $student->photo_path,
-            'signature' => $student->signature_path,
-            'cast_certificate' => $student->cast_certificate_path,
-            'marksheet' => $student->marksheet_path,
-            'aadhar' => $student->aadhar_path ?? null,
-            'income_certificate' => $student->income_certificate_path ?? null,
-            'domicile_certificate' => $student->domicile_certificate_path ?? null,
-            default => null,
-        };
-    }
+        // Admin / Principal / Admission officer / Accounts staff — full access
+        if ($user->hasAnyRole(['admin', 'principal', 'student_section', 'accounts_staff',
+                               'hod_commerce', 'hod_science', 'hod_management', 'hod_arts', 'office'])) {
+            return true;
+        }
 
-    /**
-     * Get teacher document path based on type
-     */
-    private function getTeacherDocumentPath(Teacher $teacher, string $documentType): ?string
-    {
-        return match($documentType) {
-            'photo' => $teacher->photo_path,
-            'signature' => $teacher->signature_path ?? null,
-            'qualification_certificate' => $teacher->qualification_certificate_path ?? null,
-            'experience_certificate' => $teacher->experience_certificate_path ?? null,
-            default => null,
-        };
-    }
+        // Student — own documents only
+        if ($user->hasRole('student') && $user->id === $student->user_id) {
+            return true;
+        }
 
-    /**
-     * Get admission document path based on type
-     */
-    private function getAdmissionDocumentPath(Admission $admission, string $documentType): ?string
-    {
-        // Get the latest document of the specified type
-        $document = $admission->documents()
-            ->where('document_type', $documentType)
-            ->latest('created_at')
-            ->first();
+        // Teacher / class_teacher / subject_teacher — students in their division
+        if ($user->hasAnyRole(['teacher', 'class_teacher', 'subject_teacher'])) {
+            try {
+                $teacherProfile = $user->teacherProfile;
+                if ($teacherProfile) {
+                    $divisionIds = $teacherProfile->divisions()->pluck('divisions.id')->toArray();
+                    if (in_array($student->division_id, $divisionIds)) {
+                        return true;
+                    }
+                }
+            } catch (\Exception $e) {}
+        }
 
-        return $document ? $document->file_path : null;
-    }
+        // Parent — child's documents via guardian email match
+        if ($user->hasRole('parent')) {
+            return $student->guardians()->where('email', $user->email)->exists();
+        }
 
-    /**
-     * Generate download filename for student document
-     */
-    private function getDocumentFileName(Student $student, string $documentType): string
-    {
-        $safeName = preg_replace('/[^A-Za-z0-9_\-]/', '_', $student->first_name . '_' . $student->last_name);
-        $admissionNo = $student->admission_number ?? 'STU' . $student->id;
-        
-        return match($documentType) {
-            'photo' => "{$admissionNo}_{$safeName}_photo.jpg",
-            'signature' => "{$admissionNo}_{$safeName}_signature.jpg",
-            'cast_certificate' => "{$admissionNo}_{$safeName}_cast_certificate.pdf",
-            'marksheet' => "{$admissionNo}_{$safeName}_marksheet.pdf",
-            'aadhar' => "{$admissionNo}_{$safeName}_aadhar.pdf",
-            'income_certificate' => "{$admissionNo}_{$safeName}_income_certificate.pdf",
-            'domicile_certificate' => "{$admissionNo}_{$safeName}_domicile_certificate.pdf",
-            default => "{$admissionNo}_{$safeName}_{$documentType}",
-        };
-    }
-
-    /**
-     * Generate download filename for teacher document
-     */
-    private function getTeacherDocumentFileName(Teacher $teacher, string $documentType): string
-    {
-        $safeName = preg_replace('/[^A-Za-z0-9_\-]/', '_', $teacher->name);
-        $employeeId = $teacher->employee_code ?? 'TCH' . $teacher->id;
-        
-        return match($documentType) {
-            'photo' => "{$employeeId}_{$safeName}_photo.jpg",
-            'signature' => "{$employeeId}_{$safeName}_signature.jpg",
-            'qualification_certificate' => "{$employeeId}_{$safeName}_qualification.pdf",
-            'experience_certificate' => "{$employeeId}_{$safeName}_experience.pdf",
-            default => "{$employeeId}_{$safeName}_{$documentType}",
-        };
-    }
-
-    /**
-     * Generate download filename for admission document
-     */
-    private function getAdmissionDocumentFileName(Admission $admission, string $documentType): string
-    {
-        $safeName = preg_replace('/[^A-Za-z0-9_\-]/', '_', $admission->first_name . '_' . $admission->last_name);
-        $appNo = $admission->application_no ?? 'APP' . $admission->id;
-        
-        return "{$appNo}_{$safeName}_{$documentType}.pdf";
+        return false;
     }
 }

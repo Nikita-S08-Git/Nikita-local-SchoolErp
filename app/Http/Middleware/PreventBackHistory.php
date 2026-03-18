@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -25,8 +26,8 @@ class PreventBackHistory
         /** @var Response $response */
         $response = $next($request);
 
-        // Don't add headers to StreamedResponse (used for file downloads)
-        if ($response instanceof StreamedResponse) {
+        // Don't add headers to file/streamed responses — they don't support fluent ->header()
+        if ($response instanceof StreamedResponse || $response instanceof BinaryFileResponse) {
             return $response;
         }
 
