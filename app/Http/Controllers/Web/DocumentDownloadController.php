@@ -60,7 +60,17 @@ class DocumentDownloadController extends Controller
         // Return the file with proper headers
         $fileName = $this->getDocumentFileName($student, $documentType);
         
-        return Storage::disk('public')->download($filePath, $fileName);
+        // Use response()->file() for private storage
+        $fullPath = storage_path('app/private/' . $filePath);
+        
+        if (!file_exists($fullPath)) {
+            abort(404, 'Document file not found on server');
+        }
+        
+        return response()->file($fullPath, [
+            'Content-Type' => mime_content_type($fullPath),
+            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+        ]);
     }
 
     /**
@@ -99,8 +109,18 @@ class DocumentDownloadController extends Controller
         );
 
         $fileName = $this->getTeacherDocumentFileName($teacher, $documentType);
+
+        // Use response()->file() for private storage
+        $fullPath = storage_path('app/private/' . $filePath);
         
-        return Storage::disk('public')->download($filePath, $fileName);
+        if (!file_exists($fullPath)) {
+            abort(404, 'Document file not found on server');
+        }
+        
+        return response()->file($fullPath, [
+            'Content-Type' => mime_content_type($fullPath),
+            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+        ]);
     }
 
     /**
@@ -139,8 +159,18 @@ class DocumentDownloadController extends Controller
         );
 
         $fileName = $this->getAdmissionDocumentFileName($admission, $documentType);
+
+        // Use response()->file() for private storage
+        $fullPath = storage_path('app/private/' . $filePath);
         
-        return Storage::disk('public')->download($filePath, $fileName);
+        if (!file_exists($fullPath)) {
+            abort(404, 'Document file not found on server');
+        }
+        
+        return response()->file($fullPath, [
+            'Content-Type' => mime_content_type($fullPath),
+            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+        ]);
     }
 
     /**
