@@ -33,7 +33,7 @@ class UpdateGuardianRequest extends FormRequest
             'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
 
             // Primary Contact
-            'is_primary_contact' => 'nullable|boolean',
+            'is_primary_contact' => 'nullable',
         ];
     }
 

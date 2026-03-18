@@ -508,10 +508,14 @@ Route::middleware(['auth'])->group(function () {
 
     // Document Download Routes (Authenticated & Authorized)
     Route::prefix('documents')->name('documents.')->group(function () {
-        // Student documents - unified route with document type parameter
+        // Student documents
         Route::get('/students/{student}/{documentType}', [DocumentDownloadController::class, 'downloadStudentDocument'])
             ->where('documentType', 'photo|signature|cast_certificate|marksheet|aadhar|income_certificate|domicile_certificate')
             ->name('students.document');
+
+        // Guardian photo
+        Route::get('/students/{student}/guardians/{guardian}/photo', [DocumentDownloadController::class, 'downloadGuardianDocument'])
+            ->name('guardians.photo');
     });
 });
 

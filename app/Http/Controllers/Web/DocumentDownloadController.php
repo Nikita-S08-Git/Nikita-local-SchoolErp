@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Models\User\Student;
+use App\Models\User\StudentGuardian;
 use App\Models\User\Teacher;
 use App\Models\Academic\Admission;
 use Illuminate\Support\Facades\Storage;
@@ -52,6 +53,42 @@ class DocumentDownloadController extends Controller
         return response()->file($fullPath, [
             'Content-Type'        => $mimeType,
             'Content-Disposition' => ($isImage ? 'inline' : 'attachment') . '; filename="' . basename($filePath) . '"',
+        ]);
+    }
+
+    public function downloadGuardianDocument(Student $student, StudentGuardian $guardian)
+    {
+        $user = auth()->user();
+
+        if (!$this->canAccessStudentDocument($user, $student)) {
+            abort(403, 'You are not authorized to access this document');
+        }
+
+        if ($guardian->student_id !== $student->id) {
+            abort(404, 'Document not found');
+        }
+
+        $filePath = $guardian->photo_path;
+
+        if (!$filePath || !Storage::disk('public')->exists($filePath)) {
+            abort(404, 'Document not found');
+        }
+
+        try {
+            ActivityLog::log(
+                $user,
+                'document_downloaded',
+                'guardians',
+                "Downloaded photo for guardian ID {$guardian->id} (student ID {$student->id})",
+            );
+        } catch (\Exception $e) {}
+
+        $fullPath = Storage::disk('public')->path($filePath);
+        $mimeType = mime_content_type($fullPath);
+
+        return response()->file($fullPath, [
+            'Content-Type'        => $mimeType,
+            'Content-Disposition' => 'inline; filename="' . basename($filePath) . '"',
         ]);
     }
 

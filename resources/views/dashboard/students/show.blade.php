@@ -170,7 +170,7 @@
                                     <div class="row">
                                         <div class="col-md-2 text-center">
                                             @if($guardian->photo_path)
-                                                <img src="{{ asset('storage/' . $guardian->photo_path) }}" 
+                                                <img src="{{ route('documents.guardians.photo', [$student, $guardian]) }}" 
                                                      class="img-thumbnail rounded-circle" 
                                                      style="width: 80px; height: 80px; object-fit: cover;">
                                             @else
