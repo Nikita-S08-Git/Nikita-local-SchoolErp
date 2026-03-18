@@ -99,7 +99,10 @@ class Student extends Model implements Authenticatable
         'photo_path',           // Path to student photo file
         'signature_path',       // Path to student signature file
         'cast_certificate_path', // Path to cast certificate file
-        'marksheet_path'        // Path to marksheet file
+        'marksheet_path',        // Path to marksheet file
+        'aadhar_path',           // Path to aadhar card file
+        'income_certificate_path', // Path to income certificate file
+        'domicile_certificate_path' // Path to domicile certificate file
     ];
 
     /**

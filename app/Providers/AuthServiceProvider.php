@@ -4,11 +4,14 @@ namespace App\Providers;
 
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
+use App\Models\User\Student;
+use App\Policies\StudentDocumentPolicy;
 
 class AuthServiceProvider extends ServiceProvider
 {
     protected $policies = [
         // Add your policies here
+        Student::class => StudentDocumentPolicy::class,
     ];
 
     public function boot(): void

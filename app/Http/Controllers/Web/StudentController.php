@@ -124,6 +124,9 @@ public function store(Request $request)
         'signature' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         'cast_certificate' => 'nullable|file|mimes:pdf,jpeg,png,jpg|max:5120',
         'marksheet' => 'nullable|file|mimes:pdf,jpeg,png,jpg|max:5120',
+        'aadhar' => 'nullable|file|mimes:pdf,jpeg,png,jpg|max:2048',
+        'income_certificate' => 'nullable|file|mimes:pdf,jpeg,png,jpg|max:2048',
+        'domicile_certificate' => 'nullable|file|mimes:pdf,jpeg,png,jpg|max:2048',
 
         // Status
         'student_status' => 'required|in:active,graduated,dropped,suspended',
@@ -166,6 +169,27 @@ public function store(Request $request)
 
     if ($request->hasFile('marksheet')) {
         $validated['marksheet_path'] = $request->file('marksheet')->store(
+            'uploads/students/documents',
+            'public'
+        );
+    }
+
+    if ($request->hasFile('aadhar')) {
+        $validated['aadhar_path'] = $request->file('aadhar')->store(
+            'uploads/students/documents',
+            'public'
+        );
+    }
+
+    if ($request->hasFile('income_certificate')) {
+        $validated['income_certificate_path'] = $request->file('income_certificate')->store(
+            'uploads/students/documents',
+            'public'
+        );
+    }
+
+    if ($request->hasFile('domicile_certificate')) {
+        $validated['domicile_certificate_path'] = $request->file('domicile_certificate')->store(
             'uploads/students/documents',
             'public'
         );
