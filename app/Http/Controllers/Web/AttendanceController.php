@@ -134,7 +134,7 @@ class AttendanceController extends Controller
 
         // Check if attendance already exists
         $existingAttendance = Attendance::where('division_id', $validated['division_id'])
-                                      ->whereDate('date', $validated['date'])
+                                      ->whereDate('attendance_date', $validated['date'])
                                       ->pluck('status', 'student_id');
 
         return view('academic.attendance.mark', compact('division', 'students', 'validated', 'existingAttendance', 'holidayCheck'));
@@ -174,7 +174,7 @@ class AttendanceController extends Controller
 
         // Get existing attendance
         $existingAttendance = Attendance::where('division_id', $validated['division_id'])
-                                      ->whereDate('date', $validated['date'])
+                                      ->whereDate('attendance_date', $validated['date'])
                                       ->pluck('status', 'student_id');
 
         return view('academic.attendance.edit', compact('division', 'students', 'validated', 'existingAttendance', 'holidayCheck'));
@@ -206,7 +206,7 @@ class AttendanceController extends Controller
                     [
                         'student_id' => $studentData['student_id'],
                         'division_id' => $validated['division_id'],
-                        'date' => $validated['date'],
+                        'attendance_date' => $validated['date'],
                     ],
                     [
                         'academic_session_id' => $validated['academic_session_id'],
@@ -231,7 +231,7 @@ class AttendanceController extends Controller
         ]);
 
         $deleted = Attendance::where('division_id', $validated['division_id'])
-                           ->whereDate('date', $validated['date'])
+                           ->whereDate('attendance_date', $validated['date'])
                            ->delete();
 
         if ($deleted) {
@@ -269,7 +269,7 @@ class AttendanceController extends Controller
                     [
                         'student_id' => $studentData['student_id'],
                         'division_id' => $validated['division_id'],
-                        'date' => $validated['date'],
+                        'attendance_date' => $validated['date'],
                     ],
                     [
                         'academic_session_id' => $validated['academic_session_id'],
