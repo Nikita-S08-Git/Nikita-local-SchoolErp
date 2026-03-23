@@ -77,11 +77,11 @@ class AttendanceController extends Controller
         // Check if attendance is already marked for each lecture
         foreach ($todaySchedule as $lecture) {
             $lecture->attendance_marked = Attendance::where('timetable_id', $lecture->id)
-                ->where('date', $today)
+                ->where('attendance_date', $today)
                 ->exists();
             
             $lecture->attendance_count = Attendance::where('timetable_id', $lecture->id)
-                ->where('date', $today)
+                ->where('attendance_date', $today)
                 ->count();
         }
         
@@ -133,7 +133,7 @@ class AttendanceController extends Controller
         
         // Get existing attendance for this lecture and date
         $existingAttendance = Attendance::where('timetable_id', $timetableId)
-            ->where('date', $date)
+            ->where('attendance_date', $date)
             ->get()
             ->keyBy('student_id');
         
@@ -206,7 +206,7 @@ class AttendanceController extends Controller
                     [
                         'student_id' => $attendanceData['student_id'],
                         'timetable_id' => $timetableId,
-                        'date' => $validated['date'],
+                        'attendance_date' => $validated['date'],
                     ],
                     [
                         'marked_by' => $teacher->id,

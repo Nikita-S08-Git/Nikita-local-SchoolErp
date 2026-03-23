@@ -39,6 +39,17 @@ class StudentGuardian extends Model
         return $this->belongsTo(Student::class);
     }
 
+    // Split full_name into first/last for form pre-fill
+    public function getFirstNameAttribute(): string
+    {
+        return explode(' ', $this->full_name, 2)[0] ?? '';
+    }
+
+    public function getLastNameAttribute(): string
+    {
+        return explode(' ', $this->full_name, 2)[1] ?? '';
+    }
+
     // Scopes
     public function scopePrimaryContact($query)
     {

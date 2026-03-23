@@ -317,7 +317,7 @@
                                     <label for="photo" class="form-label">Student Photo</label>
                                     <div class="photo-preview mb-3">
                                         @if($student->photo_path)
-                                            <img id="photoPreview" src="{{ asset('storage/' . $student->photo_path) }}" 
+                                            <img id="photoPreview" src="{{ route('documents.students.document', [$student, 'photo']) }}" 
                                                  class="img-thumbnail" style="width: 150px; height: 200px; object-fit: cover;">
                                         @else
                                             <img id="photoPreview" src="https://via.placeholder.com/150x200?text=Photo" 
@@ -340,7 +340,7 @@
                                     <label for="signature" class="form-label">Student Signature</label>
                                     <div class="signature-preview mb-3">
                                         @if($student->signature_path)
-                                            <img id="signaturePreview" src="{{ asset('storage/' . $student->signature_path) }}" 
+                                            <img id="signaturePreview" src="{{ route('documents.students.document', [$student, 'signature']) }}" 
                                                  class="img-thumbnail" style="width: 200px; height: 80px; object-fit: cover;">
                                         @else
                                             <img id="signaturePreview" src="https://via.placeholder.com/200x80?text=Signature" 
@@ -354,6 +354,60 @@
                                         <small class="text-info d-block">Leave empty to keep current signature</small>
                                     @endif
                                     @error('signature')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <!-- Cast Certificate -->
+                                <div class="mb-3">
+                                    <label for="cast_certificate" class="form-label">Cast Certificate</label>
+                                    @if($student->cast_certificate_path)
+                                        <div class="mb-2">
+                                            <a href="{{ route('documents.students.document', [$student, 'cast_certificate']) }}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                                                <i class="bi bi-file-earmark-pdf"></i> View Current
+                                            </a>
+                                        </div>
+                                    @endif
+                                    <input type="file" class="form-control @error('cast_certificate') is-invalid @enderror" 
+                                           id="cast_certificate" name="cast_certificate" accept=".pdf,.jpg,.jpeg,.png">
+                                    <small class="text-muted">Max size: 5MB. Formats: PDF, JPG, PNG</small>
+                                    @error('cast_certificate')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <!-- Marksheet -->
+                                <div class="mb-3">
+                                    <label for="marksheet" class="form-label">Previous Marksheet</label>
+                                    @if($student->marksheet_path)
+                                        <div class="mb-2">
+                                            <a href="{{ route('documents.students.document', [$student, 'marksheet']) }}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                                                <i class="bi bi-file-earmark-pdf"></i> View Current
+                                            </a>
+                                        </div>
+                                    @endif
+                                    <input type="file" class="form-control @error('marksheet') is-invalid @enderror" 
+                                           id="marksheet" name="marksheet" accept=".pdf,.jpg,.jpeg,.png">
+                                    <small class="text-muted">Max size: 5MB. Formats: PDF, JPG, PNG</small>
+                                    @error('marksheet')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <!-- Aadhar Card -->
+                                <div class="mb-3">
+                                    <label for="aadhar" class="form-label">Aadhar Card</label>
+                                    @if($student->aadhar_path)
+                                        <div class="mb-2">
+                                            <a href="{{ route('documents.students.document', [$student, 'aadhar']) }}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                                                <i class="bi bi-file-earmark-pdf"></i> View Current
+                                            </a>
+                                        </div>
+                                    @endif
+                                    <input type="file" class="form-control @error('aadhar') is-invalid @enderror" 
+                                           id="aadhar" name="aadhar" accept=".pdf,.jpg,.jpeg,.png">
+                                    <small class="text-muted">Max size: 2MB. Formats: PDF, JPG, PNG</small>
+                                    @error('aadhar')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>

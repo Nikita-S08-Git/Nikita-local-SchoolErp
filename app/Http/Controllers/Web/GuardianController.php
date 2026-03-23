@@ -35,8 +35,11 @@ class GuardianController extends Controller
             );
         }
 
+        $validated['full_name'] = trim($validated['first_name'] . ' ' . $validated['last_name']);
+        unset($validated['first_name'], $validated['last_name']);
+
         $validated['student_id'] = $student->id;
-        $validated['is_primary_contact'] = $request->has('is_primary_contact');
+        $validated['is_primary_contact'] = $request->boolean('is_primary_contact');
 
         // If setting primary, unset other guardians
         if ($validated['is_primary_contact']) {
@@ -84,7 +87,10 @@ class GuardianController extends Controller
             );
         }
 
-        $validated['is_primary_contact'] = $request->has('is_primary_contact');
+        $validated['full_name'] = trim($validated['first_name'] . ' ' . $validated['last_name']);
+        unset($validated['first_name'], $validated['last_name']);
+
+        $validated['is_primary_contact'] = $request->boolean('is_primary_contact');
 
         if ($validated['is_primary_contact']) {
             StudentGuardian::where('student_id', $student->id)->update(['is_primary_contact' => false]);

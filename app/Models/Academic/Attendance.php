@@ -39,6 +39,34 @@ class Attendance extends Model
     protected $table = 'attendance';
 
     /**
+     * Map 'date' attribute to 'attendance_date' column
+     */
+    protected function casts(): array
+    {
+        return [
+            'attendance_date' => 'date',
+            'check_in_time' => 'datetime:H:i:s',
+            'check_out_time' => 'datetime:H:i:s',
+        ];
+    }
+
+    /**
+     * Accessor: Map 'date' to 'attendance_date'
+     */
+    public function getDateAttribute()
+    {
+        return $this->attendance_date;
+    }
+
+    /**
+     * Mutator: Map 'date' to 'attendance_date'
+     */
+    public function setDateAttribute($value)
+    {
+        $this->attributes['attendance_date'] = $value;
+    }
+
+    /**
      * Status constants
      */
     const STATUS_PRESENT = 'present';
@@ -53,7 +81,7 @@ class Attendance extends Model
         'division_id',
         'academic_session_id',
         'timetable_id',
-        'date',
+        'attendance_date',
         'check_in_time',
         'check_out_time',
         'status',
@@ -62,16 +90,7 @@ class Attendance extends Model
         'ip_address',
     ];
 
-    /**
-     * The attributes that should be cast.
-     */
-    protected $casts = [
-        'date' => 'date',
-        'check_in_time' => 'datetime:H:i:s',
-        'check_out_time' => 'datetime:H:i:s',
-    ];
-
-    /**
+/**
      * Mutator: Automatically convert status to lowercase before saving
      * This fixes case mismatch between request (Present) and database (present)
      */
@@ -125,7 +144,7 @@ class Attendance extends Model
      */
     public function scopeByDate($query, $date)
     {
-        return $query->whereDate('date', $date);
+        return $query->whereDate('attendance_date', $date);
     }
 
     /**

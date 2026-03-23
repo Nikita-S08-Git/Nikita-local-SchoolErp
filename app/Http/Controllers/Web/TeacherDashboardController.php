@@ -30,7 +30,7 @@ class TeacherDashboardController extends Controller
         
         $todayAttendance = $assignedDivision ? 
             Attendance::where('division_id', $assignedDivision->id)
-                     ->whereDate('date', today())
+                     ->whereDate('attendance_date', today())
                      ->count() : 0;
         
         $activeSession = AcademicSession::where('is_active', true)->first();
@@ -118,7 +118,7 @@ class TeacherDashboardController extends Controller
         $date = $request->get('date', today()->format('Y-m-d'));
         
         $attendanceData = Attendance::where('division_id', $assignedDivision->id)
-                                   ->whereDate('date', $date)
+                                   ->whereDate('attendance_date', $date)
                                    ->with('student')
                                    ->get();
         

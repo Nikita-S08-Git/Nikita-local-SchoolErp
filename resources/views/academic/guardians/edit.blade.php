@@ -180,7 +180,7 @@
                             <div class="card-body text-center">
                                 <div class="photo-preview mb-3">
                                     @if($guardian->photo_path)
-                                        <img id="photoPreview" src="{{ asset('storage/' . $guardian->photo_path) }}" 
+                                        <img id="photoPreview" src="{{ route('documents.guardians.photo', [$student, $guardian]) }}" 
                                              class="img-thumbnail" style="width: 200px; height: 250px; object-fit: cover;">
                                     @else
                                         <img id="photoPreview" src="https://via.placeholder.com/200x250?text=Guardian+Photo" 

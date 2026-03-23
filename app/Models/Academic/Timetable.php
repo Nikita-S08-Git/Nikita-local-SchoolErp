@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Academic\AcademicYear;
 
 /**
@@ -39,7 +38,7 @@ use App\Models\Academic\AcademicYear;
  */
 class Timetable extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
 
     /**
      * Status constants
@@ -115,7 +114,6 @@ class Timetable extends Model
         'end_time' => 'datetime:H:i',
         'is_break_time' => 'boolean',
         'is_active' => 'boolean',
-        'deleted_at' => 'datetime',
     ];
 
     /**

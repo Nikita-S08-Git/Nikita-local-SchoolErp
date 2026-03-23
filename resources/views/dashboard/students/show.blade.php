@@ -170,7 +170,7 @@
                                     <div class="row">
                                         <div class="col-md-2 text-center">
                                             @if($guardian->photo_path)
-                                                <img src="{{ asset('storage/' . $guardian->photo_path) }}" 
+                                                <img src="{{ route('documents.guardians.photo', [$student, $guardian]) }}" 
                                                      class="img-thumbnail rounded-circle" 
                                                      style="width: 80px; height: 80px; object-fit: cover;">
                                             @else
@@ -237,7 +237,7 @@
                             <div class="mb-4">
                                 <h6>Student Photo</h6>
                                 @if($student->photo_path)
-                                    <img src="{{ asset('storage/' . $student->photo_path) }}" 
+                                    <img src="{{ route('documents.students.document', [$student, 'photo']) }}" 
                                          class="img-thumbnail" 
                                          style="width: 200px; height: 250px; object-fit: cover;">
                                 @else
@@ -252,7 +252,7 @@
                             <div class="mb-3">
                                 <h6>Student Signature</h6>
                                 @if($student->signature_path)
-                                    <img src="{{ asset('storage/' . $student->signature_path) }}" 
+                                    <img src="{{ route('documents.students.document', [$student, 'signature']) }}" 
                                          class="img-thumbnail" 
                                          style="width: 200px; height: 100px; object-fit: cover;">
                                 @else
@@ -270,7 +270,7 @@
                                     <div class="col-6">
                                         <small class="text-muted d-block">Cast Certificate</small>
                                         @if($student->cast_certificate_path)
-                                            <a href="{{ asset('storage/' . $student->cast_certificate_path) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                            <a href="{{ route('documents.students.document', [$student, 'cast_certificate']) }}" target="_blank" class="btn btn-sm btn-outline-primary">
                                                 <i class="bi bi-file-earmark-pdf"></i> View
                                             </a>
                                         @else
@@ -280,7 +280,7 @@
                                     <div class="col-6">
                                         <small class="text-muted d-block">Marksheet</small>
                                         @if($student->marksheet_path)
-                                            <a href="{{ asset('storage/' . $student->marksheet_path) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                            <a href="{{ route('documents.students.document', [$student, 'marksheet']) }}" target="_blank" class="btn btn-sm btn-outline-primary">
                                                 <i class="bi bi-file-earmark-pdf"></i> View
                                             </a>
                                         @else
@@ -288,6 +288,30 @@
                                         @endif
                                     </div>
                                 </div>
+                                @if($student->aadhar_path || $student->income_certificate_path || $student->domicile_certificate_path)
+                                <div class="row mt-2">
+                                    <div class="col-6">
+                                        <small class="text-muted d-block">Aadhar Card</small>
+                                        @if($student->aadhar_path)
+                                            <a href="{{ route('documents.students.document', [$student, 'aadhar']) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                <i class="bi bi-file-earmark-pdf"></i> View
+                                            </a>
+                                        @else
+                                            <span class="text-muted">Not uploaded</span>
+                                        @endif
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted d-block">Income Certificate</small>
+                                        @if($student->income_certificate_path)
+                                            <a href="{{ route('documents.students.document', [$student, 'income_certificate']) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                <i class="bi bi-file-earmark-pdf"></i> View
+                                            </a>
+                                        @else
+                                            <span class="text-muted">Not uploaded</span>
+                                        @endif
+                                    </div>
+                                </div>
+                                @endif
                             </div>
                         </div>
                     </div>

@@ -60,7 +60,7 @@ class PrincipalDashboardController extends Controller
         $totalSubjects = Subject::count();
 
         // Today's Attendance
-        $attendanceToday = Attendance::whereDate('date', Carbon::today())
+        $attendanceToday = Attendance::whereDate('attendance_date', Carbon::today())
             ->select(
                 DB::raw('COUNT(CASE WHEN status = "present" THEN 1 END) as present'),
                 DB::raw('COUNT(CASE WHEN status = "absent" THEN 1 END) as absent'),

@@ -21,6 +21,7 @@ use App\Http\Controllers\Teacher\AttendanceController;
 use App\Http\Controllers\Web\AcademicRuleController;
 use App\Http\Controllers\Student\AuthController as StudentAuthController;
 use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
+use App\Http\Controllers\Web\DocumentDownloadController;
 
 // Bulk action route - moved inside auth middleware
 // Route::post('/dashboard/students/bulk-action', [StudentController::class, 'bulkAction'])->name('dashboard.students.bulkAction');
@@ -511,6 +512,18 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/admissions/{admission}/verify', [AdmissionController::class, 'verify'])->name('admissions.verify');
     Route::post('/admissions/{admission}/reject', [AdmissionController::class, 'reject'])->name('admissions.reject');
     Route::post('/admissions/{admission}/enroll', [AdmissionController::class, 'enroll'])->name('admissions.enroll');
+
+    // Document Download Routes (Authenticated & Authorized)
+    Route::prefix('documents')->name('documents.')->group(function () {
+        // Student documents
+        Route::get('/students/{student}/{documentType}', [DocumentDownloadController::class, 'downloadStudentDocument'])
+            ->where('documentType', 'photo|signature|cast_certificate|marksheet|aadhar|income_certificate|domicile_certificate')
+            ->name('students.document');
+
+        // Guardian photo
+        Route::get('/students/{student}/guardians/{guardian}/photo', [DocumentDownloadController::class, 'downloadGuardianDocument'])
+            ->name('guardians.photo');
+    });
 });
 
 

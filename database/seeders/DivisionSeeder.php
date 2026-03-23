@@ -10,6 +10,12 @@ class DivisionSeeder extends Seeder
     public function run(): void
     {
         $divisions = ['A', 'B', 'C'];
+
+        // Get first program and session
+        $programId = 1;
+        $sessionId = 1;
+
+        // Create divisions for each program
         
         // Get first program and session
         $programId = 1;
@@ -30,7 +36,8 @@ class DivisionSeeder extends Seeder
                         'academic_year_id' => 1,
                         'academic_year_id' => $academicYearId,
                         'program_id' => $programId,
-                        'session_id' => $academicYearId, // Unique session per academic year
+                        'session_id' => $sessionId,
+                        'academic_year_id' => 1,
                         'division_name' => $divisionName,
                         'max_students' => 60,
                         'is_active' => true,

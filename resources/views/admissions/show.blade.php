@@ -242,10 +242,11 @@
                                 <div class="col-md-6 mb-3">
                                     <label class="text-muted">Student Photo</label>
                                     <div class="mt-2">
-                                        <img src="{{ asset('storage/' . $admission->photo_path) }}" 
-                                             alt="Student Photo" class="img-thumbnail" style="max-width: 150px; max-height: 150px;">
+                                        <img src="{{ route('documents.students.document', [$admission->student ?? $admission->id, 'photo']) }}" 
+                                             alt="Student Photo" class="img-thumbnail" style="max-width: 150px; max-height: 150px;"
+                                             onerror="this.style.display='none'">
                                         <div class="mt-2">
-                                            <a href="{{ asset('storage/' . $admission->photo_path) }}" 
+                                            <a href="{{ route('documents.students.document', [$admission->student ?? $admission->id, 'photo']) }}" 
                                                target="_blank" class="btn btn-sm btn-primary">
                                                 <i class="bi bi-eye me-1"></i> View Full
                                             </a>
@@ -258,10 +259,11 @@
                                 <div class="col-md-6 mb-3">
                                     <label class="text-muted">Student Signature</label>
                                     <div class="mt-2">
-                                        <img src="{{ asset('storage/' . $admission->signature_path) }}" 
-                                             alt="Signature" class="img-thumbnail" style="max-width: 200px; max-height: 80px;">
+                                        <img src="{{ route('documents.students.document', [$admission->student ?? $admission->id, 'signature']) }}" 
+                                             alt="Signature" class="img-thumbnail" style="max-width: 200px; max-height: 80px;"
+                                             onerror="this.style.display='none'">
                                         <div class="mt-2">
-                                            <a href="{{ asset('storage/' . $admission->signature_path) }}" 
+                                            <a href="{{ route('documents.students.document', [$admission->student ?? $admission->id, 'signature']) }}" 
                                                target="_blank" class="btn btn-sm btn-primary">
                                                 <i class="bi bi-eye me-1"></i> View Full
                                             </a>
@@ -274,7 +276,7 @@
                                 <div class="col-md-6 mb-3">
                                     <label class="text-muted">12th Marksheet</label>
                                     <div class="mt-2">
-                                        <a href="{{ asset('storage/' . $admission->twelfth_marksheet_path) }}" 
+                                        <a href="{{ route('documents.students.document', [$admission->student ?? $admission->id, 'marksheet']) }}" 
                                            target="_blank" class="btn btn-outline-primary">
                                             <i class="bi bi-file-earmark-pdf me-1"></i> View Document
                                         </a>
@@ -286,7 +288,7 @@
                                 <div class="col-md-6 mb-3">
                                     <label class="text-muted">Cast Certificate</label>
                                     <div class="mt-2">
-                                        <a href="{{ asset('storage/' . $admission->cast_certificate_path) }}" 
+                                        <a href="{{ route('documents.students.document', [$admission->student ?? $admission->id, 'cast_certificate']) }}" 
                                            target="_blank" class="btn btn-outline-primary">
                                             <i class="bi bi-file-earmark-pdf me-1"></i> View Document
                                         </a>
