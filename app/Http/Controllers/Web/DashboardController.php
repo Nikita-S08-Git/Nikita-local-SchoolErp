@@ -130,6 +130,12 @@ class DashboardController extends Controller
             'totalStudents'
         ));
     }
+
+    public function accountant()
+    {
+        return view('dashboard.accountant');
+    }
+
     
     public function hod_commerce()
     {
