@@ -287,7 +287,6 @@ Route::middleware(['auth', 'role:admin|principal'])->prefix('academic')->name('a
 });
 
 // Fee Management Routes
-Route::middleware(['auth', 'role:admin|principal|office|accountant'])->prefix('fees')->name('fees.')->group(function () {
 Route::middleware(['auth', 'role:admin|principal|office|teacher'])->prefix('fees')->name('fees.')->group(function () {
     // Fee Structures
     Route::resource('structures', \App\Http\Controllers\Web\FeeStructureController::class)
@@ -321,7 +320,6 @@ Route::middleware(['auth'])->prefix('razorpay')->group(function () {
 Route::post('/razorpay/webhook', [\App\Http\Controllers\Web\RazorpayController::class, 'webhook']);
 
 // Scholarship Application Routes
-Route::middleware(['auth', 'role:admin|principal|office|accountant'])->prefix('fees/scholarship-applications')->name('fees.scholarship-applications.')->group(function () {
 Route::middleware(['auth', 'role:admin|principal|office|teacher'])->prefix('fees/scholarship-applications')->name('fees.scholarship-applications.')->group(function () {
     Route::get('/', [\App\Http\Controllers\Web\ScholarshipApplicationController::class, 'index'])->name('index');
     Route::get('/create', [\App\Http\Controllers\Web\ScholarshipApplicationController::class, 'create'])->name('create');
@@ -432,27 +430,21 @@ Route::get('/', function() {
         if ($role === 'student' && $user->email === 'librarian@schoolerp.com') {
             $role = 'librarian';
         }
-        if ($role === 'accountant') {
-            return redirect()->route('dashboard.accountant');
-        }
-        return redirect()->route("dashboard.{$role}");
-
-        // Role-based redirect with proper route mapping
         $redirectRoutes = [
-            'principal' => 'dashboard.principal',
-            'admin' => 'dashboard.admin',
-            'teacher' => 'teacher.dashboard',
-            'class_teacher' => 'teacher.dashboard',
+            'principal'       => 'dashboard.principal',
+            'admin'           => 'dashboard.admin',
+            'teacher'         => 'teacher.dashboard',
+            'class_teacher'   => 'teacher.dashboard',
             'subject_teacher' => 'teacher.dashboard',
-            'student' => 'dashboard.student',
-            'accountant' => 'dashboard.accounts_staff',
-            'accounts_staff' => 'dashboard.accounts_staff',
-            'office' => 'dashboard.office',
-            'librarian' => 'dashboard.librarian',
-            'hod_commerce' => 'teacher.dashboard',
-            'hod_science' => 'teacher.dashboard',
-            'hod_management' => 'teacher.dashboard',
-            'hod_arts' => 'teacher.dashboard',
+            'student'         => 'dashboard.student',
+            'accountant'      => 'dashboard.accountant',
+            'accounts_staff'  => 'dashboard.accounts_staff',
+            'office'          => 'dashboard.office',
+            'librarian'       => 'dashboard.librarian',
+            'hod_commerce'    => 'teacher.dashboard',
+            'hod_science'     => 'teacher.dashboard',
+            'hod_management'  => 'teacher.dashboard',
+            'hod_arts'        => 'teacher.dashboard',
         ];
 
         $route = $redirectRoutes[$role] ?? 'dashboard.student';
