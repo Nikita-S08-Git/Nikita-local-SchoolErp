@@ -92,7 +92,7 @@
                                 </div>
 
                                 <div class="row">
-                                    <div class="col-md-6 mb-3">
+                                    <div class="col-md-4 mb-3">
                                         <label for="religion" class="form-label">Religion</label>
                                         <input type="text" class="form-control @error('religion') is-invalid @enderror" 
                                                id="religion" name="religion" value="{{ old('religion') }}">
@@ -100,7 +100,7 @@
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
-                                    <div class="col-md-6 mb-3">
+                                    <div class="col-md-4 mb-3">
                                         <label for="category" class="form-label">Category <span class="text-danger">*</span></label>
                                         <select class="form-select @error('category') is-invalid @enderror" id="category" name="category" required>
                                             <option value="">Select Category</option>
@@ -113,6 +113,15 @@
                                             <option value="ews" {{ old('category') == 'ews' ? 'selected' : '' }}>EWS</option>
                                         </select>
                                         @error('category')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="aadhar_number" class="form-label">Aadhar Number</label>
+                                        <input type="text" class="form-control @error('aadhar_number') is-invalid @enderror" 
+                                               id="aadhar_number" name="aadhar_number" value="{{ old('aadhar_number') }}" 
+                                               maxlength="12" placeholder="Enter 12-digit Aadhar number">
+                                        @error('aadhar_number')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>

@@ -45,7 +45,9 @@
                             <div class="col-md-4">
                                 <div class="mb-3">
                                     <label for="date" class="form-label">Date <span class="text-danger">*</span></label>
-                                    <input type="date" name="date" id="date" class="form-control" value="{{ date('Y-m-d') }}" required>
+                                    <input type="date" name="date" id="date" class="form-control" value="{{ date('Y-m-d') }}" required
+                                           min="{{ date('Y-m-d') }}">
+                                    <div class="form-text text-danger small mt-1"><i class="bi bi-info-circle"></i> Sundays are holidays - attendance not allowed</div>
                                 </div>
                             </div>
                         </div>
@@ -63,4 +65,39 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dateInput = document.getElementById('date');
+    
+    // Function to disable Sundays
+    function disableSundays() {
+        const dates = dateInput.querySelectorAll('option');
+        dateInput.addEventListener('change', function() {
+            const selectedDate = new Date(this.value);
+            const day = selectedDate.getDay();
+            if (day === 0) { // Sunday
+                alert('Sundays are holidays. Please select another day.');
+                // Find next Monday or keep previous date
+                const nextDay = new Date(selectedDate);
+                nextDay.setDate(selectedDate.getDate() + 1);
+                this.value = nextDay.toISOString().split('T')[0];
+            }
+        });
+    }
+    
+    // For standard date input, we need custom validation
+    dateInput.addEventListener('change', function() {
+        const selectedDate = new Date(this.value + 'T00:00:00');
+        const day = selectedDate.getDay();
+        if (day === 0) { // Sunday
+            alert('Sundays are holidays. Please select another day.');
+            // Set to next Monday
+            const nextMonday = new Date(selectedDate);
+            nextMonday.setDate(selectedDate.getDate() + 1);
+            this.value = nextMonday.toISOString().split('T')[0];
+        }
+    });
+});
+</script>
 @endsection

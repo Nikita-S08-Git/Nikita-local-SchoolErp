@@ -11,12 +11,16 @@ use Illuminate\Support\Facades\Hash;
 
 class StaffController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        // Default per page is 15, allow user to customize
+        $perPage = $request->input('per_page', 15);
+        $perPage = in_array($perPage, [10, 15, 25, 50]) ? (int) $perPage : 15;
+
         $staff = StaffProfile::with(['user', 'department'])
             ->latest()
-            ->paginate(15);
-        return view('staff.index', compact('staff'));
+            ->paginate($perPage)->appends($request->query());
+        return view('staff.index', compact('staff', 'perPage'));
     }
 
     public function create()

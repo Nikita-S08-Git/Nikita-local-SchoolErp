@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 
 class AdmissionController extends Controller
 {
-    protected $admissionService;
+    protected AdmissionService $admissionService;
 
     public function __construct(AdmissionService $admissionService)
     {
@@ -26,7 +26,7 @@ class AdmissionController extends Controller
                 $query->where(function($q) use ($search) {
                     $q->where('first_name', 'like', "%{$search}%")
                       ->orWhere('last_name', 'like', "%{$search}%")
-                      ->orWhere('application_number', 'like', "%{$search}%");
+                      ->orWhere('application_no', 'like', "%{$search}%");
                 });
             })
             ->latest()
@@ -49,35 +49,74 @@ class AdmissionController extends Controller
     public function apply(Request $request)
     {
         $validated = $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'date_of_birth' => 'required|date',
+            'first_name' => 'required|regex:/^[a-zA-Z\s]+$/|max:255',
+            'middle_name' => 'nullable|regex:/^[a-zA-Z\s]+$/|max:255',
+            'last_name' => 'required|regex:/^[a-zA-Z\s]+$/|max:255',
+            'date_of_birth' => 'required|date|before:today|after:1990-01-01',
+            'gender' => 'required|in:male,female,other',
+            'blood_group' => 'nullable|in:A+,A-,B+,B-,O+,O-,AB+,AB-',
+            'religion' => 'nullable|string|max:50',
+            'category' => 'required|in:general,obc,sc,st,ews',
+            'aadhar_number' => 'nullable|digits:12',
+            'mobile_number' => 'required|regex:/^[6-9]\d{9}$/',
+            'email' => 'required|email|unique:students,email',
+            'current_address' => 'required|string|min:10|max:500',
+            'permanent_address' => 'nullable|string|min:10|max:500',
             'program_id' => 'required|exists:programs,id',
             'division_id' => 'required|exists:divisions,id',
-            'academic_session_id' => 'required|exists:academic_sessions,id,is_active,1',
-            'mobile_number' => 'required|string|max:15',
-            'email' => 'required|email|unique:admissions,email',
+            'academic_session_id' => 'required|exists:academic_sessions,id',
+            'academic_year' => 'required|in:FY,SY,TY',
+            // File validations
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'signature' => 'nullable|image|mimes:jpeg,png,jpg|max:1024',
+            'twelfth_marksheet' => 'nullable|mimes:pdf,jpeg,png,jpg|max:5120',
+            'cast_certificate' => 'nullable|mimes:pdf,jpeg,png,jpg|max:5120',
         ]);
 
-        $admission = Admission::create($validated + [
-            'status' => 'pending',
-            'application_number' => 'APP' . date('Y') . str_pad(Admission::count() + 1, 4, '0', STR_PAD_LEFT)
-        ]);
+        // If permanent address is empty, use current address
+        if (empty($validated['permanent_address'])) {
+            $validated['permanent_address'] = $validated['current_address'];
+        }
 
-        return redirect()->route('admissions.show', $admission)
-            ->with('success', 'Application submitted successfully!');
+        // Handle file uploads - save directly to students table
+        $studentData = $validated;
+        
+        if ($request->hasFile('photo') && $request->file('photo')->isValid()) {
+            $studentData['photo_path'] = $request->file('photo')->store('uploads/students/photos', 'public');
+        }
+        if ($request->hasFile('signature') && $request->file('signature')->isValid()) {
+            $studentData['signature_path'] = $request->file('signature')->store('uploads/students/signatures', 'public');
+        }
+        if ($request->hasFile('twelfth_marksheet') && $request->file('twelfth_marksheet')->isValid()) {
+            $studentData['marksheet_path'] = $request->file('twelfth_marksheet')->store('uploads/students/documents', 'public');
+        }
+        if ($request->hasFile('cast_certificate') && $request->file('cast_certificate')->isValid()) {
+            $studentData['cast_certificate_path'] = $request->file('cast_certificate')->store('uploads/students/documents', 'public');
+        }
+
+        // Add admission number and status
+        $studentData['admission_number'] = 'ADM' . date('Y') . str_pad(\App\Models\User\Student::count() + 1, 4, '0', STR_PAD_LEFT);
+        $studentData['admission_date'] = date('Y-m-d');
+        $studentData['student_status'] = 'active';
+
+        // Create student directly
+        $student = $this->admissionService->createStudentFromAdmission($studentData);
+
+        return redirect()->route('admissions.apply.form')
+            ->with('success', 'Admission submitted successfully! Your Admission No. is: ' . $student->admission_number . '. Please save it for tracking.');
     }
 
     public function verify(Request $request, Admission $admission)
     {
-        $admission->update([
-            'status' => 'verified',
-            'verified_at' => now(),
-            'verified_by' => auth()->id(),
-        ]);
-
-        return redirect()->back()
-            ->with('success', 'Admission verified successfully.');
+        try {
+            $this->admissionService->verifyAdmission($admission, $request->notes ?? null);
+            
+            return redirect()->back()
+                ->with('success', 'Admission verified successfully.');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', $e->getMessage());
+        }
     }
 
     public function reject(Request $request, Admission $admission)
@@ -86,14 +125,35 @@ class AdmissionController extends Controller
             'rejection_reason' => 'required|string|max:500'
         ]);
 
-        $admission->update([
-            'status' => 'rejected',
-            'rejection_reason' => $validated['rejection_reason'],
-            'rejected_at' => now(),
-            'rejected_by' => auth()->id(),
-        ]);
+        try {
+            $this->admissionService->rejectAdmission($admission, $validated['rejection_reason']);
+            
+            return redirect()->back()
+                ->with('success', 'Admission rejected.');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', $e->getMessage());
+        }
+    }
 
-        return redirect()->back()
-            ->with('success', 'Admission rejected.');
+    /**
+     * Enroll a verified admission as a student
+     */
+    public function enroll(Admission $admission)
+    {
+        try {
+            $student = $this->admissionService->enrollStudent($admission);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Student enrolled successfully!',
+                'student_id' => $student->id
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 422);
+        }
     }
 }

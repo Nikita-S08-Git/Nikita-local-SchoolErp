@@ -147,6 +147,27 @@ class FeeController extends Controller
                     return ApiResponse::error('All installments already paid', null, 422);
                 }
 
+                // Restrict to ONE installment per transaction
+                if ($allowedInstallments > 1) {
+                    $singleInstallmentAmount = $studentFee->final_amount / $allowedInstallments;
+                    $nextInstallmentNumber = $paidInstallments + 1;
+                    
+                    // Calculate remaining amount for current installment only
+                    $currentInstallmentPaid = FeePayment::where('student_fee_id', $studentFee->id)
+                        ->where('installment_number', $nextInstallmentNumber)
+                        ->sum('amount');
+                    
+                    $remainingForCurrentInstallment = max(0, $singleInstallmentAmount - $currentInstallmentPaid);
+                    
+                    if ($request->amount > $remainingForCurrentInstallment) {
+                        return ApiResponse::error(
+                            'Only one installment can be collected per transaction. Maximum allowed: ₹' . number_format($remainingForCurrentInstallment, 2),
+                            null,
+                            422
+                        );
+                    }
+                }
+
                 /* ✅ SAFE RECEIPT NUMBER */
                 $receiptPrefix = config('schoolerp.fee.receipt_prefix', 'RCP');
                 $receiptNumber = $receiptPrefix . date('Y') . strtoupper(Str::random(8));
@@ -154,6 +175,7 @@ class FeeController extends Controller
                 /* ✅ CREATE PAYMENT */
                 $payment = FeePayment::create([
                     'student_fee_id' => $studentFee->id,
+                    'installment_number' => $paidInstallments + 1,
                     'receipt_number' => $receiptNumber,
                     'amount' => $request->amount,
                     'payment_mode' => $request->payment_method, // Updated to match FormRequest

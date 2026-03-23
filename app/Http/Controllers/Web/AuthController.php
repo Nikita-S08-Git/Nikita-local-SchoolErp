@@ -23,12 +23,30 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-            
+
             $user = Auth::user();
             $role = $user->roles->first()->name ?? 'student';
-            
-            // Role-based redirect
-            return redirect()->route("dashboard.{$role}");
+
+            // Role-based redirect with proper route mapping
+            $redirectRoutes = [
+                'principal' => 'dashboard.principal',
+                'admin' => 'dashboard.admin',
+                'teacher' => 'teacher.dashboard',
+                'class_teacher' => 'teacher.dashboard',
+                'subject_teacher' => 'teacher.dashboard',
+                'student' => 'dashboard.student',
+                'accounts_staff' => 'dashboard.accounts_staff',
+                'office' => 'dashboard.office',
+                'librarian' => 'dashboard.librarian',
+                'hod_commerce' => 'teacher.dashboard',
+                'hod_science' => 'teacher.dashboard',
+                'hod_management' => 'teacher.dashboard',
+                'hod_arts' => 'teacher.dashboard',
+            ];
+
+            $route = $redirectRoutes[$role] ?? 'dashboard.student';
+
+            return redirect()->route($route);
         }
 
         return back()->withErrors([

@@ -3,21 +3,34 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Fee\RecordFeePaymentRequest;
 use App\Models\Fee\StudentFee;
 use App\Models\Fee\FeePayment;
 use App\Models\User\Student;
-use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class FeePaymentController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        // Default per page is 15, allow user to customize
+        $perPage = $request->input('per_page', 15);
+        $perPage = in_array($perPage, [10, 15, 25, 50]) ? (int) $perPage : 15;
+
+        $sortBy = $request->query('sort', 'payment_date');
+        $sortDir = $request->query('dir', 'desc');
+        $allowedSorts = ['payment_date', 'amount', 'payment_mode', 'transaction_id', 'created_at'];
+        if (!in_array($sortBy, $allowedSorts)) {
+            $sortBy = 'payment_date';
+        }
+        $sortDir = in_array($sortDir, ['asc', 'desc']) ? $sortDir : 'desc';
+
         $payments = FeePayment::with(['studentFee.student', 'studentFee.feeStructure.feeHead'])
-            ->orderBy('payment_date', 'desc')
-            ->paginate(15);
-        return view('fees.payments.index', compact('payments'));
+            ->orderBy($sortBy, $sortDir)
+            ->paginate($perPage)->appends($request->query());
+        return view('fees.payments.index', compact('payments', 'sortBy', 'sortDir', 'perPage'));
     }
 
     public function create()
@@ -26,31 +39,117 @@ class FeePaymentController extends Controller
         return view('fees.payments.create', compact('students'));
     }
 
-    public function store(Request $request)
+    public function store(RecordFeePaymentRequest $request)
     {
-        $request->validate([
-            'student_fee_id' => 'required|exists:student_fees,id',
-            'amount' => 'required|numeric|min:0.01',
-            'payment_mode' => 'required|in:cash,online,cheque,dd',
-            'transaction_id' => 'nullable|string',
-            'payment_date' => 'required|date',
-            'remarks' => 'nullable|string'
-        ]);
+        $studentFee = StudentFee::with('feeStructure')->findOrFail($request->student_fee_id);
+        
+        $feeStructure = $studentFee->feeStructure;
+        $totalInstallments = $feeStructure->installments ?? 1;
+        
+        // Calculate single installment amount based on final amount (after discount)
+        $singleInstallmentAmount = $studentFee->final_amount / $totalInstallments;
+        
+        // Get the count of successful payments made
+        $paidPayments = FeePayment::where('student_fee_id', $studentFee->id)
+            ->where('status', 'success')
+            ->get();
+        
+        $paidInstallmentsCount = $paidPayments->count();
+        $nextInstallmentNumber = $paidInstallmentsCount + 1;
 
-        $studentFee = StudentFee::findOrFail($request->student_fee_id);
+        // Additional validation in controller (backup for security)
+        $requestedAmount = (float) $request->amount;
+        $outstandingAmount = (float) $studentFee->outstanding_amount;
 
-        if ($request->amount > $studentFee->outstanding_amount) {
-            return back()->withErrors(['amount' => 'Payment amount exceeds outstanding amount']);
+        // RULE 1: If Fee Structure contains MORE THAN 1 Installment
+        if ($totalInstallments > 1) {
+            // Calculate the expected amount for the current installment
+            $expectedCurrentInstallmentAmount = $singleInstallmentAmount;
+            
+            // Check if this is not the last installment, enforce exact amount
+            if ($nextInstallmentNumber < $totalInstallments) {
+                // For installments before the last one, must pay exact installment amount
+                // Allow small floating point tolerance
+                $tolerance = 0.01;
+                
+                if (abs($requestedAmount - $expectedCurrentInstallmentAmount) > $tolerance) {
+                    return back()->withErrors([
+                        'amount' => 'Only ' . number_format($expectedCurrentInstallmentAmount, 2) . ' (one installment amount) can be recorded at a time.'
+                    ])->withInput();
+                }
+            } else {
+                // This is the last installment - allow remaining outstanding amount
+                $remainingAmount = $outstandingAmount;
+                
+                // Allow small floating point tolerance
+                $tolerance = 0.01;
+                
+                // Must pay the remaining amount (within tolerance)
+                if (abs($requestedAmount - $remainingAmount) > $tolerance) {
+                    return back()->withErrors([
+                        'amount' => 'Only ' . number_format($expectedCurrentInstallmentAmount, 2) . ' (one installment amount) can be recorded at a time.'
+                    ])->withInput();
+                }
+            }
+
+            // Additional check: Do NOT allow amount more than current installment
+            if ($requestedAmount > $expectedCurrentInstallmentAmount + 0.01) {
+                return back()->withErrors([
+                    'amount' => 'Only ' . number_format($expectedCurrentInstallmentAmount, 2) . ' (one installment amount) can be recorded at a time.'
+                ])->withInput();
+            }
+
+            // Additional check: Do NOT allow amount less than current installment
+            if ($requestedAmount < $expectedCurrentInstallmentAmount - 0.01) {
+                return back()->withErrors([
+                    'amount' => 'Only ' . number_format($expectedCurrentInstallmentAmount, 2) . ' (one installment amount) can be recorded at a time.'
+                ])->withInput();
+            }
+        }
+        // RULE 2: If Fee Structure contains ONLY 1 Installment
+        else {
+            // Full outstanding amount must be collected in a single transaction
+            $tolerance = 0.01;
+            
+            if (abs($requestedAmount - $outstandingAmount) > $tolerance) {
+                return back()->withErrors([
+                    'amount' => 'Full fee amount (' . number_format($outstandingAmount, 2) . ') must be paid in a single transaction.'
+                ])->withInput();
+            }
+
+            // Do NOT allow amount less than full amount
+            if ($requestedAmount < $outstandingAmount - 0.01) {
+                return back()->withErrors([
+                    'amount' => 'Full fee amount (' . number_format($outstandingAmount, 2) . ') must be paid in a single transaction.'
+                ])->withInput();
+            }
+
+            // Do NOT allow amount more than full amount
+            if ($requestedAmount > $outstandingAmount + 0.01) {
+                return back()->withErrors([
+                    'amount' => 'Full fee amount (' . number_format($outstandingAmount, 2) . ') must be paid in a single transaction.'
+                ])->withInput();
+            }
+        }
+
+        // General check: Payment amount cannot exceed outstanding amount
+        if ($requestedAmount > $outstandingAmount + 0.01) {
+            return back()->withErrors([
+                'amount' => 'Payment amount cannot exceed the outstanding amount (₹' . number_format($outstandingAmount, 2) . ')'
+            ])->withInput();
         }
 
         $receiptNumber = 'RCP' . date('Y') . strtoupper(Str::random(6));
 
+        // Determine payment mode - support both payment_method and payment_mode
+        $paymentMode = $request->payment_method ?? $request->payment_mode ?? 'cash';
+
         $payment = FeePayment::create([
             'student_fee_id' => $studentFee->id,
-            'installment_number' => FeePayment::where('student_fee_id', $studentFee->id)->count() + 1,
+            'installment_number' => $nextInstallmentNumber,
             'receipt_number' => $receiptNumber,
             'amount' => $request->amount,
-            'payment_mode' => $request->payment_mode,
+            'payment_mode' => $paymentMode,
             'transaction_id' => $request->transaction_id,
             'payment_date' => $request->payment_date,
             'due_date' => $request->payment_date,

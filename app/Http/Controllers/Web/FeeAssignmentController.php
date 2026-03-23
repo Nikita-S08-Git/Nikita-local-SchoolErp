@@ -27,14 +27,28 @@ class FeeAssignmentController extends Controller
             'fee_structure_ids.*' => 'exists:fee_structures,id'
         ]);
 
+        $alreadyAssigned = [];
+        $successfullyAssigned = [];
+
         foreach ($request->student_ids as $studentId) {
             foreach ($request->fee_structure_ids as $feeStructureId) {
                 $feeStructure = FeeStructure::find($feeStructureId);
                 
-                StudentFee::firstOrCreate([
+                // Check if this fee is already assigned to the student
+                $existingFee = StudentFee::where('student_id', $studentId)
+                    ->where('fee_structure_id', $feeStructureId)
+                    ->first();
+                
+                if ($existingFee) {
+                    // Fee already assigned - track it for feedback
+                    $student = Student::find($studentId);
+                    $alreadyAssigned[] = $student->user->name . ' - ' . $feeStructure->feeHead->name;
+                    continue; // Skip to next fee
+                }
+                
+                StudentFee::create([
                     'student_id' => $studentId,
-                    'fee_structure_id' => $feeStructureId
-                ], [
+                    'fee_structure_id' => $feeStructureId,
                     'total_amount' => $feeStructure->amount,
                     'discount_amount' => 0,
                     'final_amount' => $feeStructure->amount,
@@ -42,7 +56,18 @@ class FeeAssignmentController extends Controller
                     'outstanding_amount' => $feeStructure->amount,
                     'status' => 'pending'
                 ]);
+                
+                $successfullyAssigned[] = $studentId . '-' . $feeStructureId;
             }
+        }
+
+        // Provide appropriate feedback
+        if (!empty($alreadyAssigned) && empty($successfullyAssigned)) {
+            return redirect()->route('fees.assignments.index')
+                ->with('error', 'These fees are already assigned: ' . implode(', ', $alreadyAssigned));
+        } elseif (!empty($alreadyAssigned)) {
+            return redirect()->route('fees.assignments.index')
+                ->with('warning', 'Fees assigned successfully. Already assigned: ' . implode(', ', $alreadyAssigned));
         }
 
         return redirect()->route('fees.assignments.index')->with('success', 'Fees assigned successfully');

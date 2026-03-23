@@ -43,7 +43,7 @@
             <div class="card-body text-center">
                 <i class="bi bi-calendar-check fa-2x mb-2"></i>
                 <h5>Attendance</h5>
-                <p class="mb-0">85%</p>
+                <p class="mb-0">{{ $attendancePercentage }}%</p>
             </div>
         </div>
     </div>

@@ -8,6 +8,7 @@ use App\Models\Result\StudentMark;
 use App\Models\Result\Examination;
 use App\Models\Academic\Division;
 use App\Models\Academic\Subject;
+use App\Services\AcademicRuleService;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 
@@ -59,7 +60,7 @@ class ResultController extends Controller
                 'total' => $total,
                 'percentage' => $percentage,
                 'grade' => $grade ? $grade->grade_name : 'F',
-                'result' => $percentage >= 40 ? 'Pass' : 'Fail',
+                'result' => $percentage >= AcademicRuleService::getPassPercentage() ? 'Pass' : 'Fail',
             ];
         }
         
@@ -108,7 +109,7 @@ class ResultController extends Controller
                 'total' => $total,
                 'percentage' => $percentage,
                 'grade' => $grade ? $grade->grade_name : 'F',
-                'result' => $percentage >= 40 ? 'Pass' : 'Fail',
+                'result' => $percentage >= AcademicRuleService::getPassPercentage() ? 'Pass' : 'Fail',
             ];
         }
         

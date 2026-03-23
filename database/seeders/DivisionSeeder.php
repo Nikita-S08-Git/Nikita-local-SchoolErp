@@ -10,11 +10,11 @@ class DivisionSeeder extends Seeder
     public function run(): void
     {
         $divisions = ['A', 'B', 'C'];
-        
+
         // Get first program and session
         $programId = 1;
         $sessionId = 1;
-        
+
         // Create divisions for each program
         $id = 1;
         foreach ([1, 2] as $programId) { // BCOM and BSC programs

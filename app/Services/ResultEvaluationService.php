@@ -345,10 +345,11 @@ class ResultEvaluationService
 
         $eligible = $failedCount <= $maxAtktSubjects && $currentAttempt < $maxAttempts;
 
+        $nextAttempt = $currentAttempt + 1;
         return [
             'eligible' => $eligible,
             'reason' => $eligible
-                ? "Eligible for ATKT ({$failedCount} backlogs, attempt {$currentAttempt + 1} of {$maxAttempts})"
+                ? "Eligible for ATKT ({$failedCount} backlogs, attempt {$nextAttempt} of {$maxAttempts})"
                 : "Not eligible for ATKT ({$failedCount} backlogs > {$maxAtktSubjects} max OR attempts exhausted)",
             'failed_count' => $failedCount,
             'max_allowed' => $maxAtktSubjects,

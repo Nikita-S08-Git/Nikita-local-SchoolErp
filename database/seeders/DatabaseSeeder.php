@@ -9,6 +9,9 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
+            // Roles and Permissions (must run first)
+            RolesAndPermissionsSeeder::class,
+            
             // Academic Structure
             DepartmentSeeder::class,
             ProgramSeeder::class,
@@ -28,8 +31,25 @@ class DatabaseSeeder extends Seeder
             FeeStructureSeeder::class,
             ScholarshipSeeder::class,
             
+            // Subjects and Grades
+            SubjectSeeder::class,
+            GradeSeeder::class,
+            
+            // Examinations
+            ExaminationSeeder::class,
+            ExamSubjectSeeder::class,
+            
+            // Holidays and Teacher Dashboard
+            HolidaySeeder::class,
+            TeacherDashboardSeeder::class,
+            
+            // Timetable Status (Sample Data)
+            TimetableStatusSeeder::class,
+            
             // Students
             StudentSeeder::class,
+            TestStudentSeeder::class,
+            TestAdmissionSeeder::class,
         ]);
     }
 }

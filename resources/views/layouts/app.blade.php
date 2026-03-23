@@ -10,7 +10,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons (now bundled locally) -->
     <!-- Font Awesome 6 Free -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-papVtJ6Qoyt7rO8zOoaJ+R/0ZoHtn+J8EYBrmPQOiEz2+qyj/MoF+jV7qZHb3T7j6xFwfsPWTf6yoA08VUcZ2g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Custom CSS -->
     <style>
@@ -282,6 +282,253 @@
             margin-top: 0;
             padding-top: 0;
         }
+        
+        /* Card Styles */
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-header {
+            background: #fff;
+            border-bottom: 1px solid #e9ecef;
+            padding: 1rem 1.25rem;
+            font-weight: 600;
+        }
+        
+        /* Button Styles */
+        .btn-primary {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            border: none;
+            padding: 0.5rem 1.25rem;
+            border-radius: 6px;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #0056b3 0%, #004494 100%);
+        }
+        
+        /* Table Styles */
+        .table {
+            margin-bottom: 0;
+        }
+        
+        .table thead th {
+            background: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+            font-weight: 600;
+            color: #495057;
+            padding: 0.75rem;
+        }
+        
+        .table tbody td {
+            padding: 0.75rem;
+            vertical-align: middle;
+        }
+        
+        .table-hover tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        /* Form Styles */
+        .form-control:focus, .form-select:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.15);
+        }
+        
+        /* Page Header */
+        .page-header {
+            background: #fff;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .page-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #212529;
+        }
+
+        /* Pagination Styles - Comprehensive Design */
+        .pagination {
+            gap: 6px;
+            flex-wrap: wrap;
+            margin: 0;
+        }
+
+        .pagination .page-item {
+            border-radius: 8px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .pagination .page-item:hover {
+            transform: translateY(-2px);
+        }
+
+        .pagination .page-link {
+            border: 2px solid #e9ecef;
+            color: #495057;
+            padding: 0.5rem 0.875rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+            font-weight: 500;
+            background: #fff;
+            text-decoration: none;
+        }
+
+        .pagination .page-link:hover {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: #fff;
+            border-color: #007bff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,123,255,0.35);
+        }
+
+        .pagination .page-item.active .page-link {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            border-color: #007bff;
+            color: #fff;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(0,123,255,0.35);
+            transform: translateY(-2px);
+        }
+
+        .pagination .page-item.disabled .page-link {
+            color: #adb5bd;
+            background: #f8f9fa;
+            border-color: #e9ecef;
+            cursor: not-allowed;
+            opacity: 0.6;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .pagination .page-item.disabled .page-link:hover {
+            background: #f8f9fa;
+            color: #adb5bd;
+            border-color: #e9ecef;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Pagination Sizes */
+        .pagination-sm .page-link {
+            padding: 0.375rem 0.625rem;
+            font-size: 0.875rem;
+            border-radius: 6px;
+        }
+
+        .pagination-lg .page-link {
+            padding: 0.75rem 1.125rem;
+            font-size: 1rem;
+            border-radius: 10px;
+        }
+
+        /* Pagination Info */
+        .pagination-info {
+            color: #6c757d;
+            font-size: 0.875rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .pagination-info strong {
+            color: #0d6efd;
+            font-weight: 600;
+        }
+
+        /* Pagination Wrapper */
+        .pagination-wrapper {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        @media (max-width: 767px) {
+            .pagination-wrapper {
+                justify-content: center;
+                width: 100%;
+            }
+            
+            .pagination-wrapper .pagination {
+                justify-content: center;
+            }
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 576px) {
+            .pagination {
+                gap: 4px;
+            }
+
+            .pagination .page-link {
+                padding: 0.375rem 0.5rem;
+                font-size: 0.8rem;
+                border-width: 1px;
+            }
+
+            .pagination .page-link span.d-none {
+                display: none !important;
+            }
+
+            .pagination-info {
+                font-size: 0.75rem;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.25rem;
+            }
+        }
+
+        /* Pagination with Borders */
+        .pagination-bordered .page-link {
+            border-width: 2px;
+        }
+
+        .pagination-bordered .page-item.active .page-link {
+            border-color: #007bff;
+        }
+
+        /* Pagination Shadows */
+        .pagination-shadow .page-link {
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+        }
+
+        .pagination-shadow .page-item:hover .page-link {
+            box-shadow: 0 4px 12px rgba(0,123,255,0.25);
+        }
+
+        /* Pagination Rounded */
+        .pagination-rounded .page-item {
+            border-radius: 50%;
+        }
+
+        .pagination-rounded .page-link {
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            justify-content: center;
+            padding: 0;
+        }
+
+        .pagination-rounded.pagination-sm .page-link {
+            width: 32px;
+            height: 32px;
+        }
+
+        .pagination-rounded.pagination-lg .page-link {
+            width: 42px;
+            height: 42px;
+        }
     </style>
     @stack('styles')
 </head>
@@ -297,17 +544,50 @@
         
         <ul class="nav flex-column">
             @php
-                $role = auth()->check() ? (auth()->user()->roles->first()->name ?? 'student') : 'student';
+                $user = auth()->check() ? auth()->user() : null;
+                $role = $user ? ($user->roles->first()->name ?? 'student') : 'student';
+                
+                // Fallback for librarian by email
+                if ($role === 'student' && $user && $user->email === 'librarian@schoolerp.com') {
+                    $role = 'librarian';
+                }
+                
+                // Map roles to dashboard routes
+                $dashboardRoutes = [
+                    'principal' => 'dashboard.principal',
+                    'admin' => 'dashboard.admin',
+                    'teacher' => 'teacher.dashboard',
+                    'class_teacher' => 'teacher.dashboard',
+                    'subject_teacher' => 'teacher.dashboard',
+                    'hod_commerce' => 'teacher.dashboard',
+                    'hod_science' => 'teacher.dashboard',
+                    'hod_management' => 'teacher.dashboard',
+                    'hod_arts' => 'teacher.dashboard',
+                    'student' => 'dashboard.student',
+                    'accounts_staff' => 'dashboard.accounts_staff',
+                    'office' => 'dashboard.office',
+                    'librarian' => 'dashboard.librarian',
+                ];
+                $dashboardRoute = $dashboardRoutes[$role] ?? 'dashboard.student';
             @endphp
-            
+
             <!-- Dashboard Section -->
             <div class="nav-section">
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('dashboard.*') ? 'active' : '' }}" href="{{ route('dashboard.' . $role) }}">
-                        <i class="bi bi-house-door"></i>
-                        <span>Dashboard</span>
-                    </a>
-                </li>
+                @if(in_array($role, ['teacher', 'class_teacher', 'subject_teacher', 'hod_commerce', 'hod_science', 'hod_management', 'hod_arts']))
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('teacher.dashboard') ? 'active' : '' }}" href="{{ route('teacher.dashboard') }}">
+                            <i class="bi bi-house-door"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                @else
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('dashboard.*') ? 'active' : '' }}" href="{{ route($dashboardRoute) }}">
+                            <i class="bi bi-house-door"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                @endif
             </div>
             
             @if($role === 'admin')
@@ -347,6 +627,10 @@
                     </a>
                     <div class="collapse {{ request()->routeIs('academic.*') || request()->routeIs('fees.*') ? 'show' : '' }}" id="academicConfig">
                         <div class="dropdown-menu show">
+                            <a class="dropdown-item {{ request()->routeIs('web.departments.*') ? 'active' : '' }}"
+                               href="{{ route('web.departments.index') }}">
+                                <i class="bi bi-building me-2"></i>Departments
+                            </a>
                             <a class="dropdown-item {{ request()->routeIs('academic.programs.*') ? 'active' : '' }}"
                                href="{{ route('academic.programs.index') }}">
                                 <i class="bi bi-mortarboard me-2"></i>Programs
@@ -363,6 +647,14 @@
                                href="{{ route('academic.sessions.index') }}">
                                 <i class="bi bi-calendar-range me-2"></i>Academic Sessions
                             </a>
+                            <a class="dropdown-item {{ request()->routeIs('academic.rules.*') ? 'active' : '' }}"
+                               href="{{ route('academic.rules.index') }}">
+                                <i class="bi bi-shield-check me-2"></i>Academic Rules
+                            </a>
+                            <a class="dropdown-item {{ request()->routeIs('academic.promotions.*') ? 'active' : '' }}"
+                               href="{{ route('academic.promotions.index') }}">
+                                <i class="bi bi-arrow-up-circle me-2"></i>Student Promotion
+                            </a>
                             <a class="dropdown-item {{ request()->routeIs('fees.structures.*') ? 'active' : '' }}"
                                href="{{ route('fees.structures.index') }}">
                                 <i class="bi bi-gear me-2"></i>Fee Structures
@@ -374,7 +666,7 @@
 
             <div class="nav-section">
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle {{ request()->routeIs('examinations.*') || request()->routeIs('library.*') ? 'active' : '' }}" 
+                    <a class="nav-link dropdown-toggle {{ request()->routeIs('examinations.*') || request()->routeIs('library.*') ? 'active' : '' }}"
                        href="#" data-bs-toggle="collapse" data-bs-target="#operations" aria-expanded="{{ request()->routeIs('examinations.*') || request()->routeIs('library.*') ? 'true' : 'false' }}">
                         <i class="bi bi-clipboard-data"></i>
                         <span>Operations</span>
@@ -385,6 +677,10 @@
                                href="{{ route('examinations.index') }}">
                                 <i class="bi bi-pencil-square me-2"></i>Examinations
                             </a>
+                            <a class="dropdown-item {{ request()->routeIs('principal.results') ? 'active' : '' }}"
+                               href="{{ route('principal.results') }}">
+                                <i class="bi bi-clipboard-data me-2"></i>Results
+                            </a>
                             <a class="dropdown-item {{ request()->routeIs('library.books.*') ? 'active' : '' }}"
                                href="{{ route('library.books.index') }}">
                                 <i class="bi bi-book me-2"></i>Library
@@ -393,9 +689,46 @@
                     </div>
                 </li>
             </div>
+
+            <!-- Timetable & Attendance Section -->
+            <div class="nav-section">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle {{ request()->routeIs('academic.timetable.*') || request()->routeIs('academic.attendance.*') || request()->routeIs('academic.holidays.*') ? 'active' : '' }}"
+                       href="#" data-bs-toggle="collapse" data-bs-target="#timetableAttendance" aria-expanded="{{ request()->routeIs('academic.timetable.*') || request()->routeIs('academic.attendance.*') || request()->routeIs('academic.holidays.*') ? 'true' : 'false' }}">
+                        <i class="bi bi-calendar-week"></i>
+                        <span>Timetable & Attendance</span>
+                    </a>
+                    <div class="collapse {{ request()->routeIs('academic.timetable.*') || request()->routeIs('academic.attendance.*') || request()->routeIs('academic.holidays.*') ? 'show' : '' }}" id="timetableAttendance">
+                        <div class="dropdown-menu show">
+                            <a class="dropdown-item {{ request()->routeIs('academic.timetable.*') ? 'active' : '' }}"
+                               href="{{ route('academic.timetable.grid') }}">
+                                <i class="bi bi-calendar-week me-2"></i>Timetable
+                            </a>
+                            <a class="dropdown-item {{ request()->routeIs('academic.attendance.*') ? 'active' : '' }}"
+                               href="{{ route('academic.attendance.index') }}">
+                                <i class="bi bi-clipboard-check me-2"></i>Attendance
+                            </a>
+                            <a class="dropdown-item {{ request()->routeIs('academic.holidays.*') ? 'active' : '' }}"
+                               href="{{ route('academic.holidays.index') }}">
+                                <i class="bi bi-calendar-event me-2"></i>Holidays
+                            </a>
+                        </div>
+                    </div>
+                </li>
+            </div>
             @endif
             
             @if(in_array($role, ['principal', 'office']))
+            <!-- Admissions Section for Principal -->
+            <div class="nav-section">
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('admissions.*') ? 'active' : '' }}" href="{{ route('admissions.index') }}">
+                        <i class="bi bi-person-plus"></i>
+                        <span>Admissions</span>
+                    </a>
+                </li>
+            </div>
+
             <!-- User Management Section -->
             <div class="nav-section">
                 <li class="nav-item dropdown">
@@ -422,13 +755,17 @@
             <!-- Academic Management Section -->
             <div class="nav-section">
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle {{ request()->routeIs('academic.*') ? 'active' : '' }}" 
+                    <a class="nav-link dropdown-toggle {{ request()->routeIs('academic.*') ? 'active' : '' }}"
                        href="#" data-bs-toggle="collapse" data-bs-target="#academicManagement" aria-expanded="{{ request()->routeIs('academic.*') ? 'true' : 'false' }}">
                         <i class="bi bi-book"></i>
                         <span>Academic Management</span>
                     </a>
                     <div class="collapse {{ request()->routeIs('academic.*') ? 'show' : '' }}" id="academicManagement">
                         <div class="dropdown-menu show">
+                            <a class="dropdown-item {{ request()->routeIs('web.departments.*') ? 'active' : '' }}"
+                               href="{{ route('web.departments.index') }}">
+                                <i class="bi bi-building me-2"></i>Departments
+                            </a>
                             <a class="dropdown-item {{ request()->routeIs('academic.programs.*') ? 'active' : '' }}"
                                href="{{ route('academic.programs.index') }}">
                                 <i class="bi bi-mortarboard me-2"></i>Programs
@@ -444,6 +781,41 @@
                             <a class="dropdown-item {{ request()->routeIs('academic.sessions.*') ? 'active' : '' }}"
                                href="{{ route('academic.sessions.index') }}">
                                 <i class="bi bi-calendar-range me-2"></i>Academic Sessions
+                            </a>
+                            <a class="dropdown-item {{ request()->routeIs('academic.rules.*') ? 'active' : '' }}"
+                               href="{{ route('academic.rules.index') }}">
+                                <i class="bi bi-shield-check me-2"></i>Academic Rules
+                            </a>
+                            <a class="dropdown-item {{ request()->routeIs('academic.promotions.*') ? 'active' : '' }}"
+                               href="{{ route('academic.promotions.index') }}">
+                                <i class="bi bi-arrow-up-circle me-2"></i>Student Promotion
+                            </a>
+                        </div>
+                    </div>
+                </li>
+            </div>
+
+            <!-- Timetable & Attendance Section -->
+            <div class="nav-section">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle {{ request()->routeIs('academic.timetable.*') || request()->routeIs('academic.attendance.*') || request()->routeIs('academic.holidays.*') ? 'active' : '' }}"
+                       href="#" data-bs-toggle="collapse" data-bs-target="#timetableAttendance" aria-expanded="{{ request()->routeIs('academic.timetable.*') || request()->routeIs('academic.attendance.*') || request()->routeIs('academic.holidays.*') ? 'true' : 'false' }}">
+                        <i class="bi bi-calendar-week"></i>
+                        <span>Timetable & Attendance</span>
+                    </a>
+                    <div class="collapse {{ request()->routeIs('academic.timetable.*') || request()->routeIs('academic.attendance.*') || request()->routeIs('academic.holidays.*') ? 'show' : '' }}" id="timetableAttendance">
+                        <div class="dropdown-menu show">
+                            <a class="dropdown-item {{ request()->routeIs('academic.timetable.*') ? 'active' : '' }}"
+                               href="{{ route('academic.timetable.index') }}">
+                                <i class="bi bi-calendar-week me-2"></i>Timetable
+                            </a>
+                            <a class="dropdown-item {{ request()->routeIs('academic.attendance.*') ? 'active' : '' }}"
+                               href="{{ route('academic.attendance.index') }}">
+                                <i class="bi bi-clipboard-check me-2"></i>Attendance
+                            </a>
+                            <a class="dropdown-item {{ request()->routeIs('academic.holidays.*') ? 'active' : '' }}"
+                               href="{{ route('academic.holidays.index') }}">
+                                <i class="bi bi-calendar-event me-2"></i>Holidays
                             </a>
                         </div>
                     </div>
@@ -485,35 +857,18 @@
                 </li>
             </div>
 
-            <!-- Attendance & Schedule Section -->
-            <div class="nav-section">
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle {{ request()->routeIs('academic.attendance*') || request()->routeIs('academic.timetable*') ? 'active' : '' }}" 
-                       href="#" data-bs-toggle="collapse" data-bs-target="#attendanceSchedule" aria-expanded="{{ request()->routeIs('academic.attendance*') || request()->routeIs('academic.timetable*') ? 'true' : 'false' }}">
-                        <i class="bi bi-calendar-check"></i>
-                        <span>Attendance & Schedule</span>
-                    </a>
-                    <div class="collapse {{ request()->routeIs('academic.attendance*') || request()->routeIs('academic.timetable*') ? 'show' : '' }}" id="attendanceSchedule">
-                        <div class="dropdown-menu show">
-                            <a class="dropdown-item {{ request()->routeIs('academic.attendance.*') ? 'active' : '' }}"
-                               href="{{ route('academic.attendance.index') }}">
-                                <i class="bi bi-check2-square me-2"></i>Attendance
-                            </a>
-                            <a class="dropdown-item {{ request()->routeIs('academic.timetable.*') ? 'active' : '' }}"
-                               href="{{ route('academic.timetable.index') }}">
-                                <i class="bi bi-table me-2"></i>Timetable
-                            </a>
-                        </div>
-                    </div>
-                </li>
-            </div>
-
             <!-- Examinations Section -->
             <div class="nav-section">
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('examinations.*') ? 'active' : '' }}" href="{{ route('examinations.index') }}">
                         <i class="bi bi-clipboard-check"></i>
                         <span>Examinations</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('principal.results') ? 'active' : '' }}" href="{{ route('principal.results') }}">
+                        <i class="bi bi-clipboard-data"></i>
+                        <span>Results</span>
                     </a>
                 </li>
             </div>
@@ -550,23 +905,53 @@
                     </a>
                 </li>
             </div>
+
+            <!-- Reports Section for Principal -->
+            <div class="nav-section">
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('reports.index') ? 'active' : '' }}" href="{{ route('reports.index') }}">
+                        <i class="bi bi-graph-up"></i>
+                        <span>Reports</span>
+                    </a>
+                </li>
+            </div>
             @endif
             
             @if($role === 'student')
             <!-- Student Section -->
             <div class="nav-section">
                 <li class="nav-item">
-                    <a class="nav-link" href="#">
-                        <i class="bi bi-calendar-check"></i>
-                        <span>My Attendance</span>
-                    </a>
-                </li>
-                
-                <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('student.fees.*') ? 'active' : '' }}" href="{{ route('student.fees.index') }}">
                         <i class="bi bi-credit-card"></i>
                         <span>My Fees</span>
                     </a>
+                </li>
+            </div>
+
+            <!-- Timetable & Attendance Section -->
+            <div class="nav-section">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle {{ request()->routeIs('academic.timetable.*') || request()->routeIs('academic.attendance.*') || request()->routeIs('academic.holidays.*') ? 'active' : '' }}"
+                       href="#" data-bs-toggle="collapse" data-bs-target="#timetableAttendance" aria-expanded="{{ request()->routeIs('academic.timetable.*') || request()->routeIs('academic.attendance.*') || request()->routeIs('academic.holidays.*') ? 'true' : 'false' }}">
+                        <i class="bi bi-calendar-week"></i>
+                        <span>Timetable & Attendance</span>
+                    </a>
+                    <div class="collapse {{ request()->routeIs('academic.timetable.*') || request()->routeIs('academic.attendance.*') || request()->routeIs('academic.holidays.*') ? 'show' : '' }}" id="timetableAttendance">
+                        <div class="dropdown-menu show">
+                            <a class="dropdown-item {{ request()->routeIs('academic.timetable.*') ? 'active' : '' }}"
+                               href="{{ route('academic.timetable.index') }}">
+                                <i class="bi bi-calendar-week me-2"></i>My Timetable
+                            </a>
+                            <a class="dropdown-item {{ request()->routeIs('academic.attendance.*') ? 'active' : '' }}"
+                               href="{{ route('academic.attendance.index') }}">
+                                <i class="bi bi-clipboard-check me-2"></i>My Attendance
+                            </a>
+                            <a class="dropdown-item {{ request()->routeIs('academic.holidays.*') ? 'active' : '' }}"
+                               href="{{ route('academic.holidays.index') }}">
+                                <i class="bi bi-calendar-event me-2"></i>Holidays
+                            </a>
+                        </div>
+                    </div>
                 </li>
             </div>
             @endif
@@ -575,23 +960,87 @@
             <!-- Teacher Section -->
             <div class="nav-section">
                 <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('teacher.students') ? 'active' : '' }}" href="{{ route('teacher.students') }}">
+                    <a class="nav-link {{ request()->routeIs('teacher.profile*') ? 'active' : '' }}" href="{{ route('teacher.profile') }}">
+                        <i class="bi bi-person-circle"></i>
+                        <span>My Profile</span>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('teacher.divisions*') ? 'active' : '' }}" href="{{ route('teacher.divisions.index') }}">
                         <i class="bi bi-people"></i>
-                        <span>My Students</span>
+                        <span>My Divisions</span>
                     </a>
                 </li>
-                
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('teacher.attendance') ? 'active' : '' }}" href="{{ route('teacher.attendance') }}">
-                        <i class="bi bi-calendar-check"></i>
-                        <span>Attendance Report</span>
+            </div>
+
+            <!-- Timetable & Attendance Section -->
+            <div class="nav-section">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle {{ request()->routeIs('academic.timetable.*') || request()->routeIs('academic.attendance.*') || request()->routeIs('academic.holidays.*') ? 'active' : '' }}"
+                       href="#" data-bs-toggle="collapse" data-bs-target="#timetableAttendance" aria-expanded="{{ request()->routeIs('academic.timetable.*') || request()->routeIs('academic.attendance.*') || request()->routeIs('academic.holidays.*') ? 'true' : 'false' }}">
+                        <i class="bi bi-calendar-week"></i>
+                        <span>Timetable & Attendance</span>
                     </a>
+                    <div class="collapse {{ request()->routeIs('academic.timetable.*') || request()->routeIs('academic.attendance.*') || request()->routeIs('academic.holidays.*') ? 'show' : '' }}" id="timetableAttendance">
+                        <div class="dropdown-menu show">
+                            <a class="dropdown-item {{ request()->routeIs('academic.timetable.*') ? 'active' : '' }}"
+                               href="{{ route('academic.timetable.teacher') }}">
+                                <i class="bi bi-calendar-week me-2"></i>My Timetable
+                            </a>
+                            <a class="dropdown-item {{ request()->routeIs('academic.attendance.*') ? 'active' : '' }}"
+                               href="{{ route('academic.attendance.create') }}">
+                                <i class="bi bi-clipboard-check me-2"></i>Mark Attendance
+                            </a>
+                            <a class="dropdown-item {{ request()->routeIs('academic.holidays.*') ? 'active' : '' }}"
+                               href="{{ route('academic.holidays.index') }}">
+                                <i class="bi bi-calendar-event me-2"></i>Holidays
+                            </a>
+                        </div>
+                    </div>
                 </li>
-                
+            </div>
+            @endif
+            
+            @if($role === 'librarian')
+            <!-- Librarian Section -->
+            <!-- Library Management Section -->
+            <div class="nav-section">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle {{ request()->routeIs('library.*') ? 'active' : '' }}" 
+                       href="#" data-bs-toggle="collapse" data-bs-target="#libraryManagement" aria-expanded="{{ request()->routeIs('library.*') ? 'true' : 'false' }}">
+                        <i class="bi bi-book"></i>
+                        <span>Library</span>
+                    </a>
+                    <div class="collapse {{ request()->routeIs('library.*') ? 'show' : '' }}" id="libraryManagement">
+                        <div class="dropdown-menu show">
+                            <a class="dropdown-item {{ request()->routeIs('library.books.index') ? 'active' : '' }}"
+                               href="{{ route('library.books.index') }}">
+                                <i class="bi bi-journal-bookmark me-2"></i>Books
+                            </a>
+                            <a class="dropdown-item {{ request()->routeIs('library.issues.create') ? 'active' : '' }}"
+                               href="{{ route('library.issues.create') }}">
+                                <i class="bi bi-plus-circle me-2"></i>Issue Book
+                            </a>
+                            <a class="dropdown-item {{ request()->routeIs('library.issues.index') ? 'active' : '' }}"
+                               href="{{ route('library.issues.index') }}">
+                                <i class="bi bi-arrow-return-left me-2"></i>Return Books
+                            </a>
+                            <a class="dropdown-item {{ request()->routeIs('library.students') ? 'active' : '' }}"
+                               href="{{ route('library.students') }}">
+                                <i class="bi bi-people me-2"></i>Students
+                            </a>
+                        </div>
+                    </div>
+                </li>
+            </div>
+
+            <!-- View Only Section -->
+            <div class="nav-section">
                 <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('academic.timetable.*') ? 'active' : '' }}" href="{{ route('academic.timetable.index') }}">
-                        <i class="bi bi-table"></i>
-                        <span>Timetable</span>
+                    <a class="nav-link {{ request()->routeIs('academic.holidays.*') ? 'active' : '' }}" href="{{ route('academic.holidays.index') }}">
+                        <i class="bi bi-calendar-event"></i>
+                        <span>Holidays</span>
                     </a>
                 </li>
             </div>
@@ -657,10 +1106,21 @@
         <div class="content-area">
             <!-- Flash Messages -->
             @if(session('success'))
-                <div class="alert alert-success alert-dismissible fade show mx-4 mt-3" role="alert">
+                <div class="alert alert-success alert-dismissible fade show mx-4 mt-3" role="alert" id="success-message">
                     <i class="bi bi-check-circle me-2"></i>{{ session('success') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
+                <script>
+                    // Auto-hide success message after 3 seconds
+                    setTimeout(function() {
+                        var alert = document.getElementById('success-message');
+                        if (alert) {
+                            var bsAlert = new bootstrap.Alert(alert);
+                            bsAlert.close();
+                        }
+                    }, 3000);
+                </script>
+                {{ session()->forget('success') }}
             @endif
             
             @if(session('error'))
@@ -686,7 +1146,7 @@
     </main>
     
     <!-- Bootstrap 5 JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
         function toggleSidebar() {

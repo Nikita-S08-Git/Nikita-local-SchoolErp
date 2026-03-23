@@ -19,7 +19,7 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label">Select Student <span class="text-danger">*</span></label>
-                                    <select id="studentSelect" class="form-select @error('student_id') is-invalid @enderror" required>
+                                    <select name="student_id" id="studentSelect" class="form-select @error('student_id') is-invalid @enderror" required>
                                         <option value="">Choose Student</option>
                                         @foreach($students as $student)
                                             <option value="{{ $student->id }}">
@@ -76,9 +76,13 @@
                                         <select name="payment_mode" class="form-select @error('payment_mode') is-invalid @enderror" required>
                                             <option value="">Select Mode</option>
                                             <option value="cash" {{ old('payment_mode') == 'cash' ? 'selected' : '' }}>Cash</option>
-                                            <option value="online" {{ old('payment_mode') == 'online' ? 'selected' : '' }}>Online</option>
+                                            <option value="online" {{ old('payment_mode') == 'online' ? 'selected' : '' }}>Online Payment</option>
+                                            <option value="upi" {{ old('payment_mode') == 'upi' ? 'selected' : '' }}>UPI</option>
+                                            <option value="card" {{ old('payment_mode') == 'card' ? 'selected' : '' }}>Card</option>
+                                            <option value="net_banking" {{ old('payment_mode') == 'net_banking' ? 'selected' : '' }}>Net Banking</option>
                                             <option value="cheque" {{ old('payment_mode') == 'cheque' ? 'selected' : '' }}>Cheque</option>
                                             <option value="dd" {{ old('payment_mode') == 'dd' ? 'selected' : '' }}>Demand Draft</option>
+                                            <option value="bank_transfer" {{ old('payment_mode') == 'bank_transfer' ? 'selected' : '' }}>Bank Transfer</option>
                                         </select>
                                         @error('payment_mode')
                                             <div class="invalid-feedback">{{ $message }}</div>
@@ -171,9 +175,10 @@ document.getElementById('studentSelect').addEventListener('change', function() {
                             <span>${fee.fee_head_name}:</span>
                             <strong class="text-danger">₹${fee.outstanding_amount}</strong>
                         </div>
+                        ${fee.installments > 1 ? `<small class="text-muted">${fee.installments} installments (₹${(fee.final_amount / fee.installments).toFixed(2)} each)</small>` : ''}
                     </div>
                 `;
-                options += `<option value="${fee.id}" data-outstanding="${fee.outstanding_amount}">${fee.fee_head_name} - ₹${fee.outstanding_amount}</option>`;
+                options += `<option value="${fee.id}" data-outstanding="${fee.outstanding_amount}" data-installments="${fee.installments || 1}" data-final-amount="${fee.final_amount}">${fee.fee_head_name} - ₹${fee.outstanding_amount}</option>`;
             });
             
             html += '</div>';
@@ -190,13 +195,24 @@ document.getElementById('studentSelect').addEventListener('change', function() {
 document.getElementById('studentFeeSelect').addEventListener('change', function() {
     const selectedOption = this.options[this.selectedIndex];
     const outstanding = selectedOption.getAttribute('data-outstanding');
+    const installments = parseInt(selectedOption.getAttribute('data-installments') || '1');
+    const finalAmount = parseFloat(selectedOption.getAttribute('data-final-amount') || '0');
     const maxAmountSpan = document.getElementById('maxAmount');
     const paymentAmountInput = document.getElementById('paymentAmount');
     
     if (outstanding) {
-        maxAmountSpan.textContent = `₹${outstanding}`;
-        paymentAmountInput.max = outstanding;
-        paymentAmountInput.value = outstanding; // Auto-fill with full amount
+        // Calculate single installment amount if there are multiple installments
+        let maxAllowed = parseFloat(outstanding);
+        if (installments > 1) {
+            const singleInstallmentAmount = finalAmount / installments;
+            maxAllowed = singleInstallmentAmount;
+            maxAmountSpan.innerHTML = `₹${outstanding} <small class="text-warning">(Max 1 installment: ₹${singleInstallmentAmount.toFixed(2)})</small>`;
+        } else {
+            maxAmountSpan.innerHTML = `₹${outstanding} <small class="text-success">(Full payment required - No partial payments allowed)</small>`;
+        }
+        
+        paymentAmountInput.max = maxAllowed;
+        paymentAmountInput.value = maxAllowed; // Auto-fill with max allowed
     } else {
         maxAmountSpan.textContent = '₹0.00';
         paymentAmountInput.max = '';
