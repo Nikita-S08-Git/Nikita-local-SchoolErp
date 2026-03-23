@@ -185,7 +185,7 @@ class DashboardController extends Controller
 
         // Recent attendance records
         $recentAttendance = $student->attendances()
-            ->with(['subject'])
+            ->with(['timetable.subject'])
             ->latest('date')
             ->take(10)
             ->get();

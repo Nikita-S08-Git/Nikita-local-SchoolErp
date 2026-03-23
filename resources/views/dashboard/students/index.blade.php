@@ -186,6 +186,7 @@
                                     </a>
                                 </th>
                                 <th>Contact</th>
+                                <th>Password</th>
                                 <th>
                                     <a href="?sort=student_status&dir={{ $sortDir === 'asc' ? 'desc' : 'asc' }}" class="text-decoration-none text-dark">
                                         Status
@@ -250,6 +251,25 @@
                                     </div>
                                 </td>
                                 <td>
+                                    @if($student->user && $student->user->temp_password)
+                                        <div class="input-group input-group-sm" style="max-width: 200px;">
+                                            <input type="password" class="form-control font-monospace" value="{{ $student->user->temp_password }}" 
+                                                   id="student-password-{{ $student->id }}" readonly style="background-color: #f8f9fa; letter-spacing: 2px;">
+                                            <button class="btn btn-outline-success" type="button" 
+                                                    onclick="toggleStudentPassword('student-password-{{ $student->id }}')" title="Show/Hide">
+                                                <i class="bi bi-eye" id="student-eye-{{ $student->id }}"></i>
+                                            </button>
+                                            <button class="btn btn-outline-primary" type="button" 
+                                                    onclick="copyStudentPassword('student-password-{{ $student->id }}')" title="Copy">
+                                                <i class="bi bi-clipboard"></i>
+                                            </button>
+                                        </div>
+                                        <small class="text-muted">Generated: {{ $student->user->password_generated_at ? \Carbon\Carbon::parse($student->user->password_generated_at)->diffForHumans() : 'N/A' }}</small>
+                                    @else
+                                        <span class="badge bg-warning">No Password Set</span>
+                                    @endif
+                                </td>
+                                <td>
                                     <span class="badge bg-{{ $student->student_status === 'active' ? 'success' : ($student->student_status === 'graduated' ? 'info' : 'secondary') }}">
                                         {{ ucfirst($student->student_status) }}
                                     </span>
@@ -278,7 +298,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="text-center py-5">
+                                <td colspan="8" class="text-center py-5">
                                     <div class="text-muted">
                                         <i class="bi bi-people fs-1 mb-3 d-block"></i>
                                         <h5>No students found</h5>
@@ -300,11 +320,11 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <small class="text-muted">
-                                Showing {{ $students->firstItem() }} to {{ $students->lastItem() }} of {{ $students->total() }} results
+                                Showing {{ $students->firstItem() ?? 0 }} to {{ $students->lastItem() ?? 0 }} of {{ $students->total() }} results
                             </small>
                         </div>
                         <div>
-                            {{ $students->appends(request()->query())->links() }}
+                            {{ $students->appends(request()->query())->links('pagination::bootstrap-5') }}
                         </div>
                     </div>
                 </div>
@@ -356,6 +376,44 @@ function confirmBulkAction() {
     if (confirm(confirmMessage)) {
         document.getElementById('bulkActionForm').submit();
     }
+}
+
+function toggleStudentPassword(inputId) {
+    const input = document.getElementById(inputId);
+    const eyeIcon = document.getElementById('student-eye-' + inputId.replace('student-password-', ''));
+    
+    if (input.type === 'password') {
+        input.type = 'text';
+        if (eyeIcon) {
+            eyeIcon.classList.remove('bi-eye');
+            eyeIcon.classList.add('bi-eye-slash');
+        }
+    } else {
+        input.type = 'password';
+        if (eyeIcon) {
+            eyeIcon.classList.remove('bi-eye-slash');
+            eyeIcon.classList.add('bi-eye');
+        }
+    }
+}
+
+function copyStudentPassword(inputId) {
+    const input = document.getElementById(inputId);
+    input.select();
+    input.setSelectionRange(0, 99999);
+    navigator.clipboard.writeText(input.value).then(function() {
+        const toast = document.createElement('div');
+        toast.className = 'alert alert-success position-fixed bottom-0 end-0 m-3';
+        toast.textContent = 'Password copied to clipboard!';
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }, function(err) {
+        const toast = document.createElement('div');
+        toast.className = 'alert alert-danger position-fixed bottom-0 end-0 m-3';
+        toast.textContent = 'Failed to copy password';
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    });
 }
 </script>
 @endsection

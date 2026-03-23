@@ -1,6 +1,7 @@
 @php
     $adminMenuItems = [
         ['name' => 'Dashboard', 'route' => 'dashboard.admin', 'icon' => 'speedometer2'],
+        ['name' => 'User Credentials', 'route' => 'admin.credentials', 'icon' => 'key'],
         ['name' => 'Users', 'route' => 'admin.users', 'icon' => 'people'],
         ['name' => 'Admissions', 'route' => 'admissions.index', 'icon' => 'person-plus-fill'],
         

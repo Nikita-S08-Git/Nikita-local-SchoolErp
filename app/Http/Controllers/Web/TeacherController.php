@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Academic\Department;
 use App\Models\Academic\Division;
+use App\Helpers\PasswordHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
@@ -42,10 +43,18 @@ class TeacherController extends Controller
 
     public function store(Request $request)
     {
+        // If password is not provided, generate one
+        if ($request->filled('password')) {
+            $password = $request->input('password');
+            $generatedPassword = $password;
+        } else {
+            $generatedPassword = PasswordHelper::generate(10);
+        }
+        
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8|confirmed',
+            'password' => 'nullable|string|min:8|confirmed',
             'department_id' => 'nullable|exists:departments,id',
             'phone' => 'nullable|string|max:15',
             'photo' => 'nullable|image|max:2048',
@@ -54,7 +63,9 @@ class TeacherController extends Controller
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
+            'password' => Hash::make($generatedPassword),
+            'temp_password' => $generatedPassword,
+            'password_generated_at' => now(),
         ]);
 
         $user->assignRole('teacher');
@@ -65,7 +76,7 @@ class TeacherController extends Controller
         }
 
         return redirect()->route('dashboard.teachers.index')
-            ->with('success', 'Teacher created successfully!');
+            ->with('success', 'Teacher created successfully! Password: ' . $generatedPassword);
     }
 
     public function show(User $teacher)

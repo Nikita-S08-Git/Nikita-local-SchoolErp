@@ -111,6 +111,89 @@
         </div>
     </div>
 
+    <!-- User Credentials Section (Admin Only) -->
+    @if(auth()->user()->hasRole('admin') && isset($recentUsersWithPasswords) && $recentUsersWithPasswords->count() > 0)
+    <div class="row g-4 mb-4">
+        <div class="col-12">
+            <div class="principal-card">
+                <div class="card-header-principal d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="bi bi-key me-2"></i>Recently Generated Passwords
+                    </h5>
+                    <a href="{{ route('admin.credentials.index') }}" class="btn btn-sm btn-primary">
+                        <i class="bi bi-table me-1"></i>View All
+                    </a>
+                </div>
+                <div class="card-body-principal p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="ps-4">#</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Password</th>
+                                    <th>Generated</th>
+                                    <th class="text-end pe-4">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($recentUsersWithPasswords as $index => $user)
+                                <tr>
+                                    <td class="ps-4">{{ $index + 1 }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-primary rounded-circle me-2 d-flex align-items-center justify-content-center text-white fw-bold"
+                                                 style="width: 32px; height: 32px; min-width: 32px;">
+                                                {{ strtoupper(substr($user->name, 0, 1)) }}
+                                            </div>
+                                            <div>
+                                                <div class="fw-semibold">{{ $user->name }}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><span class="text-muted">{{ $user->email }}</span></td>
+                                    <td>
+                                        @if($user->roles->count() > 0)
+                                            <span class="badge bg-primary">{{ $user->roles->first()->name }}</span>
+                                        @else
+                                            <span class="badge bg-secondary">User</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <div class="input-group input-group-sm" style="max-width: 200px;">
+                                            <input type="password" class="form-control font-monospace" value="{{ $user->temp_password ?? 'Not Set' }}" 
+                                                   id="dashboard-password-{{ $user->id }}" readonly style="background-color: #f8f9fa; letter-spacing: 2px;">
+                                            <button class="btn btn-outline-success" type="button" 
+                                                    onclick="toggleDashboardPassword('dashboard-password-{{ $user->id }}')" title="Show/Hide">
+                                                <i class="bi bi-eye" id="dashboard-eye-{{ $user->id }}"></i>
+                                            </button>
+                                            <button class="btn btn-outline-primary" type="button" 
+                                                    onclick="copyDashboardPassword('dashboard-password-{{ $user->id }}')" title="Copy">
+                                                <i class="bi bi-clipboard"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">{{ $user->password_generated_at ? $user->password_generated_at->diffForHumans() : 'N/A' }}</small>
+                                    </td>
+                                    <td class="text-end pe-4">
+                                        <button class="btn btn-sm btn-info text-white" onclick="viewDashboardPasswordModal('{{ $user->name }}', '{{ $user->email }}', '{{ $user->temp_password ?? 'Not Set' }}', '{{ $user->roles->first()->name ?? 'User' }}')">
+                                            <i class="bi bi-eye"></i> View
+                                        </button>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
     <!-- Main Content Area -->
     <div class="row g-4">
         <!-- Left Column -->
@@ -1130,5 +1213,141 @@ document.addEventListener('DOMContentLoaded', function() {
         requestAnimationFrame(update);
     }
 });
+
+// Dashboard Password Functions
+function toggleDashboardPassword(inputId) {
+    const input = document.getElementById(inputId);
+    const eyeIcon = document.getElementById('dashboard-' + inputId.replace('dashboard-password-', 'eye-'));
+    
+    if (input.type === 'password') {
+        input.type = 'text';
+        if (eyeIcon) {
+            eyeIcon.classList.remove('bi-eye');
+            eyeIcon.classList.add('bi-eye-slash');
+        }
+    } else {
+        input.type = 'password';
+        if (eyeIcon) {
+            eyeIcon.classList.remove('bi-eye-slash');
+            eyeIcon.classList.add('bi-eye');
+        }
+    }
+}
+
+function copyDashboardPassword(inputId) {
+    const input = document.getElementById(inputId);
+    input.select();
+    input.setSelectionRange(0, 99999);
+    navigator.clipboard.writeText(input.value).then(function() {
+        showToast('Password copied to clipboard!', 'success');
+    }, function(err) {
+        showToast('Failed to copy password', 'danger');
+    });
+}
+
+function viewDashboardPasswordModal(name, email, password, role) {
+    const modal = new bootstrap.Modal(document.getElementById('dashboardPasswordModal'));
+    document.getElementById('dashModalUserName').textContent = name;
+    document.getElementById('dashModalUserEmail').textContent = email;
+    document.getElementById('dashModalUserRole').textContent = role;
+    document.getElementById('dashModalUserPassword').value = password;
+    modal.show();
+}
+
+function showToast(message, type = 'info') {
+    const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type} alert-dismissible fade show mb-2`;
+    toast.innerHTML = `${message}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
+    toastContainer.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+}
+
+function createToastContainer() {
+    const container = document.createElement('div');
+    container.id = 'toastContainer';
+    container.className = 'position-fixed bottom-0 end-0 p-3';
+    container.style.zIndex = '9999';
+    document.body.appendChild(container);
+    return container;
+}
 </script>
 @endsection
+
+<!-- Dashboard Password View Modal -->
+<div class="modal fade" id="dashboardPasswordModal" tabindex="-1" aria-labelledby="dashboardPasswordModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="dashboardPasswordModalLabel">
+                    <i class="bi bi-key me-2"></i>User Credentials
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="text-muted small">User Name</label>
+                    <div class="fw-semibold" id="dashModalUserName"></div>
+                </div>
+                <div class="mb-3">
+                    <label class="text-muted small">Email</label>
+                    <div class="fw-semibold" id="dashModalUserEmail"></div>
+                </div>
+                <div class="mb-3">
+                    <label class="text-muted small">Role</label>
+                    <div class="fw-semibold" id="dashModalUserRole"></div>
+                </div>
+                <div class="mb-3">
+                    <label class="text-muted small">Password</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control font-monospace" id="dashModalUserPassword" readonly 
+                               style="background-color: #f8f9fa; letter-spacing: 2px; font-size: 1.1rem;">
+                        <button class="btn btn-outline-success" type="button" onclick="toggleDashModalPassword()" title="Show/Hide">
+                            <i class="bi bi-eye" id="dashModalEyeIcon"></i>
+                        </button>
+                        <button class="btn btn-outline-primary" type="button" onclick="copyDashModalPassword()" title="Copy">
+                            <i class="bi bi-clipboard"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="alert alert-info mb-0">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <small>Keep this password secure. Share it only with the user.</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@push('scripts')
+<script>
+function toggleDashModalPassword() {
+    const input = document.getElementById('dashModalUserPassword');
+    const eyeIcon = document.getElementById('dashModalEyeIcon');
+    
+    if (input.type === 'password') {
+        input.type = 'text';
+        eyeIcon.classList.remove('bi-eye');
+        eyeIcon.classList.add('bi-eye-slash');
+    } else {
+        input.type = 'password';
+        eyeIcon.classList.remove('bi-eye-slash');
+        eyeIcon.classList.add('bi-eye');
+    }
+}
+
+function copyDashModalPassword() {
+    const input = document.getElementById('dashModalUserPassword');
+    input.select();
+    input.setSelectionRange(0, 99999);
+    navigator.clipboard.writeText(input.value).then(function() {
+        showToast('Password copied to clipboard!', 'success');
+    }, function(err) {
+        showToast('Failed to copy password', 'danger');
+    });
+}
+</script>
+@endpush

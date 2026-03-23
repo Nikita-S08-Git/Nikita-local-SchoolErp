@@ -542,14 +542,6 @@
                     </a>
                 </li>
 
-                <!-- Add Class -->
-                <li>
-                    <a href="{{ route('academic.timetable.create') }}" class="{{ request()->routeIs('academic.timetable.create') ? 'active' : '' }}">
-                        <i class="bi bi-plus-circle"></i>
-                        <span>Add Class</span>
-                    </a>
-                </li>
-
                 <div class="sidebar-heading">Assessment</div>
 
                 <!-- Attendance -->
@@ -663,21 +655,39 @@
 
             <!-- Flash Messages -->
             @if(session('success'))
-                <div class="alert alert-success alert-dismissible fade show mx-4 mt-3" role="alert" id="teacher-success-message">
-                    <i class="bi bi-check-circle me-2"></i>{{ session('success') }}
+                <div class="alert alert-success alert-dismissible fade show mx-4 mt-3 shadow-sm" role="alert" id="teacher-success-message" style="border-left: 4px solid #198754;">
+                    <strong><i class="bi bi-check-circle-fill me-2"></i>Success!</strong>
+                    <span class="ms-2">{{ session('success') }}</span>
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
                 <script>
-                    // Auto-hide success message after 3 seconds and clear session
+                    // Auto-hide success message after 5 seconds
                     setTimeout(function() {
                         var alert = document.getElementById('teacher-success-message');
                         if (alert) {
                             var bsAlert = new bootstrap.Alert(alert);
                             bsAlert.close();
                         }
-                    }, 3000);
+                    }, 5000);
                 </script>
-                {{ session()->forget('success') }}
+            @endif
+            
+            @if(session('error'))
+                <div class="alert alert-danger alert-dismissible fade show mx-4 mt-3 shadow-sm" role="alert" id="teacher-error-message" style="border-left: 4px solid #dc3545;">
+                    <strong><i class="bi bi-exclamation-triangle-fill me-2"></i>Error!</strong>
+                    <span class="ms-2">{{ session('error') }}</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                <script>
+                    // Auto-hide error message after 7 seconds
+                    setTimeout(function() {
+                        var alert = document.getElementById('teacher-error-message');
+                        if (alert) {
+                            var bsAlert = new bootstrap.Alert(alert);
+                            bsAlert.close();
+                        }
+                    }, 7000);
+                </script>
             @endif
 
             <!-- Main Content Area -->

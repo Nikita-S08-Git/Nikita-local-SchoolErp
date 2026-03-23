@@ -3,13 +3,17 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Models\User\Student;
 use App\Models\Academic\Program;
 use App\Models\Academic\Division;
 use App\Models\Academic\AcademicSession;
+use App\Helpers\PasswordHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Spatie\Permission\Models\Role;
 
 class StudentController extends Controller
 {
@@ -18,7 +22,7 @@ class StudentController extends Controller
         $perPage = $request->input('per_page', 20);
         $perPage = in_array($perPage, [10, 15, 20, 25, 50]) ? (int) $perPage : 20;
 
-        $query = Student::with(['program', 'division', 'academicSession']);
+        $query = Student::with(['program', 'division', 'academicSession', 'user']);
 
         if ($request->filled('program_id')) {
             $query->where('program_id', $request->program_id);
@@ -106,6 +110,10 @@ class StudentController extends Controller
         $validated['university_seat_number'] = null;
         $validated['user_id']               = auth()->id();
 
+        // Generate password for student
+        $generatedPassword = PasswordHelper::generate(10);
+        $hashedPassword = Hash::make($generatedPassword);
+
         if ($request->hasFile('photo')) {
             $validated['photo_path'] = $request->file('photo')->store('uploads/students/photos', 'public');
         }
@@ -130,9 +138,21 @@ class StudentController extends Controller
 
         $student = Student::create($validated);
 
+        // Create user account for student with generated password
+        $studentEmail = $request->input('email') ?? strtolower($validated['first_name'] . '.' . $validated['last_name'] . $student->id . '@student.schoolerp.com');
+        
+        User::create([
+            'name' => $validated['first_name'] . ' ' . $validated['last_name'],
+            'email' => $studentEmail,
+            'password' => $hashedPassword,
+            'temp_password' => $generatedPassword,
+            'password_generated_at' => now(),
+            'email_verified_at' => now(),
+        ])->assignRole('student');
+
         return redirect()
             ->route('dashboard.students.show', $student)
-            ->with('success', 'Student created successfully with Admission No: ' . $validated['admission_number']);
+            ->with('success', 'Student created successfully with Admission No: ' . $validated['admission_number'] . '. Login credentials sent to admin.');
     }
 
     public function edit(Student $student)
