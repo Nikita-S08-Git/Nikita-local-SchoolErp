@@ -9,7 +9,7 @@
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h2><i class="bi bi-calendar-event me-2"></i>Holiday Management</h2>
+                    <h2><i class="fas fa-calendar-check me-2"></i>Holiday Management</h2>
                     <p class="text-muted mb-0">Manage school holidays and events</p>
                 </div>
                 <div class="d-flex gap-2">

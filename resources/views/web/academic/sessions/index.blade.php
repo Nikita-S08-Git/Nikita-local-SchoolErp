@@ -108,7 +108,7 @@
                     <div class="input-group">
                         <input type="text" name="search" class="form-control" placeholder="Session name..." value="{{ request('search') }}">
                         <button class="btn btn-outline-secondary" type="submit">
-                            <i class="bi bi-search"></i>
+                            <i class="fas fa-search"></i>
                         </button>
                         @if(request()->hasAny(['search', 'status']))
                             <a href="{{ route('academic.sessions.index') }}" class="btn btn-outline-danger">

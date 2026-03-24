@@ -3,7 +3,7 @@
 @section('title', 'Timetable - Grid View')
 
 @section('content')
-<div class="container-fluid px-4">
+<div class="container-fluid">
     <!-- Flash Messages -->
     @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -22,40 +22,34 @@
     <!-- Page Header -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card shadow-sm border-0 bg-gradient-primary">
-                <div class="card-body py-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h4 class="mb-0 text-white">
-                                <i class="bi bi-grid me-2"></i>Timetable - Grid View
-                            </h4>
-                            <p class="text-white-50 mb-0 small">View and manage all timetable entries</p>
-                        </div>
-                        <div class="btn-group" role="group">
-                            <a href="{{ route('academic.timetable.table') }}" class="btn btn-sm btn-light">
-                                <i class="bi bi-list"></i> Table View
-                            </a>
-                            @role('admin|principal')
-                            <a href="{{ route('academic.timetable.create') }}" class="btn btn-sm btn-light">
-                                <i class="bi bi-plus-circle"></i> Add Class
-                            </a>
-                            @endrole
-                        </div>
-                    </div>
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h3 class="mb-1"><i class="fas fa-th me-2 text-primary"></i> Timetable - Grid View</h3>
+                    <p class="text-muted mb-0">View and manage all timetable entries</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{{ route('academic.timetable.table') }}" class="btn btn-outline-primary">
+                        <i class="bi bi-list"></i> Table View
+                    </a>
+                    @role('admin|principal')
+                    <a href="{{ route('academic.timetable.create') }}" class="btn btn-success">
+                        <i class="bi bi-plus-circle"></i> Add Class
+                    </a>
+                    @endrole
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Filters -->
-    <div class="card shadow-sm border-0 mb-4">
-        <div class="card-body p-3">
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
             <form method="GET" action="{{ route('academic.timetable.grid') }}" class="row g-3">
                 <div class="col-md-2">
                     <label class="form-label small text-muted mb-1">
-                        <i class="bi bi-building"></i> Division
+                        <i class="fas fa-building"></i> Division
                     </label>
-                    <select name="division_id" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <select name="division_id" class="form-select" onchange="this.form.submit()">
                         <option value="">All Divisions</option>
                         @foreach($divisions as $division)
                             <option value="{{ $division->id }}" {{ request('division_id') == $division->id ? 'selected' : '' }}>
@@ -66,9 +60,9 @@
                 </div>
                 <div class="col-md-2">
                     <label class="form-label small text-muted mb-1">
-                        <i class="bi bi-person"></i> Teacher
+                        <i class="fas fa-person"></i> Teacher
                     </label>
-                    <select name="teacher_id" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <select name="teacher_id" class="form-select" onchange="this.form.submit()">
                         <option value="">All Teachers</option>
                         @foreach($teachers as $teacher)
                             <option value="{{ $teacher->id }}" {{ request('teacher_id') == $teacher->id ? 'selected' : '' }}>
@@ -79,7 +73,7 @@
                 </div>
                 <div class="col-md-2">
                     <label class="form-label small text-muted mb-1">
-                        <i class="bi bi-calendar-event"></i> Day
+                        <i class="fas fa-calendar-check"></i> Day
                     </label>
                     <select name="day_of_week" class="form-select form-select-sm" onchange="this.form.submit()">
                         <option value="">All Days</option>
@@ -92,7 +86,7 @@
                 </div>
                 <div class="col-md-2">
                     <label class="form-label small text-muted mb-1">
-                        <i class="bi bi-toggle-on"></i> Status
+                        <i class="fas fa-toggle-on"></i> Status
                     </label>
                     <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
                         <option value="active" {{ request('status', 'active') == 'active' ? 'selected' : '' }}>Active</option>
@@ -103,21 +97,21 @@
                 </div>
                 <div class="col-md-2">
                     <label class="form-label small text-muted mb-1">
-                        <i class="bi bi-calendar"></i> Date
+                        <i class="fas fa-calendar"></i> Date
                     </label>
                     <input type="date" name="date" id="date_filter" class="form-control form-select-sm"
                            value="{{ request('date') }}" onchange="this.form.submit()">
                 </div>
                 <div class="col-md-2">
                     <label class="form-label small text-muted mb-1">
-                        <i class="bi bi-search"></i> Search
+                        <i class="fas fa-search"></i> Search
                     </label>
                     <div class="input-group input-group-sm">
                         <input type="text" name="search" class="form-control" 
                                placeholder="Subject, Teacher, Room..."
                                value="{{ request('search') }}">
                         <button class="btn btn-primary" type="submit">
-                            <i class="bi bi-search"></i>
+                            <i class="fas fa-search"></i>
                         </button>
                         @if(request()->anyFilled(['division_id', 'teacher_id', 'day_of_week', 'status', 'search', 'date']))
                         <a href="{{ route('academic.timetable.grid') }}" class="btn btn-outline-secondary">
@@ -136,7 +130,7 @@
             <div class="d-flex justify-content-between align-items-center">
                 <div>
                     <h5 class="mb-0">
-                        <i class="bi bi-table text-primary me-2"></i>
+                        <i class="fas fa-table text-primary me-2"></i>
                         All Timetable Entries
                         @if($selectedDivision)
                             <span class="text-muted fw-normal">| {{ $selectedDivision->division_name }}</span>
@@ -153,7 +147,7 @@
                 <div class="d-flex gap-2">
                     @role('admin|principal')
                     <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addClassModal">
-                        <i class="bi bi-plus-circle me-1"></i> Add Class
+                        <i class="fas fa-plus-circle me-1"></i> Add Class
                     </button>
                     @endrole
                 </div>
