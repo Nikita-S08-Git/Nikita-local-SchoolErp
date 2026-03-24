@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('student_notifications', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('student_id')->constrained()->onDelete('cascade');
+            $table->foreignId('student_id')->constrained('students')->onDelete('cascade');
             $table->text('message');
             $table->string('type')->default('general'); // general, attendance, timetable
             $table->boolean('is_read')->default(false);
