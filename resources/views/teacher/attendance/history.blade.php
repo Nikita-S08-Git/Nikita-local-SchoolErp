@@ -17,6 +17,25 @@
             <a href="{{ route('teacher.attendance.report') }}" class="btn btn-outline-info">
                 <i class="bi bi-graph-up me-2"></i>Reports
             </a>
+            @if($selectedDivision)
+            <div class="btn-group">
+                <button type="button" class="btn btn-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-download me-2"></i>Download
+                </button>
+                <ul class="dropdown-menu">
+                    <li>
+                        <a class="dropdown-item" href="{{ route('teacher.attendance.history.download-excel', ['division_id' => $selectedDivision->id, 'start_date' => $startDate, 'end_date' => $endDate]) }}">
+                            <i class="bi bi-file-earmark-excel me-2"></i>Excel
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="{{ route('teacher.attendance.history.download-pdf', ['division_id' => $selectedDivision->id, 'start_date' => $startDate, 'end_date' => $endDate]) }}">
+                            <i class="bi bi-file-earmark-pdf me-2"></i>PDF
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            @endif
         </div>
     </div>
 
@@ -57,7 +76,16 @@
         <div class="card shadow-sm">
             <div class="card-header bg-white d-flex justify-content-between align-items-center">
                 <h5 class="mb-0"><i class="bi bi-list-check me-2"></i>Attendance Records</h5>
-                <span class="badge bg-primary">{{ $attendances->total() }} records</span>
+                <div class="d-flex gap-2 align-items-center">
+                    <select name="per_page" class="form-select form-select-sm" style="width: auto;" 
+                            onchange="updatePerPage(this.value)">
+                        <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10 per page</option>
+                        <option value="20" {{ request('per_page') == 20 || !request('per_page') ? 'selected' : '' }}>20 per page</option>
+                        <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50 per page</option>
+                        <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100 per page</option>
+                    </select>
+                    <span class="badge bg-primary">{{ $attendances->total() }} records</span>
+                </div>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -110,7 +138,7 @@
                                     </td>
                                     <td class="text-end pe-4">
                                         @if($attendance->marked_by === auth()->id())
-                                            <a href="{{ route('teacher.attendance.edit', $attendance->id) }}" class="btn btn-sm btn-outline-warning">
+                                            <a href="{{ route('teacher.attendance.record.edit', $attendance->id) }}" class="btn btn-sm btn-outline-warning">
                                                 <i class="bi bi-pencil me-1"></i>Edit
                                             </a>
                                         @else
@@ -124,7 +152,14 @@
                 </div>
             </div>
             <div class="card-footer bg-white border-0 p-3">
-                {{ $attendances->links() }}
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        {{ $attendances->appends(request()->query())->links('pagination::bootstrap-5') }}
+                    </div>
+                    <div class="text-muted">
+                        Showing {{ $attendances->firstItem() ?? 0 }} to {{ $attendances->lastItem() ?? 0 }} of {{ $attendances->total() }} records
+                    </div>
+                </div>
             </div>
         </div>
     @elseif($selectedDivision)
@@ -145,4 +180,69 @@
         </div>
     @endif
 </div>
+
+@push('styles')
+<style>
+/* Pagination Styling */
+.pagination {
+    margin-bottom: 0;
+}
+
+.pagination .page-link {
+    color: #0d6efd;
+    border-color: #dee2e6;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+}
+
+.pagination .page-link:hover {
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    color: #fff;
+}
+
+.pagination .page-item.disabled .page-link {
+    color: #6c757d;
+    background-color: #fff;
+    border-color: #dee2e6;
+}
+
+.pagination .page-item:first-child .page-link,
+.pagination .page-item:last-child .page-link {
+    border-radius: 0.25rem;
+}
+
+/* Responsive pagination */
+@media (max-width: 576px) {
+    .pagination .page-link {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+    
+    .card-footer.bg-white {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .card-footer.bg-white .text-muted {
+        text-align: center;
+    }
+}
+</style>
+@endpush
+
+@push('scripts')
+<script>
+function updatePerPage(perPage) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('per_page', perPage);
+    window.location.href = url.toString();
+}
+</script>
+@endpush
 @endsection

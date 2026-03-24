@@ -287,7 +287,7 @@ Route::middleware(['auth', 'role:admin|principal'])->prefix('academic')->name('a
 });
 
 // Fee Management Routes
-Route::middleware(['auth', 'role:admin|principal|office|teacher'])->prefix('fees')->name('fees.')->group(function () {
+Route::middleware(['auth', 'role:admin|principal|office|accountant'])->prefix('fees')->name('fees.')->group(function () {
     // Fee Structures
     Route::resource('structures', \App\Http\Controllers\Web\FeeStructureController::class)
         ->names('structures');
@@ -320,7 +320,7 @@ Route::middleware(['auth'])->prefix('razorpay')->group(function () {
 Route::post('/razorpay/webhook', [\App\Http\Controllers\Web\RazorpayController::class, 'webhook']);
 
 // Scholarship Application Routes
-Route::middleware(['auth', 'role:admin|principal|office|teacher'])->prefix('fees/scholarship-applications')->name('fees.scholarship-applications.')->group(function () {
+Route::middleware(['auth', 'role:admin|principal|office|accountant'])->prefix('fees/scholarship-applications')->name('fees.scholarship-applications.')->group(function () {
     Route::get('/', [\App\Http\Controllers\Web\ScholarshipApplicationController::class, 'index'])->name('index');
     Route::get('/create', [\App\Http\Controllers\Web\ScholarshipApplicationController::class, 'create'])->name('create');
     Route::post('/', [\App\Http\Controllers\Web\ScholarshipApplicationController::class, 'store'])->name('store');
@@ -483,7 +483,15 @@ Route::middleware(['auth'])->group(function () {
         ->middleware('role:principal|admin');
     
     Route::get('/dashboard/admin', [\App\Http\Controllers\Web\PrincipalDashboardController::class, 'index'])
-        ->name('dashboard.admin');
+        ->name('dashboard.admin')
+        ->middleware('role:admin');
+    
+    // Admin Credentials Management (Admin Only)
+    Route::middleware(['auth', 'role:admin'])->prefix('admin/credentials')->name('admin.credentials.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Web\AdminController::class, 'credentials'])->name('index');
+        Route::post('/reset-password/{userId}', [\App\Http\Controllers\Web\AdminController::class, 'resetPassword'])->name('reset-password');
+        Route::get('/export', [\App\Http\Controllers\Web\AdminController::class, 'exportCredentials'])->name('export');
+    });
 
     // Teacher Dashboard Routes are in routes/teacher.php
 
