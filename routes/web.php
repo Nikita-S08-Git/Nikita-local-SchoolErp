@@ -420,7 +420,7 @@ Route::post('/reset-password', [\App\Http\Controllers\Web\PasswordResetControlle
 Route::get('/apply', [AdmissionController::class, 'showApplyForm'])->name('admissions.apply.form');
 Route::post('/apply', [AdmissionController::class, 'apply'])->name('admissions.apply');
 
-// Root route - redirect to login if not authenticated
+// Root route - Show landing page
 Route::get('/', function() {
     if (auth()->check()) {
         $user = auth()->user();
@@ -451,7 +451,7 @@ Route::get('/', function() {
 
         return redirect()->route($route);
     }
-    return redirect()->route('login');
+    return view('landing');
 });
 
 // Protected Routes

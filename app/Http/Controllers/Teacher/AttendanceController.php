@@ -126,7 +126,7 @@ class AttendanceController extends Controller
 
         // Get existing attendance for this lecture and date
         $existingAttendance = Attendance::where('timetable_id', $timetableId)
-            ->whereDate('date', $date)
+            ->where('date', $date)
             ->get()
             ->keyBy('student_id');
 
