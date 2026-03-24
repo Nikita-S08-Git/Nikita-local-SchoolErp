@@ -1,8 +1,15 @@
 # 🚀 QUICK START - Branch Workflow
 
+## 🔒 ISOLATED DEVELOPMENT
+
+**IMPORTANT:** We work ONLY on `parth_new` and its sub-branches.  
+**DO NOT TOUCH:** `main`, `Feature`, `Teacher_M`, or other developer branches.
+
+---
+
 ## Current Status ✅
 
-All branches created and pushed to remote:
+All branches created and pushed to remote (OUR ISOLATED WORKSPACE):
 
 ```
 ✅ parth_new (main working branch)
@@ -14,6 +21,14 @@ All branches created and pushed to remote:
 ✅ feature/security-document-access
 ✅ feature/fix-n-plus-1-queries
 ✅ feature/add-missing-services
+```
+
+### Other Branches (DO NOT TOUCH) ❌
+```
+❌ main (production)
+❌ Feature (other developers)
+❌ Teacher_M (other developers)
+❌ All other branches
 ```
 
 ---
