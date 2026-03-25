@@ -48,12 +48,14 @@
         ],
         'teacher' => [
             ['name' => 'Dashboard', 'route' => 'teacher.dashboard', 'icon' => 'speedometer2'],
-            ['name' => 'Students', 'route' => 'teacher.students', 'icon' => 'people-fill'],
-            ['name' => 'Assignments', 'route' => 'teacher.assignments', 'icon' => 'clipboard-check'],
-            
+            ['name' => 'My Divisions', 'route' => 'teacher.divisions.index', 'icon' => 'people-fill'],
+            ['name' => 'Students', 'route' => 'teacher.students.index', 'icon' => 'user-graduate'],
+            ['name' => 'Attendance', 'route' => 'teacher.attendance.index', 'icon' => 'clipboard-check'],
+            ['name' => 'Results', 'route' => 'teacher.results.index', 'icon' => 'chart-bar'],
+
             // Timetable & Attendance Section
             ['name' => 'Timetable', 'route' => 'academic.timetable.teacher', 'icon' => 'calendar-week'],
-            ['name' => 'Mark Attendance', 'route' => 'academic.attendance.create', 'icon' => 'clipboard-check'],
+            ['name' => 'Mark Attendance', 'route' => 'teacher.attendance.create', 'icon' => 'clipboard-plus'],
             ['name' => 'Holidays', 'route' => 'academic.holidays.index', 'icon' => 'calendar-event'],
         ],
         'student' => [
