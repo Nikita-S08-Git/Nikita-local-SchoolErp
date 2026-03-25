@@ -71,28 +71,30 @@
             ['name' => 'Holidays', 'route' => 'academic.holidays.index', 'icon' => 'calendar-event'],
         ],
         'accountant' => [
+            // Dashboard & Profile
             ['name' => 'Dashboard', 'route' => 'dashboard.accountant', 'icon' => 'speedometer2'],
             ['name' => 'Profile', 'route' => 'accountant.profile', 'icon' => 'person'],
+            
+            // Fee Management Section
             ['name' => 'Fee Structures', 'route' => 'fees.structures.index', 'icon' => 'list-columns'],
             ['name' => 'Fee Assignment', 'route' => 'fees.assignments.index', 'icon' => 'clipboard-plus'],
             ['name' => 'Fee Collection', 'route' => 'fees.payments.index', 'icon' => 'cash-stack'],
+            ['name' => 'Collect Payment', 'route' => 'fees.payments.create', 'icon' => 'plus-circle'],
             ['name' => 'Outstanding Fees', 'route' => 'fees.outstanding.index', 'icon' => 'exclamation-triangle'],
+            
+            // Scholarship Section
             ['name' => 'Scholarships', 'route' => 'fees.scholarships.index', 'icon' => 'award'],
-            ['name' => 'Scholarship Applications', 'route' => 'fees.scholarship-applications.index', 'icon' => 'file-earmark-check'],
-            ['name' => 'Reports', 'route' => 'reports.attendance', 'icon' => 'graph-up'],
+            ['name' => 'Applications', 'route' => 'fees.scholarship-applications.index', 'icon' => 'file-earmark-check'],
+            
+            // Reports Section
+            ['name' => 'Fee Reports', 'route' => 'fees.payments.index', 'icon' => 'graph-up'],
+            ['name' => 'Collection Report', 'route' => 'reports.attendance', 'icon' => 'receipt'],
         ],
         'accounts_staff' => [
             ['name' => 'Dashboard', 'route' => 'dashboard.accounts_staff', 'icon' => 'speedometer2'],
             ['name' => 'Fee Collection', 'route' => 'fees.payments.index', 'icon' => 'cash-stack'],
             ['name' => 'Outstanding Fees', 'route' => 'fees.outstanding.index', 'icon' => 'exclamation-triangle'],
             ['name' => 'Reports', 'route' => 'reports.attendance', 'icon' => 'graph-up'],
-            ['name' => 'Dashboard', 'route' => 'accountant.dashboard', 'icon' => 'speedometer2'],
-            ['name' => 'Fee Collection', 'route' => 'accountant.fees', 'icon' => 'cash-stack'],
-            ['name' => 'Expenses', 'route' => 'accountant.expenses', 'icon' => 'receipt'],
-            ['name' => 'Reports', 'route' => 'accountant.reports', 'icon' => 'graph-up'],
-            
-            // View Only Section
-            ['name' => 'Holidays', 'route' => 'academic.holidays.index', 'icon' => 'calendar-event'],
         ],
         'office' => [
             ['name' => 'Dashboard', 'route' => 'dashboard.office', 'icon' => 'speedometer2'],
