@@ -3,51 +3,83 @@
 @section('title', 'My Divisions')
 
 @section('content')
-<div class="container-fluid px-4 py-4">
+<div class="container-fluid">
     <!-- Holiday Alert -->
     @if($todayHoliday)
-        <div class="alert alert-danger d-flex align-items-center mb-4" role="alert" style="border-radius: 12px; border: none; background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%); color: white;">
-            <i class="bi bi-exclamation-triangle-fill fs-4 me-3"></i>
-            <div class="flex-grow-1">
-                <strong>Today is a Holiday!</strong> - {{ $todayHoliday->title }}
-                @if($todayHoliday->start_date != $todayHoliday->end_date)
-                    <span class="ms-2">
-                        (Holiday from {{ \Carbon\Carbon::parse($todayHoliday->start_date)->format('d M') }} to {{ \Carbon\Carbon::parse($todayHoliday->end_date)->format('d M Y') }})
-                    </span>
-                @else
-                    <span class="ms-2">({{ \Carbon\Carbon::parse($todayHoliday->start_date)->format('d M Y') }})</span>
-                @endif
-            </div>
+    <div class="alert alert-danger d-flex align-items-center mb-4" role="alert" style="border-radius: 14px; border: none; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);">
+        <i class="fas fa-exclamation-triangle-fill fs-3 me-3"></i>
+        <div class="flex-grow-1">
+            <strong class="fs-5">Today is a Holiday!</strong> - {{ $todayHoliday->title }}
+            @if($todayHoliday->start_date != $todayHoliday->end_date)
+                <span class="ms-2">
+                    ({{ \Carbon\Carbon::parse($todayHoliday->start_date)->format('d M') }} to {{ \Carbon\Carbon::parse($todayHoliday->end_date)->format('d M Y') }})
+                </span>
+            @else
+                <span class="ms-2">({{ \Carbon\Carbon::parse($todayHoliday->start_date)->format('d M Y') }})</span>
+            @endif
         </div>
+    </div>
     @endif
 
-    <!-- Modern Header with Gradient Background -->
-    <div class="welcome-header mb-4">
-        <div class="row align-items-center">
-            <div class="col-lg-8">
-                <div class="d-flex align-items-center">
-                    <div class="header-icon-wrapper me-3">
-                        <i class="bi bi-layers-fill"></i>
-                    </div>
-                    <div>
-                        <h2 class="mb-1 fw-bold text-white">
-                            <i class="bi bi-people me-2"></i>My Assigned Divisions
-                        </h2>
-                        <p class="mb-0 text-white-50">
-                            <i class="bi bi-collection me-1"></i>Manage your class divisions and students
-                        </p>
-                    </div>
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="mb-1"><i class="fas fa-users me-2 text-primary"></i>My Assigned Divisions</h2>
+                    <p class="text-muted mb-0">Manage your class divisions and students</p>
                 </div>
-            </div>
-            <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
-                <a href="{{ route('teacher.dashboard') }}" class="btn btn-light">
-                    <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+                <a href="{{ route('teacher.dashboard') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
                 </a>
             </div>
         </div>
     </div>
 
     <!-- Statistics Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100" style="border-radius: 14px; border: none;">
+                <div class="card-body text-center p-4">
+                    <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-inline-flex align-items-center justify-content-center mb-3"
+                         style="width: 70px; height: 70px; font-size: 2rem;">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h5 class="mb-2">Total Divisions</h5>
+                    <p class="display-4 fw-bold text-primary mb-0">{{ $divisions->count() }}</p>
+                    <small class="text-muted">Assigned to you</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100" style="border-radius: 14px; border: none;">
+                <div class="card-body text-center p-4">
+                    <div class="rounded-circle bg-success bg-opacity-10 text-success d-inline-flex align-items-center justify-content-center mb-3"
+                         style="width: 70px; height: 70px; font-size: 2rem;">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <h5 class="mb-2">Total Students</h5>
+                    <p class="display-4 fw-bold text-success mb-0">{{ $divisions->sum('student_count') }}</p>
+                    <small class="text-muted">Across all divisions</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100" style="border-radius: 14px; border: none;">
+                <div class="card-body text-center p-4">
+                    <div class="rounded-circle bg-info bg-opacity-10 text-info d-inline-flex align-items-center justify-content-center mb-3"
+                         style="width: 70px; height: 70px; font-size: 2rem;">
+                        <i class="fas fa-chalkboard"></i>
+                    </div>
+                    <h5 class="mb-2">Active Divisions</h5>
+                    <p class="display-4 fw-bold text-info mb-0">{{ $divisions->where('is_active', true)->count() }}</p>
+                    <small class="text-muted">Currently active</small>
+                </div>
+            </div>
+        </div>
+    </div>
     @if($divisions->count() > 0)
         @if($todayHoliday)
         <div class="row g-4 mb-4">
