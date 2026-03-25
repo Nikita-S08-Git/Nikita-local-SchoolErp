@@ -48,7 +48,7 @@ class DivisionController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'program_id' => 'required|exists:programs,id',
+            'program_id' => 'required|exists:standards,id',
             'session_id' => 'required|exists:academic_sessions,id',
             'division_name' => [
                 'required',
@@ -93,7 +93,7 @@ class DivisionController extends Controller
     public function update(Request $request, Division $division): RedirectResponse
     {
         $validated = $request->validate([
-            'program_id' => 'required|exists:programs,id',
+            'program_id' => 'required|exists:standards,id',
             'session_id' => 'required|exists:academic_sessions,id',
             'division_name' => [
                 'required',

@@ -62,7 +62,7 @@ class AdmissionController extends Controller
             'email' => 'required|email|unique:students,email',
             'current_address' => 'required|string|min:10|max:500',
             'permanent_address' => 'nullable|string|min:10|max:500',
-            'program_id' => 'required|exists:programs,id',
+            'program_id' => 'required|exists:standards,id',
             'division_id' => 'required|exists:divisions,id',
             'academic_session_id' => 'required|exists:academic_sessions,id',
             'academic_year' => 'required|in:FY,SY,TY',

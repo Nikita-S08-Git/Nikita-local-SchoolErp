@@ -30,7 +30,7 @@ class FeeStructureController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'program_id' => 'required|exists:programs,id',
+            'program_id' => 'required|exists:standards,id',
             'academic_year' => 'required|string|max:20',
             'fee_head_id' => 'required|exists:fee_heads,id',
             'amount' => 'required|numeric|min:0',
@@ -57,7 +57,7 @@ class FeeStructureController extends Controller
     public function update(Request $request, FeeStructure $structure)
     {
         $request->validate([
-            'program_id' => 'required|exists:programs,id',
+            'program_id' => 'required|exists:standards,id',
             'academic_year' => 'required|string|max:20',
             'fee_head_id' => 'required|exists:fee_heads,id',
             'amount' => 'required|numeric|min:0',
