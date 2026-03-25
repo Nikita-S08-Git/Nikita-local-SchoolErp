@@ -247,14 +247,6 @@
     </style>
 </head>
 <body>
-            background: #f8f9fa;
-        }
-        .file-upload-wrapper input[type="file"] {
-            display: none;
-        }
-    </style>
-</head>
-<body>
     <div class="container">
         <div class="row justify-content-center py-4">
             <div class="col-md-10 col-lg-8">
