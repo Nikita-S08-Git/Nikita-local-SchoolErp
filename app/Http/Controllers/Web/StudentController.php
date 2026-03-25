@@ -78,15 +78,16 @@ class StudentController extends Controller
             'first_name'           => ['required','string','max:100','regex:/^[a-zA-Z\s]+$/'],
             'middle_name'          => ['nullable','string','max:100','regex:/^[a-zA-Z\s]+$/'],
             'last_name'            => ['required','string','max:100','regex:/^[a-zA-Z\s]+$/'],
-            'date_of_birth'        => 'required|date|before:today',
+            'date_of_birth'        => 'required|date|before:today|after:1990-01-01',
             'gender'               => 'required|in:male,female,other',
             'blood_group'          => ['nullable','regex:/^(A|B|AB|O)[+-]$/'],
             'religion'             => 'nullable|string|max:50',
             'category'             => 'required|in:general,obc,sc,st,vjnt,nt,ews',
-            'mobile_number'        => 'nullable|regex:/^[0-9\+\s\-]+$/|max:15',
-            'email'                => 'nullable|email|max:255|unique:students,email',
-            'current_address'      => 'nullable|string|max:500',
-            'permanent_address'    => 'nullable|string|max:500',
+            'aadhar_number'        => 'nullable|digits:12',
+            'mobile_number'        => 'required|regex:/^[6-9]\d{9}$/',
+            'email'                => 'required|email|max:255|unique:students,email',
+            'current_address'      => 'required|string|min:10|max:500',
+            'permanent_address'    => 'nullable|string|min:10|max:500',
             'program_id'           => 'required|exists:standards,id',
             'division_id'          => 'required|exists:divisions,id',
             'academic_session_id'  => 'required|exists:academic_sessions,id,is_active,1',
@@ -152,7 +153,8 @@ class StudentController extends Controller
 
         return redirect()
             ->route('dashboard.students.show', $student)
-            ->with('success', 'Student created successfully with Admission No: ' . $validated['admission_number'] . '. Login credentials sent to admin.');
+            ->with('success', 'Student created successfully with Admission No: ' . $validated['admission_number'])
+            ->with('password', $generatedPassword);
     }
 
     public function edit(Student $student)
