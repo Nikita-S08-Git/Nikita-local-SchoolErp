@@ -140,15 +140,45 @@
     <!-- Main Navigation with Sections -->
     @foreach($menuItems as $index => $item)
         @php
-            // Define section breaks for accountant
+            // Define section breaks for all roles
             $showSection = false;
             $sectionName = '';
             
-            if ($role === 'accountant') {
+            if ($role === 'admin') {
+                if ($index === 0) { $showSection = true; $sectionName = 'MAIN'; }
+                elseif ($item['name'] === 'Departments') { $showSection = true; $sectionName = 'ACADEMIC'; }
+                elseif ($item['name'] === 'Timetable') { $showSection = true; $sectionName = 'SCHEDULE'; }
+                elseif ($item['name'] === 'Reports') { $showSection = true; $sectionName = 'REPORTS'; }
+            }
+            elseif ($role === 'principal') {
+                if ($index === 0) { $showSection = true; $sectionName = 'MAIN'; }
+                elseif ($item['name'] === 'Departments') { $showSection = true; $sectionName = 'ACADEMIC'; }
+                elseif ($item['name'] === 'Timetable') { $showSection = true; $sectionName = 'SCHEDULE'; }
+                elseif ($item['name'] === 'Reports') { $showSection = true; $sectionName = 'REPORTS'; }
+            }
+            elseif ($role === 'teacher') {
+                if ($index === 0) { $showSection = true; $sectionName = 'MAIN'; }
+                elseif ($item['name'] === 'Timetable') { $showSection = true; $sectionName = 'SCHEDULE'; }
+            }
+            elseif ($role === 'student') {
+                if ($index === 0) { $showSection = true; $sectionName = 'MAIN'; }
+                elseif ($item['name'] === 'My Timetable') { $showSection = true; $sectionName = 'MY SCHEDULE'; }
+            }
+            elseif ($role === 'accountant') {
                 if ($index === 0) { $showSection = true; $sectionName = 'MAIN'; }
                 elseif ($item['name'] === 'Fee Structures') { $showSection = true; $sectionName = 'FEE MANAGEMENT'; }
                 elseif ($item['name'] === 'Scholarships') { $showSection = true; $sectionName = 'SCHOLARSHIPS'; }
                 elseif ($item['name'] === 'Fee Reports') { $showSection = true; $sectionName = 'REPORTS'; }
+            }
+            elseif ($role === 'accounts_staff') {
+                if ($index === 0) { $showSection = true; $sectionName = 'MAIN'; }
+            }
+            elseif ($role === 'office') {
+                if ($index === 0) { $showSection = true; $sectionName = 'MAIN'; }
+                elseif ($item['name'] === 'Timetable') { $showSection = true; $sectionName = 'SCHEDULE'; }
+            }
+            elseif ($role === 'librarian') {
+                if ($index === 0) { $showSection = true; $sectionName = 'MAIN'; }
             }
         @endphp
         
