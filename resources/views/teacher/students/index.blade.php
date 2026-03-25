@@ -8,7 +8,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h2 class="mb-1"><i class="bi bi-people me-2"></i>My Students</h2>
-            <p class="text-muted mb-0">{{ $students->total() }} students found</p>
+            <p class="text-muted mb-0">{{ is_object($students) && method_exists($students, 'total') ? $students->total() : $students->count() }} students found</p>
         </div>
         <a href="{{ route('teacher.dashboard') }}" class="btn btn-outline-secondary">
             <i class="bi bi-arrow-left"></i> Back to Dashboard
@@ -159,8 +159,8 @@
                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
                     <div class="text-muted pagination-info">
                         <i class="bi bi-list-ul me-2"></i>
-                        Showing <strong>{{ $students->firstItem() ?? 0 }}</strong> to <strong>{{ $students->lastItem() ?? 0 }}</strong>
-                        of <strong>{{ $students->total() }}</strong> students
+                        Showing <strong>{{ is_object($students) && method_exists($students, 'firstItem') ? $students->firstItem() : 0 }}</strong> to <strong>{{ is_object($students) && method_exists($students, 'lastItem') ? $students->lastItem() : 0 }}</strong>
+                        of <strong>{{ is_object($students) && method_exists($students, 'total') ? $students->total() : $students->count() }}</strong> students
                     </div>
                     
                     <!-- Custom Pagination Component -->
