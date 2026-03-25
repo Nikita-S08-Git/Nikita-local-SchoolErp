@@ -154,7 +154,7 @@
         </div>
 
         <!-- Pagination -->
-        @if($students->hasPages())
+        @if(is_object($students) && method_exists($students, 'hasPages') && $students->hasPages())
             <div class="card-footer bg-white border-0 px-4 py-3">
                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
                     <div class="text-muted pagination-info">
