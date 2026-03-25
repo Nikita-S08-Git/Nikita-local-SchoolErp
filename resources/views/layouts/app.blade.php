@@ -697,6 +697,7 @@
                 'hod_science'     => 'teacher.dashboard',
                 'hod_management'  => 'teacher.dashboard',
                 'hod_arts'        => 'teacher.dashboard',
+                'accountant'      => 'dashboard.accountant',
                 'student'         => 'dashboard.student',
                 'accounts_staff'  => 'dashboard.accounts_staff',
                 'office'          => 'dashboard.office',
@@ -915,6 +916,54 @@
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('reports.index') ? 'active' : '' }}" href="{{ route('reports.index') }}">
                     <span class="nav-icon"><i class="fas fa-chart-line"></i></span> Reports
+                </a>
+            </li>
+        </ul>
+        @endif
+
+        {{-- ── ACCOUNTANT ── --}}
+        @if($role === 'accountant')
+        <div class="sidebar-divider"></div>
+        <span class="nav-label">Fee Management</span>
+        <ul class="nav flex-column mb-0">
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('fees.structures.*') ? 'active' : '' }}" href="{{ route('fees.structures.index') }}">
+                    <span class="nav-icon"><i class="fas fa-list-columns"></i></span> Fee Structures
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('fees.assignments.*') ? 'active' : '' }}" href="{{ route('fees.assignments.index') }}">
+                    <span class="nav-icon"><i class="fas fa-clipboard-plus"></i></span> Fee Assignment
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('fees.payments.*') ? 'active' : '' }}" href="{{ route('fees.payments.index') }}">
+                    <span class="nav-icon"><i class="fas fa-cash-register"></i></span> Fee Collection
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('fees.outstanding.*') ? 'active' : '' }}" href="{{ route('fees.outstanding.index') }}">
+                    <span class="nav-icon"><i class="fas fa-exclamation-triangle"></i></span> Outstanding Fees
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('fees.scholarships.*') ? 'active' : '' }}" href="{{ route('fees.scholarships.index') }}">
+                    <span class="nav-icon"><i class="fas fa-award"></i></span> Scholarships
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('fees.scholarship-applications.*') ? 'active' : '' }}" href="{{ route('fees.scholarship-applications.index') }}">
+                    <span class="nav-icon"><i class="fas fa-file-contract"></i></span> Scholarship Applications
+                </a>
+            </li>
+        </ul>
+        
+        <div class="sidebar-divider"></div>
+        <span class="nav-label">Reports</span>
+        <ul class="nav flex-column mb-0">
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }}" href="{{ route('reports.index') }}">
+                    <span class="nav-icon"><i class="fas fa-chart-bar"></i></span> Fee Reports
                 </a>
             </li>
         </ul>
