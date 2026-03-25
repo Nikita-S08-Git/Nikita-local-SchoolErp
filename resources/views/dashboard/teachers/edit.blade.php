@@ -46,7 +46,7 @@
                                     <label for="password" class="form-label">New Password</label>
                                     <div class="input-group">
                                         <input type="password" name="password" id="password" class="form-control @error('password') is-invalid @enderror" autocomplete="new-password">
-                                        <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('password', 'password_icon')">
+                                        <button class="btn btn-dark" type="button" onclick="togglePassword('password', 'password_icon')">
                                             <i class="bi bi-eye" id="password_icon"></i>
                                         </button>
                                     </div>
@@ -61,7 +61,7 @@
                                     <label for="password_confirmation" class="form-label">Confirm New Password</label>
                                     <div class="input-group">
                                         <input type="password" name="password_confirmation" id="password_confirmation" class="form-control" autocomplete="new-password">
-                                        <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('password_confirmation', 'password_confirmation_icon')">
+                                        <button class="btn btn-dark" type="button" onclick="togglePassword('password_confirmation', 'password_confirmation_icon')">
                                             <i class="bi bi-eye" id="password_confirmation_icon"></i>
                                         </button>
                                     </div>
