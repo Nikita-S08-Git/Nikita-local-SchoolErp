@@ -24,11 +24,14 @@ class StudentsController extends Controller
         $assignedDivisionIds = \App\Models\TeacherAssignment::where('teacher_id', $teacher->id)
             ->where('assignment_type', 'division')
             ->pluck('division_id');
-        
+
+        // Get division details for filter dropdown
+        $assignedDivisions = \App\Models\Academic\Division::whereIn('id', $assignedDivisionIds)->get();
+
         // If no divisions assigned, show empty result
         if ($assignedDivisionIds->isEmpty()) {
             $students = collect();
-            return view('teacher.students.index', compact('students', 'assignedDivisionIds'));
+            return view('teacher.students.index', compact('students', 'assignedDivisions', 'assignedDivisionIds'));
         }
 
         $query = Student::whereIn('division_id', $assignedDivisionIds)
