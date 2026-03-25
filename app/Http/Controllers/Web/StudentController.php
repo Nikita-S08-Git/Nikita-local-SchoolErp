@@ -83,7 +83,7 @@ class StudentController extends Controller
             'blood_group'          => ['nullable','regex:/^(A|B|AB|O)[+-]$/'],
             'religion'             => 'nullable|string|max:50',
             'category'             => 'required|in:general,obc,sc,st,vjnt,nt,ews',
-            'aadhar_number'        => 'nullable|digits:12',
+            'aadhar_number'        => 'nullable|digits:12|unique:students,aadhar_number',
             'mobile_number'        => 'required|regex:/^[6-9]\d{9}$/',
             'email'                => 'required|email|max:255|unique:students,email',
             'current_address'      => 'required|string|min:10|max:500',
