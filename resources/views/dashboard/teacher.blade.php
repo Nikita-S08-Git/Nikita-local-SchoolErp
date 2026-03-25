@@ -96,45 +96,79 @@
         </div>
     </div>
 
-    <!-- Recent Activity & Timetable -->
+    <!-- Timetable & Information -->
     <div class="row">
-        <div class="col-md-8 mb-4">
+        <div class="col-lg-8 mb-4">
             <div class="card shadow-sm h-100" style="border-radius: 14px; border: none;">
                 <div class="card-header bg-white py-3">
-                    <h5 class="mb-0"><i class="fas fa-calendar-alt me-2"></i>Today's Schedule</h5>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-calendar-alt me-2 text-primary"></i>Today's Schedule</h5>
+                        <span class="badge bg-primary">{{ count($todaySchedule ?? []) }} Classes</span>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Time</th>
-                                    <th>Subject</th>
-                                    <th>Division</th>
-                                    <th>Room</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @if(isset($todaySchedule) && count($todaySchedule) > 0)
-                                    @foreach($todaySchedule as $schedule)
+                <div class="card-body p-0">
+                    @if(isset($todaySchedule) && count($todaySchedule) > 0)
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="bg-light">
                                     <tr>
-                                        <td>{{ $schedule->start_time ?? 'N/A' }}</td>
-                                        <td>{{ $schedule->subject->name ?? 'N/A' }}</td>
-                                        <td>{{ $schedule->division->division_name ?? 'N/A' }}</td>
-                                        <td>{{ $schedule->room ?? 'N/A' }}</td>
+                                        <th class="py-3 px-4"><i class="fas fa-clock me-2 text-muted"></i>Time</th>
+                                        <th class="py-3 px-4"><i class="fas fa-book me-2 text-muted"></i>Subject</th>
+                                        <th class="py-3 px-4"><i class="fas fa-users me-2 text-muted"></i>Division</th>
+                                        <th class="py-3 px-4"><i class="fas fa-door-open me-2 text-muted"></i>Room</th>
+                                        <th class="py-3 px-4">Status</th>
                                     </tr>
-                                    @endforeach
-                                @else
-                                    <tr>
-                                        <td colspan="4" class="text-center text-muted py-4">
-                                            <i class="fas fa-calendar-check fa-2x mb-2 d-block"></i>
-                                            No classes scheduled for today
+                                </thead>
+                                <tbody>
+                                    @foreach($todaySchedule as $index => $schedule)
+                                    <tr class="{{ $index % 2 == 0 ? '' : 'bg-light' }}">
+                                        <td class="px-4 py-3">
+                                            <span class="fw-semibold text-primary">{{ $schedule->start_time ?? 'N/A' }}</span>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <span class="badge bg-info bg-opacity-10 text-info px-3 py-2">
+                                                {{ $schedule->subject->name ?? 'N/A' }}
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <span class="fw-medium">{{ $schedule->division->division_name ?? 'N/A' }}</span>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <span class="text-muted"><i class="fas fa-map-marker-alt me-1"></i>{{ $schedule->room ?? 'N/A' }}</span>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            @php
+                                                $currentTime = \Carbon\Carbon::now();
+                                                $startTime = $schedule->start_time ? \Carbon\Carbon::parse($schedule->start_time) : null;
+                                                $endTime = $schedule->end_time ? \Carbon\Carbon::parse($schedule->end_time) : null;
+                                            @endphp
+                                            @if($startTime && $endTime)
+                                                @if($currentTime < $startTime)
+                                                    <span class="badge bg-secondary">Upcoming</span>
+                                                @elseif($currentTime >= $startTime && $currentTime <= $endTime)
+                                                    <span class="badge bg-success">Live Now</span>
+                                                @else
+                                                    <span class="badge bg-muted">Completed</span>
+                                                @endif
+                                            @else
+                                                <span class="badge bg-muted">N/A</span>
+                                            @endif
                                         </td>
                                     </tr>
-                                @endif
-                            </tbody>
-                        </table>
-                    </div>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <div class="text-center py-5">
+                            <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center mb-3"
+                                 style="width: 80px; height: 80px;">
+                                <i class="fas fa-calendar-check fa-2x text-muted"></i>
+                            </div>
+                            <h5 class="text-muted mb-2">No Classes Today</h5>
+                            <p class="text-muted mb-0">Enjoy your free day!</p>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
