@@ -128,23 +128,24 @@ class DashboardController extends Controller
 
         $validated = $request->validate([
             'current_password' => 'required',
-            'password' => 'required|min:8|confirmed',
+            'new_password' => 'required|min:8|confirmed',
         ]);
 
         // Verify current password
         if (!Hash::check($validated['current_password'], $student->password)) {
             return back()->withErrors([
                 'current_password' => 'The current password is incorrect.',
-            ]);
+            ])->withInput();
         }
 
         // Update password
         $student->update([
-            'password' => Hash::make($validated['password']),
+            'password' => Hash::make($validated['new_password']),
+            'temp_password' => null, // Clear temp password
         ]);
 
         return redirect()->route('student.profile')
-            ->with('success', 'Password changed successfully!');
+            ->with('success', 'Password changed successfully! Please remember your new password.');
     }
 
     /**

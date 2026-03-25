@@ -52,7 +52,7 @@ Route::middleware('auth:student')->prefix('student')->name('student.')->group(fu
     Route::get('/profile/edit', [StudentDashboardController::class, 'editProfile'])->name('profile.edit');
     Route::put('/profile', [StudentDashboardController::class, 'updateProfile'])->name('profile.update');
     Route::get('/profile/change-password', [StudentDashboardController::class, 'changePassword'])->name('profile.change-password');
-    Route::post('/profile/change-password', [StudentDashboardController::class, 'updatePassword']);
+    Route::post('/profile/change-password', [StudentDashboardController::class, 'updatePassword'])->name('profile.update-password');
     
     // Timetable
     Route::get('/timetable', [StudentDashboardController::class, 'timetable'])->name('timetable');
