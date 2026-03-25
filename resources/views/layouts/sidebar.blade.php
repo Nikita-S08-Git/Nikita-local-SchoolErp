@@ -144,11 +144,33 @@
 
     <hr class="my-3 border-white opacity-50">
 
-    @foreach($menuItems as $item)
-        <a href="{{ route($item['route']) }}" 
-           class="d-flex align-items-center text-white mb-3 text-decoration-none p-2 rounded {{ request()->routeIs($item['route']) ? 'bg-white bg-opacity-20' : '' }}">
+    <!-- Main Navigation with Sections -->
+    @foreach($menuItems as $index => $item)
+        @php
+            // Define section breaks for accountant
+            $showSection = false;
+            $sectionName = '';
+            
+            if ($role === 'accountant') {
+                if ($index === 0) { $showSection = true; $sectionName = 'MAIN'; }
+                elseif ($item['name'] === 'Fee Structures') { $showSection = true; $sectionName = 'FEE MANAGEMENT'; }
+                elseif ($item['name'] === 'Scholarships') { $showSection = true; $sectionName = 'SCHOLARSHIPS'; }
+                elseif ($item['name'] === 'Fee Reports') { $showSection = true; $sectionName = 'REPORTS'; }
+            }
+        @endphp
+        
+        @if($showSection)
+            <div class="mb-2 mt-3">
+                <small class="text-white-50 text-uppercase fw-bold" style="font-size: 0.65rem; letter-spacing: 1.5px;">
+                    {{ $sectionName }}
+                </small>
+            </div>
+        @endif
+        
+        <a href="{{ route($item['route']) }}"
+           class="d-flex align-items-center text-white mb-2 text-decoration-none p-2 rounded {{ request()->routeIs($item['route']) ? 'bg-white bg-opacity-20' : '' }} hover-bg-white hover-bg-opacity-10">
             <i class="bi bi-{{ $item['icon'] }} me-2"></i>
-            {{ $item['name'] }}
+            <span>{{ $item['name'] }}</span>
         </a>
     @endforeach
 
