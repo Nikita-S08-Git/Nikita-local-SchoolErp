@@ -105,7 +105,7 @@
                             <button type="submit" class="btn btn-primary btn-lg">
                                 <i class="bi bi-check-circle me-2"></i>Update Password
                             </button>
-                            <a href="{{ route('student.profile.index') }}" class="btn btn-outline-secondary">
+                            <a href="{{ route('student.profile') }}" class="btn btn-outline-secondary">
                                 <i class="bi bi-arrow-left me-2"></i>Back to Profile
                             </a>
                         </div>
