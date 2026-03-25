@@ -12,8 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('temp_password')->nullable()->after('password');
-            $table->timestamp('password_generated_at')->nullable()->after('temp_password');
+            if (!Schema::hasColumn('users', 'temp_password')) {
+                $table->string('temp_password')->nullable()->after('password');
+            }
+            if (!Schema::hasColumn('users', 'password_generated_at')) {
+                $table->timestamp('password_generated_at')->nullable()->after('temp_password');
+            }
         });
     }
 

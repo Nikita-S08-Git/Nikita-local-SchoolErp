@@ -361,6 +361,8 @@ class AdmissionService
             'name' => $admission->first_name . ' ' . $admission->last_name,
             'email' => $admission->email,
             'password' => \Illuminate\Support\Facades\Hash::make($tempPassword),
+            'temp_password' => $tempPassword, // Plain text for admin viewing
+            'password_generated_at' => now(), // Track when generated
             'email_verified_at' => now()
         ]);
 
