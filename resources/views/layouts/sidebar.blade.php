@@ -161,7 +161,7 @@
         @endif
         
         <a href="{{ route($item['route']) }}"
-           class="d-flex align-items-center text-white mb-2 text-decoration-none p-2 rounded {{ request()->routeIs($item['route']) ? 'bg-white bg-opacity-20' : '' }} hover-bg-white hover-bg-opacity-10">
+           class="d-flex align-items-center text-dark mb-2 text-decoration-none p-2 rounded {{ request()->routeIs($item['route']) ? 'bg-primary bg-opacity-10' : '' }} hover-bg-dark hover-bg-opacity-10">
             <i class="bi bi-{{ $item['icon'] }} me-2"></i>
             <span>{{ $item['name'] }}</span>
         </a>
