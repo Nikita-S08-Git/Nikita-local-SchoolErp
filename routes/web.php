@@ -496,12 +496,12 @@ Route::middleware(['auth'])->group(function () {
     // Teacher Dashboard Routes are in routes/teacher.php
 
     Route::get('/dashboard/student', [DashboardController::class, 'student'])->name('dashboard.student');
-    Route::get('/dashboard/office', [DashboardController::class, 'office'])->name('dashboard.office');
-    Route::get('/dashboard/accounts_staff', [DashboardController::class, 'accounts_staff'])->name('dashboard.accounts_staff');
-    Route::get('/dashboard/accountant', [DashboardController::class, 'accountant'])->name('dashboard.accountant');
-    Route::get('/accountant/profile', [DashboardController::class, 'accountantProfile'])->name('accountant.profile');
-    Route::post('/accountant/profile/change-password', [DashboardController::class, 'accountantChangePassword'])->name('accountant.change-password');
-    Route::get('/dashboard/librarian', [DashboardController::class, 'librarian'])->name('dashboard.librarian');
+    Route::get('/dashboard/office', [DashboardController::class, 'office'])->name('dashboard.office')->middleware('role:office');
+    Route::get('/dashboard/accounts_staff', [DashboardController::class, 'accounts_staff'])->name('dashboard.accounts_staff')->middleware('role:accounts_staff');
+    Route::get('/dashboard/accountant', [DashboardController::class, 'accountant'])->name('dashboard.accountant')->middleware('role:accountant');
+    Route::get('/accountant/profile', [DashboardController::class, 'accountantProfile'])->name('accountant.profile')->middleware('role:accountant');
+    Route::post('/accountant/profile/change-password', [DashboardController::class, 'accountantChangePassword'])->name('accountant.change-password')->middleware('role:accountant');
+    Route::get('/dashboard/librarian', [DashboardController::class, 'librarian'])->name('dashboard.librarian')->middleware('role:librarian');
     
     // Student Management
     // (handled earlier with explicit dashboard routes)
