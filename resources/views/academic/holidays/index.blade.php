@@ -9,17 +9,12 @@
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h2 class="mb-1"><i class="fas fa-calendar-check me-2 text-primary"></i>Holiday Management</h2>
-                    <p class="text-muted mb-0">Manage school holidays and events</p>
+                    <h2 class="mb-1"><i class="fas fa-calendar-check me-2 text-primary"></i>Holiday Calendar</h2>
+                    <p class="text-muted mb-0">View school holidays and events</p>
                 </div>
-                <div class="d-flex gap-2">
-                    <a href="{{ route('academic.timetable.table') }}" class="btn btn-outline-secondary">
-                        <i class="fas fa-table me-1"></i> Timetable
-                    </a>
-                    <a href="{{ route('academic.holidays.create') }}" class="btn btn-primary">
-                        <i class="fas fa-plus me-1"></i> Add Holiday
-                    </a>
-                </div>
+                <a href="{{ route('teacher.dashboard') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+                </a>
             </div>
         </div>
     </div>
@@ -154,7 +149,6 @@
                             <th class="py-3 px-4"><i class="fas fa-clock me-2 text-muted"></i>Duration</th>
                             <th class="py-3 px-4"><i class="fas fa-calendar-day me-2 text-muted"></i>Dates</th>
                             <th class="py-3 px-4"><i class="fas fa-toggle-on me-2 text-muted"></i>Status</th>
-                            <th class="py-3 px-4 text-end">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -210,32 +204,18 @@
                                 @endif
                             </td>
                             <td class="px-4 py-3 text-end">
-                                <div class="d-flex gap-2 justify-content-end">
-                                    <a href="{{ route('academic.holidays.edit', $holiday) }}" class="btn btn-sm btn-outline-primary">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    <form action="{{ route('academic.holidays.destroy', $holiday) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this holiday?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-outline-danger">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </form>
-                                </div>
+                                <span class="text-muted"><i class="fas fa-eye me-1"></i>View Only</span>
                             </td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="6" class="text-center py-5">
+                            <td colspan="5" class="text-center py-5">
                                 <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center mb-3"
                                      style="width: 80px; height: 80px;">
                                     <i class="fas fa-calendar-times fa-2x text-muted"></i>
                                 </div>
                                 <h5 class="text-muted mb-2">No Holidays Found</h5>
-                                <p class="text-muted mb-3">Add your first holiday to get started</p>
-                                <a href="{{ route('academic.holidays.create') }}" class="btn btn-primary">
-                                    <i class="fas fa-plus me-1"></i> Add Holiday
-                                </a>
+                                <p class="text-muted mb-0">No holidays available at this time</p>
                             </td>
                         </tr>
                         @endforelse
