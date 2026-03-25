@@ -60,6 +60,34 @@
             content: " *";
             color: red;
         }
+        /* Error styling */
+        .form-control.error, .form-select.error {
+            border-color: #dc3545 !important;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        }
+        .form-control.error:focus, .form-select.error:focus {
+            border-color: #dc3545 !important;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+        }
+        .form-control.valid, .form-select.valid {
+            border-color: #198754 !important;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.66-.11.11z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        }
+        .error-message {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            display: none;
+        }
+        .error-message.show {
+            display: block;
+        }
         .file-upload-wrapper {
             border: 2px dashed #dee2e6;
             border-radius: 10px;
@@ -111,36 +139,39 @@
                                     <label for="first_name" class="form-label fw-semibold required-field">
                                         <i class="bi bi-person me-2"></i>First Name
                                     </label>
-                                    <input type="text" class="form-control @error('first_name') is-invalid @endif" 
-                                           id="first_name" name="first_name" value="{{ old('first_name') }}" 
-                                           placeholder="Enter first name (letters only)" required pattern="[a-zA-Z\s]+" 
+                                    <input type="text" class="form-control @error('first_name') is-invalid @endif"
+                                           id="first_name" name="first_name" value="{{ old('first_name') }}"
+                                           placeholder="Enter first name (letters only)" required pattern="[a-zA-Z\s]+"
                                            title="Only letters are allowed">
+                                    <span class="error-message" id="first_name_error"></span>
                                     @error('first_name')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
-                                
+
                                 <div class="col-md-4 mb-3">
                                     <label for="middle_name" class="form-label fw-semibold">
                                         <i class="bi bi-person me-2"></i>Middle Name
                                     </label>
-                                    <input type="text" class="form-control @error('middle_name') is-invalid @endif" 
-                                           id="middle_name" name="middle_name" value="{{ old('middle_name') }}" 
+                                    <input type="text" class="form-control @error('middle_name') is-invalid @endif"
+                                           id="middle_name" name="middle_name" value="{{ old('middle_name') }}"
                                            placeholder="Enter middle name (letters only)" pattern="[a-zA-Z\s]+"
                                            title="Only letters are allowed">
+                                    <span class="error-message" id="middle_name_error"></span>
                                     @error('middle_name')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
-                                
+
                                 <div class="col-md-4 mb-3">
                                     <label for="last_name" class="form-label fw-semibold required-field">
                                         <i class="bi bi-person me-2"></i>Last Name
                                     </label>
-                                    <input type="text" class="form-control @error('last_name') is-invalid @endif" 
-                                           id="last_name" name="last_name" value="{{ old('last_name') }}" 
+                                    <input type="text" class="form-control @error('last_name') is-invalid @endif"
+                                           id="last_name" name="last_name" value="{{ old('last_name') }}"
                                            placeholder="Enter last name (letters only)" required pattern="[a-zA-Z\s]+"
                                            title="Only letters are allowed">
+                                    <span class="error-message" id="last_name_error"></span>
                                     @error('last_name')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -152,25 +183,27 @@
                                     <label for="date_of_birth" class="form-label fw-semibold required-field">
                                         <i class="bi bi-calendar-date me-2"></i>Date of Birth
                                     </label>
-                                    <input type="date" class="form-control @error('date_of_birth') is-invalid @endif" 
-                                           id="date_of_birth" name="date_of_birth" value="{{ old('date_of_birth') }}" 
+                                    <input type="date" class="form-control @error('date_of_birth') is-invalid @endif"
+                                           id="date_of_birth" name="date_of_birth" value="{{ old('date_of_birth') }}"
                                            required max="{{ date('Y-m-d', strtotime('-5 years')) }}">
+                                    <span class="error-message" id="date_of_birth_error"></span>
                                     @error('date_of_birth')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
-                                
+
                                 <div class="col-md-6 mb-3">
                                     <label for="gender" class="form-label fw-semibold required-field">
                                         <i class="bi bi-gender-ambiguous me-2"></i>Gender
                                     </label>
-                                    <select class="form-select @error('gender') is-invalid @endif" 
+                                    <select class="form-select @error('gender') is-invalid @endif"
                                             id="gender" name="gender" required>
                                         <option value="">Select Gender</option>
                                         <option value="male" {{ old('gender') == 'male' ? 'selected' : '' }}>Male</option>
                                         <option value="female" {{ old('gender') == 'female' ? 'selected' : '' }}>Female</option>
                                         <option value="other" {{ old('gender') == 'other' ? 'selected' : '' }}>Other</option>
                                     </select>
+                                    <span class="error-message" id="gender_error"></span>
                                     @error('gender')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -225,7 +258,7 @@
                                     <label for="category" class="form-label fw-semibold required-field">
                                         <i class="bi bi-people me-2"></i>Category
                                     </label>
-                                    <select class="form-select @error('category') is-invalid @endif" 
+                                    <select class="form-select @error('category') is-invalid @endif"
                                             id="category" name="category" required>
                                         <option value="">Select Category</option>
                                         <option value="general" {{ old('category') == 'general' ? 'selected' : '' }}>General</option>
@@ -234,6 +267,7 @@
                                         <option value="st" {{ old('category') == 'st' ? 'selected' : '' }}>ST</option>
                                         <option value="ews" {{ old('category') == 'ews' ? 'selected' : '' }}>EWS</option>
                                     </select>
+                                    <span class="error-message" id="category_error"></span>
                                     @error('category')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -263,22 +297,24 @@
                                     <label for="email" class="form-label fw-semibold required-field">
                                         <i class="bi bi-envelope me-2"></i>Email Address
                                     </label>
-                                    <input type="email" class="form-control @error('email') is-invalid @endif" 
-                                           id="email" name="email" value="{{ old('email') }}" 
+                                    <input type="email" class="form-control @error('email') is-invalid @endif"
+                                           id="email" name="email" value="{{ old('email') }}"
                                            placeholder="Enter email address" required>
+                                    <span class="error-message" id="email_error"></span>
                                     @error('email')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
-                                
+
                                 <div class="col-md-6 mb-3">
                                     <label for="mobile_number" class="form-label fw-semibold required-field">
                                         <i class="bi bi-phone me-2"></i>Mobile Number
                                     </label>
-                                    <input type="tel" class="form-control @error('mobile_number') is-invalid @endif" 
-                                           id="mobile_number" name="mobile_number" value="{{ old('mobile_number') }}" 
+                                    <input type="tel" class="form-control @error('mobile_number') is-invalid @endif"
+                                           id="mobile_number" name="mobile_number" value="{{ old('mobile_number') }}"
                                            placeholder="Enter 10-digit mobile (start with 6-9)" required pattern="[6-9]\d{9}"
                                            maxlength="10" title="Must be 10 digits, starting with 6-9">
+                                    <span class="error-message" id="mobile_number_error"></span>
                                     @error('mobile_number')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -289,21 +325,23 @@
                                 <label for="current_address" class="form-label fw-semibold required-field">
                                     <i class="bi bi-house me-2"></i>Current Address
                                 </label>
-                                <textarea class="form-control @error('current_address') is-invalid @endif" 
-                                          id="current_address" name="current_address" rows="2" 
+                                <textarea class="form-control @error('current_address') is-invalid @endif"
+                                          id="current_address" name="current_address" rows="2"
                                           placeholder="Enter complete address" required minlength="10">{{ old('current_address') }}</textarea>
+                                <span class="error-message" id="current_address_error"></span>
                                 @error('current_address')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
-                            
+
                             <div class="mb-3">
                                 <label for="permanent_address" class="form-label fw-semibold">
                                     <i class="bi bi-house-door me-2"></i>Permanent Address
                                 </label>
-                                <textarea class="form-control @error('permanent_address') is-invalid @endif" 
-                                          id="permanent_address" name="permanent_address" rows="2" 
+                                <textarea class="form-control @error('permanent_address') is-invalid @endif"
+                                          id="permanent_address" name="permanent_address" rows="2"
                                           placeholder="Enter permanent address (same as current if not specified)">{{ old('permanent_address') }}</textarea>
+                                <span class="error-message" id="permanent_address_error"></span>
                                 @error('permanent_address')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -474,13 +512,57 @@
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // ============================================
+        // REAL-TIME VALIDATION WITH RED ERROR INDICATORS
+        // ============================================
+        
+        // Helper function to show error
+        function showError(fieldId, message) {
+            const field = document.getElementById(fieldId);
+            const errorSpan = document.getElementById(fieldId + '_error');
+            
+            field.classList.remove('valid');
+            field.classList.add('error');
+            
+            if (errorSpan) {
+                errorSpan.textContent = message;
+                errorSpan.classList.add('show');
+            }
+        }
+        
+        // Helper function to clear error
+        function clearError(fieldId) {
+            const field = document.getElementById(fieldId);
+            const errorSpan = document.getElementById(fieldId + '_error');
+            
+            field.classList.remove('error');
+            
+            if (errorSpan) {
+                errorSpan.textContent = '';
+                errorSpan.classList.remove('show');
+            }
+        }
+        
+        // Helper function to show valid
+        function showValid(fieldId) {
+            const field = document.getElementById(fieldId);
+            field.classList.remove('error');
+            field.classList.add('valid');
+            
+            const errorSpan = document.getElementById(fieldId + '_error');
+            if (errorSpan) {
+                errorSpan.textContent = '';
+                errorSpan.classList.remove('show');
+            }
+        }
+        
         // Auto-fill permanent address if same as current
         document.getElementById('current_address').addEventListener('change', function() {
             if (!document.getElementById('permanent_address').value) {
                 document.getElementById('permanent_address').value = this.value;
             }
         });
-        
+
         // Preview uploaded image
         function previewFile(input, previewId) {
             if (input.files && input.files[0]) {
@@ -493,42 +575,283 @@
                 reader.readAsDataURL(input.files[0]);
             }
         }
-        
+
         // Show filename for non-image files
         document.getElementById('twelfth_marksheet').addEventListener('change', function() {
             var fileName = this.files[0]?.name;
             document.getElementById('twelfthFileName').textContent = fileName || '';
         });
-        
+
         document.getElementById('cast_certificate').addEventListener('change', function() {
             var fileName = this.files[0]?.name;
             document.getElementById('castFileName').textContent = fileName || '';
         });
-        
-        // Name validation - only letters
+
+        // ============================================
+        // NAME VALIDATIONS - Only Letters
+        // ============================================
         document.getElementById('first_name').addEventListener('input', function(e) {
             this.value = this.value.replace(/[^a-zA-Z\s]/g, '');
+            if (this.value.trim().length === 0) {
+                showError('first_name', 'First name is required');
+            } else if (this.value.trim().length < 2) {
+                showError('first_name', 'First name must be at least 2 characters');
+            } else {
+                showValid('first_name');
+            }
         });
-        document.getElementById('last_name').addEventListener('input', function(e) {
-            this.value = this.value.replace(/[^a-zA-Z\s]/g, '');
+        
+        document.getElementById('first_name').addEventListener('blur', function(e) {
+            if (this.value.trim().length === 0) {
+                showError('first_name', 'First name is required');
+            } else if (this.value.trim().length < 2) {
+                showError('first_name', 'First name must be at least 2 characters');
+            } else {
+                clearError('first_name');
+            }
         });
+        
         document.getElementById('middle_name').addEventListener('input', function(e) {
             this.value = this.value.replace(/[^a-zA-Z\s]/g, '');
         });
         
-        // Mobile validation - only digits, max 10
-        document.getElementById('mobile_number').addEventListener('input', function(e) {
-            this.value = this.value.replace(/[^\d]/g, '');
-            if (this.value.length > 10) {
-                this.value = this.value.substring(0, 10);
+        document.getElementById('last_name').addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^a-zA-Z\s]/g, '');
+            if (this.value.trim().length === 0) {
+                showError('last_name', 'Last name is required');
+            } else if (this.value.trim().length < 2) {
+                showError('last_name', 'Last name must be at least 2 characters');
+            } else {
+                showValid('last_name');
             }
         });
         
-        // Aadhar validation - only digits, max 12
+        document.getElementById('last_name').addEventListener('blur', function(e) {
+            if (this.value.trim().length === 0) {
+                showError('last_name', 'Last name is required');
+            } else if (this.value.trim().length < 2) {
+                showError('last_name', 'Last name must be at least 2 characters');
+            } else {
+                clearError('last_name');
+            }
+        });
+
+        // ============================================
+        // DATE OF BIRTH VALIDATION
+        // ============================================
+        document.getElementById('date_of_birth').addEventListener('change', function(e) {
+            const dob = new Date(this.value);
+            const today = new Date();
+            const minAge = 5;
+            const minDate = new Date(today.getFullYear() - minAge, today.getMonth(), today.getDate());
+            
+            if (dob > minDate) {
+                showError('date_of_birth', 'Student must be at least 5 years old');
+            } else {
+                showValid('date_of_birth');
+            }
+        });
+
+        // ============================================
+        // GENDER VALIDATION
+        // ============================================
+        document.getElementById('gender').addEventListener('change', function(e) {
+            if (this.value === '') {
+                showError('gender', 'Please select a gender');
+            } else {
+                showValid('gender');
+            }
+        });
+
+        // ============================================
+        // CATEGORY VALIDATION
+        // ============================================
+        document.getElementById('category').addEventListener('change', function(e) {
+            if (this.value === '') {
+                showError('category', 'Please select a category');
+            } else {
+                showValid('category');
+            }
+        });
+
+        // ============================================
+        // EMAIL VALIDATION
+        // ============================================
+        document.getElementById('email').addEventListener('blur', function(e) {
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailPattern.test(this.value)) {
+                showError('email', 'Please enter a valid email address');
+            } else {
+                showValid('email');
+            }
+        });
+
+        // ============================================
+        // MOBILE NUMBER VALIDATION - 10 digits, starts with 6-9
+        // ============================================
+        document.getElementById('mobile_number').addEventListener('input', function(e) {
+            // Remove all non-digits
+            this.value = this.value.replace(/[^\d]/g, '');
+            
+            // Limit to 10 digits
+            if (this.value.length > 10) {
+                this.value = this.value.substring(0, 10);
+            }
+            
+            // Real-time validation
+            if (this.value.length > 0 && this.value.length < 10) {
+                showError('mobile_number', 'Mobile number must be exactly 10 digits');
+            } else if (this.value.length === 10 && !/^[6-9]/.test(this.value)) {
+                showError('mobile_number', 'Mobile number must start with 6, 7, 8, or 9');
+            } else if (this.value.length === 10) {
+                showValid('mobile_number');
+            }
+        });
+        
+        document.getElementById('mobile_number').addEventListener('blur', function(e) {
+            if (this.value.length === 0) {
+                showError('mobile_number', 'Mobile number is required');
+            } else if (this.value.length < 10) {
+                showError('mobile_number', 'Mobile number must be exactly 10 digits (you entered ' + this.value.length + ')');
+            } else if (!/^[6-9]\d{9}$/.test(this.value)) {
+                if (!/^[6-9]/.test(this.value)) {
+                    showError('mobile_number', 'Mobile number must start with 6, 7, 8, or 9');
+                } else {
+                    showError('mobile_number', 'Invalid mobile number format');
+                }
+            } else {
+                clearError('mobile_number');
+            }
+        });
+
+        // ============================================
+        // AADHAR VALIDATION - 12 digits
+        // ============================================
         document.getElementById('aadhar_number').addEventListener('input', function(e) {
             this.value = this.value.replace(/[^\d]/g, '');
             if (this.value.length > 12) {
                 this.value = this.value.substring(0, 12);
+            }
+        });
+        
+        document.getElementById('aadhar_number').addEventListener('blur', function(e) {
+            if (this.value.length > 0 && this.value.length !== 12) {
+                showError('aadhar_number', 'Aadhar number must be exactly 12 digits');
+            } else if (this.value.length === 12) {
+                showValid('aadhar_number');
+            } else {
+                clearError('aadhar_number');
+            }
+        });
+
+        // ============================================
+        // ADDRESS VALIDATION
+        // ============================================
+        document.getElementById('current_address').addEventListener('blur', function(e) {
+            if (this.value.trim().length === 0) {
+                showError('current_address', 'Current address is required');
+            } else if (this.value.trim().length < 10) {
+                showError('current_address', 'Address must be at least 10 characters');
+            } else {
+                showValid('current_address');
+            }
+        });
+
+        // ============================================
+        // FORM SUBMISSION VALIDATION
+        // ============================================
+        document.querySelector('form').addEventListener('submit', function(e) {
+            let isValid = true;
+            let firstErrorField = null;
+            
+            // Validate First Name
+            const firstName = document.getElementById('first_name');
+            if (firstName.value.trim().length < 2) {
+                showError('first_name', 'First name is required (min 2 characters)');
+                isValid = false;
+                if (!firstErrorField) firstErrorField = firstName;
+            } else {
+                clearError('first_name');
+            }
+            
+            // Validate Last Name
+            const lastName = document.getElementById('last_name');
+            if (lastName.value.trim().length < 2) {
+                showError('last_name', 'Last name is required (min 2 characters)');
+                isValid = false;
+                if (!firstErrorField) firstErrorField = lastName;
+            } else {
+                clearError('last_name');
+            }
+            
+            // Validate Date of Birth
+            const dob = document.getElementById('date_of_birth');
+            if (!dob.value) {
+                showError('date_of_birth', 'Date of birth is required');
+                isValid = false;
+                if (!firstErrorField) firstErrorField = dob;
+            } else {
+                clearError('date_of_birth');
+            }
+            
+            // Validate Gender
+            const gender = document.getElementById('gender');
+            if (!gender.value) {
+                showError('gender', 'Please select a gender');
+                isValid = false;
+                if (!firstErrorField) firstErrorField = gender;
+            } else {
+                clearError('gender');
+            }
+            
+            // Validate Category
+            const category = document.getElementById('category');
+            if (!category.value) {
+                showError('category', 'Please select a category');
+                isValid = false;
+                if (!firstErrorField) firstErrorField = category;
+            } else {
+                clearError('category');
+            }
+            
+            // Validate Email
+            const email = document.getElementById('email');
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailPattern.test(email.value)) {
+                showError('email', 'Please enter a valid email address');
+                isValid = false;
+                if (!firstErrorField) firstErrorField = email;
+            } else {
+                clearError('email');
+            }
+            
+            // Validate Mobile Number
+            const mobile = document.getElementById('mobile_number');
+            if (mobile.value.length !== 10 || !/^[6-9]\d{9}$/.test(mobile.value)) {
+                showError('mobile_number', 'Mobile number must be 10 digits starting with 6-9');
+                isValid = false;
+                if (!firstErrorField) firstErrorField = mobile;
+            } else {
+                clearError('mobile_number');
+            }
+            
+            // Validate Current Address
+            const currentAddress = document.getElementById('current_address');
+            if (currentAddress.value.trim().length < 10) {
+                showError('current_address', 'Address must be at least 10 characters');
+                isValid = false;
+                if (!firstErrorField) firstErrorField = currentAddress;
+            } else {
+                clearError('current_address');
+            }
+            
+            // If invalid, prevent submission and scroll to first error
+            if (!isValid) {
+                e.preventDefault();
+                if (firstErrorField) {
+                    firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    firstErrorField.focus();
+                }
             }
         });
     </script>
