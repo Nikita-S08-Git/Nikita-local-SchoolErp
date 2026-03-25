@@ -436,7 +436,7 @@ Route::get('/', function() {
             'teacher'         => 'teacher.dashboard',
             'class_teacher'   => 'teacher.dashboard',
             'subject_teacher' => 'teacher.dashboard',
-            'student'         => 'dashboard.student',
+            'student'         => 'student.dashboard',  // Changed to student.dashboard (student guard)
             'accountant'      => 'dashboard.accountant',
             'accounts_staff'  => 'dashboard.accounts_staff',
             'office'          => 'dashboard.office',
