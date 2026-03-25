@@ -499,6 +499,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard/office', [DashboardController::class, 'office'])->name('dashboard.office');
     Route::get('/dashboard/accounts_staff', [DashboardController::class, 'accounts_staff'])->name('dashboard.accounts_staff');
     Route::get('/dashboard/accountant', [DashboardController::class, 'accountant'])->name('dashboard.accountant');
+    Route::get('/accountant/profile', [DashboardController::class, 'accountantProfile'])->name('accountant.profile');
+    Route::post('/accountant/profile/change-password', [DashboardController::class, 'accountantChangePassword'])->name('accountant.change-password');
     Route::get('/dashboard/librarian', [DashboardController::class, 'librarian'])->name('dashboard.librarian');
     
     // Student Management
