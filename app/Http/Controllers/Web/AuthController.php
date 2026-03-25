@@ -35,6 +35,7 @@ class AuthController extends Controller
                 'class_teacher' => 'teacher.dashboard',
                 'subject_teacher' => 'teacher.dashboard',
                 'student' => 'dashboard.student',
+                'accountant' => 'dashboard.accountant',
                 'accounts_staff' => 'dashboard.accounts_staff',
                 'office' => 'dashboard.office',
                 'librarian' => 'dashboard.librarian',
