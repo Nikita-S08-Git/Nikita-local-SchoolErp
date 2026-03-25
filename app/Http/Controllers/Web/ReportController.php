@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Academic\Division;
 use App\Models\User\Student;
 use App\Models\Academic\Attendance;
+use App\Models\Fee\StudentFee;
+use App\Models\Fee\FeePayment;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Maatwebsite\Excel\Facades\Excel;
@@ -14,11 +16,35 @@ use App\Exports\AttendanceReportExport;
 class ReportController extends Controller
 {
     /**
-     * Redirect to attendance reports
+     * Show fee reports for accountant
      */
-    public function index()
+    public function index(Request $request)
     {
-        return redirect()->route('reports.attendance');
+        // Fee collection statistics
+        $todayCollection = FeePayment::whereDate('created_at', today())->sum('amount_paid');
+        $monthlyCollection = FeePayment::whereMonth('created_at', now()->month)->sum('amount_paid');
+        $totalOutstanding = StudentFee::where('outstanding_amount', '>', 0)->sum('outstanding_amount');
+        
+        // Recent payments
+        $recentPayments = FeePayment::with(['student', 'studentFee'])
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get();
+        
+        // Outstanding fees
+        $outstandingFees = StudentFee::with(['student'])
+            ->where('outstanding_amount', '>', 0)
+            ->orderBy('outstanding_amount', 'desc')
+            ->limit(10)
+            ->get();
+        
+        return view('reports.fee-index', compact(
+            'todayCollection',
+            'monthlyCollection',
+            'totalOutstanding',
+            'recentPayments',
+            'outstandingFees'
+        ));
     }
 
     public function attendance(Request $request)
