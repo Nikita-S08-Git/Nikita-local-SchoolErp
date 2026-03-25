@@ -41,14 +41,18 @@
             --danger:        #dc2626;
             --danger-light:  #fff1f1;
 
-            /* Sidebar specific */
-            --sb-bg:         #ffffff;
-            --sb-border:     #e5e7eb;
-            --sb-text:       #374151;
-            --sb-muted:      #9ca3af;
-            --sb-hover-bg:   #f3f4f6;
-            --sb-active-bg:  #eff4ff;
-            --sb-active-txt: #2563eb;
+            /* Sidebar specific - Enhanced Colors */
+            --sb-bg:         #1a1d2e;              /* Dark navy background */
+            --sb-bg-gradient: linear-gradient(180deg, #1a1d2e 0%, #0f1419 100%);
+            --sb-border:     #2d3240;              /* Dark border */
+            --sb-text:       #e2e8f0;              /* Light text for contrast */
+            --sb-text-brand: #ffffff;              /* White for branding */
+            --sb-muted:      #94a3b8;              /* Muted text */
+            --sb-hover-bg:   #2d3240;              /* Hover background */
+            --sb-active-bg:  #2563eb;              /* Active blue background */
+            --sb-active-txt: #ffffff;              /* Active white text */
+            --sb-icon-color: #64748b;              /* Icon color */
+            --sb-icon-active: #ffffff;             /* Active icon color */
 
             /* Surfaces */
             --card-bg:       #ffffff;
