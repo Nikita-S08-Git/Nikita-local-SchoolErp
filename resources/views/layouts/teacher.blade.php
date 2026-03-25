@@ -41,14 +41,15 @@
             --danger:        #dc2626;
             --danger-light:  #fff1f1;
 
-            /* Sidebar specific */
-            --sb-bg:         #ffffff;
-            --sb-border:     #e5e7eb;
-            --sb-text:       #374151;
-            --sb-muted:      #9ca3af;
-            --sb-hover-bg:   #f3f4f6;
-            --sb-active-bg:  #eff4ff;
-            --sb-active-txt: #2563eb;
+            /* Sidebar specific - Black Text Theme */
+            --sb-bg:         #ffffff;              /* White background */
+            --sb-border:     #e5e7eb;              /* Light border */
+            --sb-text:       #000000;              /* BLACK text for content */
+            --sb-text-brand: #000000;              /* BLACK for branding */
+            --sb-muted:      #6b7280;              /* Gray muted text */
+            --sb-hover-bg:   #f3f4f6;              /* Light gray hover */
+            --sb-active-bg:  #2563eb;              /* Blue active background */
+            --sb-active-txt: #ffffff;              /* White active text */
 
             /* Surfaces */
             --card-bg:       #ffffff;
@@ -161,7 +162,7 @@
             gap: .75rem;
             padding: .75rem 1rem;
             border-radius: var(--r-md);
-            color: var(--sb-text);
+            color: var(--sb-text);  /* BLACK text */
             text-decoration: none;
             transition: all .2s ease;
             font-weight: 500;
