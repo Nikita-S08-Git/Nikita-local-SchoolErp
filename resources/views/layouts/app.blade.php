@@ -41,18 +41,18 @@
             --danger:        #dc2626;
             --danger-light:  #fff1f1;
 
-            /* Sidebar specific - Enhanced Colors */
-            --sb-bg:         #1a1d2e;              /* Dark navy background */
-            --sb-bg-gradient: linear-gradient(180deg, #1a1d2e 0%, #0f1419 100%);
-            --sb-border:     #2d3240;              /* Dark border */
-            --sb-text:       #e2e8f0;              /* Light text for contrast */
-            --sb-text-brand: #ffffff;              /* White for branding */
-            --sb-muted:      #94a3b8;              /* Muted text */
-            --sb-hover-bg:   #2d3240;              /* Hover background */
-            --sb-active-bg:  #2563eb;              /* Active blue background */
-            --sb-active-txt: #ffffff;              /* Active white text */
-            --sb-icon-color: #64748b;              /* Icon color */
-            --sb-icon-active: #ffffff;             /* Active icon color */
+            /* Sidebar specific - Black Text Theme */
+            --sb-bg:         #ffffff;              /* White background */
+            --sb-bg-gradient: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
+            --sb-border:     #e5e7eb;              /* Light border */
+            --sb-text:       #000000;              /* Black text for content */
+            --sb-text-brand: #000000;              /* Black for branding */
+            --sb-muted:      #6b7280;              /* Gray muted text */
+            --sb-hover-bg:   #f3f4f6;              /* Light gray hover */
+            --sb-active-bg:  #2563eb;              /* Blue active background */
+            --sb-active-txt: #ffffff;              /* White active text */
+            --sb-icon-color: #6b7280;              /* Gray icon color */
+            --sb-icon-active: #ffffff;             /* White active icon */
 
             /* Surfaces */
             --card-bg:       #ffffff;
@@ -162,9 +162,9 @@
             gap: 10px;
             padding: 8px 10px;
             border-radius: var(--r-md);
-            color: var(--sb-text);
+            color: var(--sb-text);  /* Black text */
             font-size: 13.5px;
-            font-weight: 400;
+            font-weight: 500;  /* Slightly bolder for black text */
             text-decoration: none;
             transition: background .15s, color .15s;
             position: relative;
