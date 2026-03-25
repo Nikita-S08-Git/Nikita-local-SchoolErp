@@ -55,7 +55,6 @@
 
             // Timetable & Attendance Section
             ['name' => 'Timetable', 'route' => 'academic.timetable.teacher', 'icon' => 'calendar-week'],
-            ['name' => 'Mark Attendance', 'route' => 'teacher.attendance.create', 'icon' => 'clipboard-plus'],
             ['name' => 'Holidays', 'route' => 'academic.holidays.index', 'icon' => 'calendar-event'],
         ],
         'student' => [
