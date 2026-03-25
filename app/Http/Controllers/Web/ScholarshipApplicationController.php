@@ -35,6 +35,25 @@ class ScholarshipApplicationController extends Controller
             'remarks' => 'nullable|string'
         ]);
 
+        // Get student and check category
+        $student = Student::findOrFail($validated['student_id']);
+        
+        // Prevent General category students from applying
+        if ($student->category === 'general') {
+            return redirect()->back()
+                ->with('error', 'Scholarships are only available for SC, ST, OBC, and EWS category students. General category students are not eligible.');
+        }
+
+        // Check if student already has a pending application
+        $existingApplication = ScholarshipApplication::where('student_id', $student->id)
+            ->where('status', 'pending')
+            ->first();
+            
+        if ($existingApplication) {
+            return redirect()->back()
+                ->with('error', 'You already have a pending scholarship application.');
+        }
+
         if ($request->hasFile('documents')) {
             $validated['document_path'] = $request->file('documents')->store('scholarships', 'public');
         }
@@ -43,7 +62,7 @@ class ScholarshipApplicationController extends Controller
         ScholarshipApplication::create($validated);
 
         return redirect()->route('fees.scholarship-applications.index')
-            ->with('success', 'Scholarship application submitted');
+            ->with('success', 'Scholarship application submitted successfully');
     }
 
     public function approve($id)
