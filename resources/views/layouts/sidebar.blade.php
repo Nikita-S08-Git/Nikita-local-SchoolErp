@@ -184,15 +184,15 @@
         
         @if($showSection)
             <div class="mb-2 mt-3">
-                <small class="text-white-50 text-uppercase fw-bold" style="font-size: 0.65rem; letter-spacing: 1.5px;">
+                <small class="text-muted text-uppercase fw-bold" style="font-size: 0.65rem; letter-spacing: 1.5px;">
                     {{ $sectionName }}
                 </small>
             </div>
         @endif
-        
+
         <a href="{{ route($item['route']) }}"
-           class="d-flex align-items-center text-dark mb-2 text-decoration-none p-2 rounded {{ request()->routeIs($item['route']) ? 'bg-primary bg-opacity-10' : '' }} hover-bg-dark hover-bg-opacity-10">
-            <i class="bi bi-{{ $item['icon'] }} me-2"></i>
+           class="d-flex align-items-center text-dark mb-2 text-decoration-none p-2 rounded {{ request()->routeIs($item['route']) ? 'bg-primary bg-opacity-10 fw-semibold' : '' }}" style="transition: all 0.2s;">
+            <i class="bi bi-{{ $item['icon'] }} me-2" style="width: 20px; text-align: center;"></i>
             <span>{{ $item['name'] }}</span>
         </a>
     @endforeach
@@ -229,13 +229,13 @@
 
     @foreach($menuItems as $item)
         <a href="{{ route($item['route']) }}"
-           class="d-flex align-items-center text-dark d-block mb-2 p-2 rounded {{ request()->routeIs($item['route']) ? 'bg-primary bg-opacity-10 fw-bold' : '' }}"
+           class="d-flex align-items-center text-dark d-block mb-2 p-2 rounded {{ request()->routeIs($item['route']) ? 'bg-primary bg-opacity-10 fw-semibold' : '' }}"
            @click="sidebarOpen = false">
-            <i class="bi bi-{{ $item['icon'] }} me-2"></i>
+            <i class="bi bi-{{ $item['icon'] }} me-2" style="width: 20px; text-align: center;"></i>
             <span>{{ $item['name'] }}</span>
         </a>
     @endforeach
-    
+
     <div class="mt-4 pt-3 border-top">
         <form method="POST" action="{{ route('logout') }}">
             @csrf
