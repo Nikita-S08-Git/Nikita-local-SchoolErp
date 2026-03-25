@@ -1,20 +1,7 @@
 @php
     $user = Auth::user();
     $userRole = $user->roles->first();
-    $role = $userRole ? $userRole->name : null;
-    
-    // Debug role (temporary - remove after testing)
-    // dd(['role' => $role, 'email' => $user->email, 'roles' => $user->roles->pluck('name')->toArray()]);
-
-    // Fallback for librarian if not found
-    if (!$role && $user->email === 'librarian@schoolerp.com') {
-        $role = 'librarian';
-    }
-    
-    // Default to student if no role found
-    if (!$role) {
-        $role = 'student';
-    }
+    $role = $userRole ? $userRole->name : 'student';
 
     // Role-based menu items
     $menuByRole = [
@@ -133,30 +120,8 @@
         $role = 'librarian';
     }
 
-    $menuItems = $menuByRole[$role] ?? [];
-
-    // Double check for librarian - if still empty, show librarian menu
-    if (empty($menuItems) && ($user->hasRole('librarian') || $user->email === 'librarian@schoolerp.com')) {
-        $menuItems = $menuByRole['librarian'];
-        $role = 'librarian';
-    }
-    
-    // If menuItems is still empty, try to get role from user's roles
-    if (empty($menuItems)) {
-        foreach ($user->roles as $userRole) {
-            if (isset($menuByRole[$userRole->name])) {
-                $menuItems = $menuByRole[$userRole->name];
-                $role = $userRole->name;
-                break;
-            }
-        }
-    }
-    
-    // Final fallback - show student menu if nothing else works
-    if (empty($menuItems)) {
-        $menuItems = $menuByRole['student'];
-        $role = 'student';
-    }
+    // Get menu items for the role
+    $menuItems = $menuByRole[$role] ?? $menuByRole['student'];
 @endphp
 
 <!-- Desktop Sidebar -->
