@@ -206,13 +206,13 @@
                                     </td>
                                     <td class="text-center">
                                     @if($student->photo_path)
-                                        <img src="{{ asset('storage/' . $student->photo_path) }}" 
+                                        <img src="{{ route('documents.students.document', [$student, 'photo']) }}" 
                                              class="rounded-circle" 
                                              style="width: 40px; height: 40px; object-fit: cover;">
                                     @else
                                         <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center" 
                                              style="width: 40px; height: 40px;">
-                                            <i class="bi bi-person text-white"></i>
+                                            <i class="fas fa-user text-white"></i>
                                         </div>
                                     @endif
                                 </td>
