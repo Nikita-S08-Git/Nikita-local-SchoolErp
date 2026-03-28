@@ -33,6 +33,7 @@ class AdminController extends Controller
         // Get all students with their user accounts
         $studentsQuery = Student::with(['user', 'division', 'program'])
             ->where('student_status', 'active')
+            ->orderBy('created_at', 'desc')
             ->distinct();
 
         // Apply student search

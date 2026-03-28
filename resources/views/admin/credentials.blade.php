@@ -121,7 +121,7 @@
                                     <td>
                                         <div class="d-flex align-items-center">
                                             @if($student->photo_path)
-                                                <img src="{{ asset('storage/' . $student->photo_path) }}" 
+                                                <img src="{{ route('documents.students.document', [$student, 'photo']) }}" 
                                                      class="rounded-circle me-2" width="32" height="32" alt="Photo">
                                             @else
                                                 <div class="bg-primary rounded-circle me-2 d-flex align-items-center justify-content-center text-white fw-bold"
@@ -328,7 +328,7 @@
     </div>
 </div>
 
-
+@push('scripts')
 <script>
 // Handle tab persistence from URL
 document.addEventListener('DOMContentLoaded', function() {
