@@ -15,6 +15,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <style>
         /* ─── Design Tokens ─── */
@@ -687,7 +689,28 @@
     <nav class="sidebar-nav" id="sidebarNav">
         @php
             $user = auth()->check() ? auth()->user() : null;
-            $role = $user ? ($user->roles->first()->name ?? 'student') : 'student';
+            $role = 'student'; // Default fallback
+            
+            if ($user) {
+                // Check if user has roles relationship (User model does, Student model doesn't)
+                if (method_exists($user, 'roles') && $user->roles && $user->roles->isNotEmpty()) {
+                    $role = $user->roles->first()->name ?? 'student';
+                }
+                // Fallback: check if user has role_name attribute
+                elseif (isset($user->role_name)) {
+                    $role = $user->role_name;
+                }
+                // Fallback: check user type for student guard
+                elseif (auth()->guard('student')->check()) {
+                    $role = 'student';
+                }
+                // Fallback: check class name
+                elseif (get_class($user) === 'App\Models\User\Student') {
+                    $role = 'student';
+                }
+            }
+            
+            // Special case for librarian
             if ($role === 'student' && $user && $user->email === 'librarian@schoolerp.com') {
                 $role = 'librarian';
             }
@@ -711,20 +734,20 @@
             $isTeacher = in_array($role, ['teacher','class_teacher','subject_teacher','hod_commerce','hod_science','hod_management','hod_arts']);
         @endphp
 
+        @if($isTeacher)
+            <!-- Teacher Dashboard Link (skip generic one) -->
+        @else
         <!-- Dashboard -->
         <span class="nav-label">Main</span>
         <ul class="nav flex-column mb-0">
             <li class="nav-item">
-                @if($isTeacher)
-                <a class="nav-link {{ request()->routeIs('teacher.dashboard') ? 'active' : '' }}" href="{{ route('teacher.dashboard') }}">
-                @else
                 <a class="nav-link {{ request()->routeIs('dashboard.*') ? 'active' : '' }}" href="{{ route($dashboardRoute) }}">
-                @endif
                     <span class="nav-icon"><i class="fas fa-home"></i></span>
                     Dashboard
                 </a>
             </li>
         </ul>
+        @endif
 
         {{-- ── ADMIN ── --}}
         @if($role === 'admin')
@@ -979,7 +1002,7 @@
         <span class="nav-label">My Account</span>
         <ul class="nav flex-column mb-0">
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('student.fees.*') ? 'active' : '' }}" href="{{ route('student.fees.index') }}">
+                <a class="nav-link {{ request()->routeIs('student.fees') ? 'active' : '' }}" href="{{ route('student.fees') }}">
                     <span class="nav-icon"><i class="fas fa-credit-card"></i></span> My Fees
                 </a>
             </li>
@@ -992,11 +1015,26 @@
                 </a>
                 <div class="collapse {{ request()->routeIs('academic.timetable.*','academic.attendance.*','academic.holidays.*') ? 'show' : '' }}" id="nav-stu-tt">
                     <ul class="sidebar-submenu">
-                        <li><a class="{{ request()->routeIs('academic.timetable.*') ? 'active' : '' }}" href="{{ route('academic.timetable.index') }}"><i class="fas fa-table fa-fw"></i> My Timetable</a></li>
-                        <li><a class="{{ request()->routeIs('academic.attendance.*') ? 'active' : '' }}" href="{{ route('academic.attendance.index') }}"><i class="fas fa-clipboard-check fa-fw"></i> Attendance</a></li>
+                        <li><a class="{{ request()->routeIs('student.timetable') ? 'active' : '' }}" href="{{ route('student.timetable') }}"><i class="fas fa-table fa-fw"></i> My Timetable</a></li>
+                        <li><a class="{{ request()->routeIs('student.attendance') ? 'active' : '' }}" href="{{ route('student.attendance') }}"><i class="fas fa-clipboard-check fa-fw"></i> My Attendance</a></li>
                         <li><a class="{{ request()->routeIs('academic.holidays.*') ? 'active' : '' }}" href="{{ route('academic.holidays.index') }}"><i class="fas fa-calendar-xmark fa-fw"></i> Holidays</a></li>
                     </ul>
                 </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('student.results') ? 'active' : '' }}" href="{{ route('student.results') }}">
+                    <span class="nav-icon"><i class="fas fa-graduation-cap"></i></span> My Results
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('student.library') ? 'active' : '' }}" href="{{ route('student.library') }}">
+                    <span class="nav-icon"><i class="fas fa-book"></i></span> Library
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('student.notifications') ? 'active' : '' }}" href="{{ route('student.notifications') }}">
+                    <span class="nav-icon"><i class="fas fa-bell"></i></span> Notifications
+                </a>
             </li>
         </ul>
         @endif
@@ -1004,7 +1042,17 @@
         {{-- ── TEACHER ── --}}
         @if($isTeacher)
         <div class="sidebar-divider"></div>
-        <span class="nav-label">Teaching</span>
+        <span class="nav-label">Main</span>
+        <ul class="nav flex-column mb-0">
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('teacher.dashboard*') ? 'active' : '' }}" href="{{ route('teacher.dashboard') }}">
+                    <span class="nav-icon"><i class="fas fa-home"></i></span> Dashboard
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-divider"></div>
+        <span class="nav-label">Profile & Settings</span>
         <ul class="nav flex-column mb-0">
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('teacher.profile*') ? 'active' : '' }}" href="{{ route('teacher.profile') }}">
@@ -1012,24 +1060,63 @@
                 </a>
             </li>
             <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('teacher.profile.edit*') ? 'active' : '' }}" href="{{ route('teacher.profile.edit') }}">
+                    <span class="nav-icon"><i class="fas fa-user-pen"></i></span> Edit Profile
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('teacher.settings*') ? 'active' : '' }}" href="{{ route('teacher.settings') }}">
+                    <span class="nav-icon"><i class="fas fa-gear"></i></span> Settings
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-divider"></div>
+        <span class="nav-label">Teaching</span>
+        <ul class="nav flex-column mb-0">
+            <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('teacher.divisions*') ? 'active' : '' }}" href="{{ route('teacher.divisions.index') }}">
                     <span class="nav-icon"><i class="fas fa-users-rectangle"></i></span> My Divisions
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('academic.timetable.*','academic.attendance.*','academic.holidays.*') ? '' : 'collapsed' }}"
-                   data-bs-toggle="collapse" data-bs-target="#nav-tch-tt" href="#">
-                    <span class="nav-icon"><i class="fas fa-calendar-week"></i></span>
-                    Schedule
+                <a class="nav-link {{ request()->routeIs('teacher.students*') ? 'active' : '' }}" href="{{ route('teacher.students.index') }}">
+                    <span class="nav-icon"><i class="fas fa-user-graduate"></i></span> Students
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('teacher.attendance*') ? '' : 'collapsed' }}"
+                   data-bs-toggle="collapse" data-bs-target="#nav-tch-att" href="#">
+                    <span class="nav-icon"><i class="fas fa-clipboard-check"></i></span>
+                    Attendance
                     <i class="fas fa-chevron-down toggle-arrow"></i>
                 </a>
-                <div class="collapse {{ request()->routeIs('academic.timetable.*','academic.attendance.*','academic.holidays.*') ? 'show' : '' }}" id="nav-tch-tt">
+                <div class="collapse {{ request()->routeIs('teacher.attendance*') ? 'show' : '' }}" id="nav-tch-att">
                     <ul class="sidebar-submenu">
-                        <li><a class="{{ request()->routeIs('academic.timetable.*') ? 'active' : '' }}" href="{{ route('academic.timetable.teacher') }}"><i class="fas fa-table fa-fw"></i> My Timetable</a></li>
-                        <li><a class="{{ request()->routeIs('academic.attendance.*') ? 'active' : '' }}" href="{{ route('academic.attendance.create') }}"><i class="fas fa-clipboard-check fa-fw"></i> Mark Attendance</a></li>
-                        <li><a class="{{ request()->routeIs('academic.holidays.*') ? 'active' : '' }}" href="{{ route('academic.holidays.index') }}"><i class="fas fa-calendar-xmark fa-fw"></i> Holidays</a></li>
+                        <li><a class="{{ request()->routeIs('teacher.attendance.index') ? 'active' : '' }}" href="{{ route('teacher.attendance.index') }}"><i class="fas fa-clipboard-list fa-fw"></i> Mark Attendance</a></li>
+                        <li><a class="{{ request()->routeIs('teacher.attendance.history') ? 'active' : '' }}" href="{{ route('teacher.attendance.history') }}"><i class="fas fa-history fa-fw"></i> Attendance History</a></li>
                     </ul>
                 </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('teacher.results*') ? 'active' : '' }}" href="{{ route('teacher.results.index') }}">
+                    <span class="nav-icon"><i class="fas fa-chart-bar"></i></span> Results
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-divider"></div>
+        <span class="nav-label">Schedule</span>
+        <ul class="nav flex-column mb-0">
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('academic.timetable.*') ? 'active' : '' }}" href="{{ route('academic.timetable.teacher') }}">
+                    <span class="nav-icon"><i class="fas fa-calendar-week"></i></span> My Timetable
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('academic.holidays.*') ? 'active' : '' }}" href="{{ route('academic.holidays.index') }}">
+                    <span class="nav-icon"><i class="fas fa-calendar-xmark"></i></span> Holidays
+                </a>
             </li>
         </ul>
         @endif
@@ -1110,7 +1197,15 @@
                 <li>
                     <div class="dropdown-header">
                         <div style="font-weight:600; color:var(--ink-900);">{{ auth()->user()->name ?? 'User' }}</div>
-                        <div>{{ ucfirst(str_replace('_', ' ', auth()->user()->roles->first()->name ?? 'User')) }}</div>
+                        @php
+                            $userRole = 'User';
+                            if (auth()->user() && method_exists(auth()->user(), 'roles') && auth()->user()->roles && auth()->user()->roles->isNotEmpty()) {
+                                $userRole = auth()->user()->roles->first()->name ?? 'User';
+                            } elseif (auth()->guard('student')->check()) {
+                                $userRole = 'student';
+                            }
+                        @endphp
+                        <div>{{ ucfirst(str_replace('_', ' ', $userRole)) }}</div>
                     </div>
                 </li>
                 <li><hr class="dropdown-divider"></li>

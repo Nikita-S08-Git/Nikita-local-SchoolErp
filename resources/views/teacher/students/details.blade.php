@@ -191,6 +191,7 @@
                         </div>
                         @endif
 
+                        <!-- Results Table with Pagination -->
                         <div class="table-responsive">
                             <table class="table table-hover">
                                 <thead>
@@ -205,6 +206,7 @@
                                         @if($canViewFullDetails)
                                         <th class="text-center">Grade</th>
                                         <th class="text-center">Status</th>
+                                        <th class="text-center">Actions</th>
                                         @endif
                                     </tr>
                                 </thead>
@@ -244,11 +246,48 @@
                                                     <span class="badge bg-danger"><i class="bi bi-x-circle me-1"></i>Fail</span>
                                                 @endif
                                             </td>
+                                            <td class="text-center">
+                                                <div class="dropdown">
+                                                    <button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                        <i class="bi bi-three-dots-vertical"></i>
+                                                    </button>
+                                                    <ul class="dropdown-menu dropdown-menu-end">
+                                                        <li>
+                                                            <a class="dropdown-item" href="#" onclick="viewResultDetails({{ $mark->id }}); return false;">
+                                                                <i class="bi bi-eye me-2 text-primary"></i>View Details
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a class="dropdown-item" href="#" onclick="printResult({{ $mark->id }}); return false;">
+                                                                <i class="bi bi-printer me-2 text-success"></i>Print
+                                                            </a>
+                                                        </li>
+                                                        <li><hr class="dropdown-divider"></li>
+                                                        <li>
+                                                            <a class="dropdown-item" href="#" onclick="downloadMarkSheet({{ $mark->id }}); return false;">
+                                                                <i class="bi bi-download me-2 text-info"></i>Download Mark Sheet
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </td>
                                             @endif
                                         </tr>
                                     @endforeach
                                 </tbody>
                             </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        <div class="d-flex justify-content-center mt-4">
+                            {{ $marks->links('pagination::bootstrap-5') }}
+                        </div>
+
+                        <!-- Pagination Info -->
+                        <div class="text-center text-muted mt-2">
+                            <small>
+                                Showing {{ $marks->firstItem() ?? 0 }} to {{ $marks->lastItem() ?? 0 }} of {{ $marks->total() }} results
+                            </small>
                         </div>
                     @else
                         <p class="text-muted text-center py-3">No academic results available</p>
@@ -302,4 +341,179 @@
         </div>
     </div>
 </div>
+
+<!-- Result Details Modal -->
+<div class="modal fade" id="resultDetailsModal" tabindex="-1" aria-labelledby="resultDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="resultDetailsModalLabel">
+                    <i class="bi bi-clipboard-data me-2"></i>Result Details
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong>Subject:</strong>
+                        <p id="modalSubject" class="text-muted">-</p>
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Examination:</strong>
+                        <p id="modalExamination" class="text-muted">-</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card bg-light">
+                            <div class="card-body text-center p-3">
+                                <h6 class="text-muted mb-1">Marks Obtained</h6>
+                                <h4 class="fw-bold text-primary mb-0" id="modalMarksObtained">-</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-light">
+                            <div class="card-body text-center p-3">
+                                <h6 class="text-muted mb-1">Max Marks</h6>
+                                <h4 class="fw-bold text-secondary mb-0" id="modalMaxMarks">-</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-light">
+                            <div class="card-body text-center p-3">
+                                <h6 class="text-muted mb-1">Percentage</h6>
+                                <h4 class="fw-bold text-success mb-0" id="modalPercentage">-</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="printCurrentResult()">
+                    <i class="bi bi-printer me-1"></i>Print
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@push('scripts')
+<script>
+let currentResultData = null;
+
+function viewResultDetails(markId) {
+    // Find the mark data from the table row
+    const row = event.target.closest('tr');
+    const subject = row.cells[0].innerText;
+    const examination = row.cells[1].innerText;
+    const marksObtained = row.cells[2]?.innerText || 'N/A';
+    const maxMarks = row.cells[3]?.innerText || '100';
+    const percentage = row.querySelector('.badge')?.innerText || '0%';
+
+    // Store current result data
+    currentResultData = { subject, examination, marksObtained, maxMarks, percentage };
+
+    // Populate modal
+    document.getElementById('modalSubject').innerText = subject;
+    document.getElementById('modalExamination').innerText = examination;
+    document.getElementById('modalMarksObtained').innerText = marksObtained;
+    document.getElementById('modalMaxMarks').innerText = maxMarks;
+    document.getElementById('modalPercentage').innerText = percentage;
+
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('resultDetailsModal'));
+    modal.show();
+}
+
+function printResult(markId) {
+    const row = event.target.closest('tr');
+    const subject = row.cells[0].innerText;
+    const examination = row.cells[1].innerText;
+    const marksObtained = row.cells[2]?.innerText || 'N/A';
+    const maxMarks = row.cells[3]?.innerText || '100';
+    const percentage = row.querySelector('.badge')?.innerText || '0%';
+    const grade = row.cells[5]?.innerText || 'N/A';
+    const status = row.cells[6]?.innerText || 'N/A';
+
+    const printWindow = window.open('', '', 'height=600,width=800');
+    printWindow.document.write(`
+        <html><head><title>Result - ${subject}</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <style>
+            body { padding: 20px; font-family: Arial, sans-serif; }
+            .header { text-align: center; margin-bottom: 30px; }
+            .result-card { border: 2px solid #667eea; border-radius: 10px; padding: 20px; margin-top: 20px; }
+        </style>
+        </head><body>
+        <div class="header">
+            <h2>Student Result Details</h2>
+            <p>Generated on: ${new Date().toLocaleDateString()}</p>
+        </div>
+        <div class="result-card">
+            <div class="row mb-3">
+                <div class="col-md-6"><strong>Subject:</strong> ${subject}</div>
+                <div class="col-md-6"><strong>Examination:</strong> ${examination}</div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-4"><strong>Marks:</strong> ${marksObtained}/${maxMarks}</div>
+                <div class="col-md-4"><strong>Percentage:</strong> ${percentage}</div>
+                <div class="col-md-4"><strong>Grade:</strong> ${grade}</div>
+            </div>
+            <div class="row">
+                <div class="col-md-4"><strong>Status:</strong> ${status}</div>
+            </div>
+        </div>
+        <script>window.print();<\/script>
+        </body></html>
+    `);
+    printWindow.document.close();
+}
+
+function printCurrentResult() {
+    if (!currentResultData) return;
+
+    const { subject, examination, marksObtained, maxMarks, percentage } = currentResultData;
+    const printWindow = window.open('', '', 'height=600,width=800');
+    printWindow.document.write(`
+        <html><head><title>Result - ${subject}</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <style>
+            body { padding: 20px; font-family: Arial, sans-serif; }
+            .header { text-align: center; margin-bottom: 30px; }
+            .result-card { border: 2px solid #667eea; border-radius: 10px; padding: 20px; margin-top: 20px; }
+        </style>
+        </head><body>
+        <div class="header">
+            <h2>Student Result Details</h2>
+            <p>Generated on: ${new Date().toLocaleDateString()}</p>
+        </div>
+        <div class="result-card">
+            <div class="row mb-3">
+                <div class="col-md-6"><strong>Subject:</strong> ${subject}</div>
+                <div class="col-md-6"><strong>Examination:</strong> ${examination}</div>
+            </div>
+            <div class="row">
+                <div class="col-md-4"><strong>Marks Obtained:</strong> ${marksObtained}</div>
+                <div class="col-md-4"><strong>Max Marks:</strong> ${maxMarks}</div>
+                <div class="col-md-4"><strong>Percentage:</strong> ${percentage}</div>
+            </div>
+        </div>
+        <script>window.print();<\/script>
+        </body></html>
+    `);
+    printWindow.document.close();
+}
+
+function downloadMarkSheet(markId) {
+    // Show a message that download is in progress
+    alert('Mark sheet download will be available soon. This feature is under development.');
+    // In production, this would redirect to a download route:
+    // window.location.href = `/teacher/results/${markId}/download`;
+}
+</script>
+@endpush
+
 @endsection

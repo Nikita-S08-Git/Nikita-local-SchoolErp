@@ -102,8 +102,14 @@ class AdmissionController extends Controller
         // Create student directly
         $student = $this->admissionService->createStudentFromAdmission($studentData);
 
+        // Get the temp password from the user record
+        $user = $student->user;
+        $tempPassword = $user->temp_password;
+
         return redirect()->route('admissions.apply.form')
-            ->with('success', 'Admission submitted successfully! Your Admission No. is: ' . $student->admission_number . '. Please save it for tracking.');
+            ->with('success', 'Admission submitted successfully! Your Admission No. is: ' . $student->admission_number . '. Please save it for tracking.')
+            ->with('student_email', $student->email)
+            ->with('temp_password', $tempPassword);
     }
 
     public function verify(Request $request, Admission $admission)

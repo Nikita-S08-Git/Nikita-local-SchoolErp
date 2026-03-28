@@ -1,6 +1,7 @@
 @extends('student.layouts.app')
 
 @section('title', 'Student Dashboard')
+@section('page-title', 'Dashboard')
 
 @section('content')
 <div class="container-fluid">
@@ -201,6 +202,153 @@
                             <p class="text-muted mt-2 small">No notifications</p>
                         </div>
                     @endif
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Exam Results & Upcoming Exams -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm" style="border-radius: 15px;">
+                <div class="card-header bg-white border-0 py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="fw-bold mb-0">
+                            <i class="bi bi-clipboard-data me-2 text-primary"></i>Recent Results
+                        </h5>
+                        <a href="{{ route('student.results') }}" class="btn btn-sm btn-outline-primary">View All</a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    @if($recentResults->count() > 0)
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Exam</th>
+                                        <th>Subject</th>
+                                        <th class="text-center">Marks</th>
+                                        <th class="text-center">Grade</th>
+                                        <th class="text-center">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($recentResults as $result)
+                                        <tr>
+                                            <td>
+                                                <small class="fw-bold">{{ $result->examination->name ?? 'N/A' }}</small>
+                                                <br>
+                                                <small class="text-muted">{{ $result->examination->type ?? '' }}</small>
+                                            </td>
+                                            <td>{{ $result->subject->name ?? 'N/A' }}</td>
+                                            <td class="text-center">
+                                                <strong>{{ $result->marks_obtained ?? 0 }}/{{ $result->max_marks ?? 100 }}</strong>
+                                            </td>
+                                            <td class="text-center">
+                                                @php
+                                                    $percentage = ($result->marks_obtained / $result->max_marks) * 100;
+                                                    $grade = $percentage >= 90 ? 'A+' : ($percentage >= 80 ? 'A' : ($percentage >= 70 ? 'B+' : ($percentage >= 60 ? 'B' : ($percentage >= 50 ? 'C' : 'F'))));
+                                                    $badgeClass = $percentage >= 60 ? 'bg-success' : ($percentage >= 40 ? 'bg-warning' : 'bg-danger');
+                                                @endphp
+                                                <span class="badge {{ $badgeClass }}">{{ $grade }}</span>
+                                            </td>
+                                            <td class="text-center">
+                                                @if($percentage >= 40)
+                                                    <span class="badge bg-success">Pass</span>
+                                                @else
+                                                    <span class="badge bg-danger">Fail</span>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <div class="text-center py-4">
+                            <i class="bi bi-file-earmark-text text-muted" style="font-size: 3rem;"></i>
+                            <p class="text-muted mt-3">No results available yet</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm" style="border-radius: 15px;">
+                <div class="card-header bg-white border-0 py-3">
+                    <h5 class="fw-bold mb-0">
+                        <i class="bi bi-calendar-event me-2 text-warning"></i>Upcoming Exams
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if($upcomingExams->count() > 0)
+                        <div class="list-group list-group-flush">
+                            @foreach($upcomingExams as $exam)
+                                <div class="list-group-item px-0">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <strong class="mb-1">{{ $exam->name }}</strong>
+                                        <span class="badge bg-primary">{{ $exam->type }}</span>
+                                    </div>
+                                    <small class="text-muted">
+                                        <i class="bi bi-calendar3 me-1"></i>{{ \Carbon\Carbon::parse($exam->start_date)->format('M d, Y') }}
+                                        @if($exam->end_date != $exam->start_date)
+                                            <br><i class="bi bi-calendar-check me-1"></i>{{ \Carbon\Carbon::parse($exam->end_date)->format('M d, Y') }}
+                                        @endif
+                                    </small>
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="text-center py-4">
+                            <i class="bi bi-calendar-check text-muted" style="font-size: 2rem;"></i>
+                            <p class="text-muted mt-2 small">No upcoming exams</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fee Status -->
+    <div class="row g-4 mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm" style="border-radius: 15px;">
+                <div class="card-header bg-white border-0 py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="fw-bold mb-0">
+                            <i class="bi bi-currency-dollar me-2 text-success"></i>Fee Status
+                        </h5>
+                        <a href="{{ route('student.fees') }}" class="btn btn-sm btn-outline-success">View Details</a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-md-4">
+                            <div class="text-center p-3 bg-light rounded-3">
+                                <i class="bi bi-piggy-bank text-primary" style="font-size: 2.5rem;"></i>
+                                <h6 class="mt-2 mb-1 text-muted">Total Fees</h6>
+                                <h3 class="mb-0 fw-bold text-primary">₹{{ number_format($totalFees, 2) }}</h3>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center p-3 bg-light rounded-3">
+                                <i class="bi bi-check-circle text-success" style="font-size: 2.5rem;"></i>
+                                <h6 class="mt-2 mb-1 text-muted">Total Paid</h6>
+                                <h3 class="mb-0 fw-bold text-success">₹{{ number_format($totalPaid, 2) }}</h3>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center p-3 bg-light rounded-3">
+                                <i class="bi bi-exclamation-circle {{ $totalOutstanding > 0 ? 'text-danger' : 'text-success' }}" style="font-size: 2.5rem;"></i>
+                                <h6 class="mt-2 mb-1 text-muted">Outstanding</h6>
+                                <h3 class="mb-0 fw-bold {{ $totalOutstanding > 0 ? 'text-danger' : 'text-success' }}">₹{{ number_format($totalOutstanding, 2) }}</h3>
+                                @if($totalOutstanding > 0)
+                                    <a href="{{ route('student.fees') }}" class="btn btn-sm btn-danger mt-2">Pay Now</a>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

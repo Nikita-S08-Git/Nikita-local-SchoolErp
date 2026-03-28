@@ -12,14 +12,14 @@
             <form action="{{ route('examinations.update', $examination) }}" method="POST">
                 @csrf
                 @method('PUT')
-                
+
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Examination Name *</label>
                         <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name', $examination->name) }}" required>
                         @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
-                    
+
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Code</label>
                         <input type="text" name="code" class="form-control @error('code') is-invalid @enderror" value="{{ old('code', $examination->code) }}">
@@ -40,19 +40,46 @@
                     </div>
 
                     <div class="col-md-6 mb-3">
-                        <label class="form-label">Academic Year *</label>
-                        <input type="text" name="academic_year" class="form-control @error('academic_year') is-invalid @enderror" value="{{ old('academic_year', $examination->academic_year) }}" required>
-                        @error('academic_year')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        <label class="form-label">Subject *</label>
+                        <select name="subject_id" class="form-select @error('subject_id') is-invalid @enderror" required>
+                            <option value="">-- Select Subject --</option>
+                            @if($subjects->count() > 0)
+                                @foreach($subjects as $subject)
+                                    <option value="{{ $subject->id }}" {{ old('subject_id', $examination->subject_id) == $subject->id ? 'selected' : '' }}>
+                                        {{ $subject->name }} ({{ $subject->code }})
+                                    </option>
+                                @endforeach
+                            @else
+                                <option disabled>No subjects available</option>
+                            @endif
+                        </select>
+                        @error('subject_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                        @if(!$examination->subject)
+                            <div class="form-text text-warning">
+                                <i class="bi bi-exclamation-triangle me-1"></i>
+                                This exam currently has no subject. Please select one to enable marks entry.
+                            </div>
+                        @endif
                     </div>
                 </div>
 
                 <div class="row">
                     <div class="col-md-6 mb-3">
+                        <label class="form-label">Academic Year *</label>
+                        <input type="text" name="academic_year" class="form-control @error('academic_year') is-invalid @enderror" value="{{ old('academic_year', $examination->academic_year) }}" required>
+                        @error('academic_year')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
+
+                    <div class="col-md-6 mb-3">
                         <label class="form-label">Start Date *</label>
                         <input type="date" name="start_date" class="form-control @error('start_date') is-invalid @enderror" value="{{ old('start_date', $examination->start_date->format('Y-m-d')) }}" required>
                         @error('start_date')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
+                </div>
 
+                <div class="row">
                     <div class="col-md-6 mb-3">
                         <label class="form-label">End Date *</label>
                         <input type="date" name="end_date" class="form-control @error('end_date') is-invalid @enderror" value="{{ old('end_date', $examination->end_date->format('Y-m-d')) }}" required>

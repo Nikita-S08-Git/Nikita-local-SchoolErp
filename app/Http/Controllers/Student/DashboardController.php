@@ -28,6 +28,9 @@ class DashboardController extends Controller
     public function index()
     {
         $student = Auth::guard('student')->user();
+        
+        // Load necessary relationships
+        $student->load(['division', 'division.academicYear', 'program', 'academicSession']);
 
         // Get today's timetable
         $today = strtolower(Carbon::now()->format('l'));
@@ -41,7 +44,7 @@ class DashboardController extends Controller
         $attendanceSummary = $this->getAttendanceSummary($student);
 
         // Get recent notifications
-        $notifications = $student->notifications()
+        $notifications = StudentNotification::where('student_id', $student->id)
             ->latest()
             ->take(5)
             ->get();
@@ -49,12 +52,41 @@ class DashboardController extends Controller
         // Get upcoming classes (next 7 days)
         $upcomingClasses = $this->getUpcomingClasses($student);
 
+        // Get recent exam results
+        $recentResults = \App\Models\Result\StudentMark::where('student_id', $student->id)
+            ->with(['subject', 'examination'])
+            ->latest()
+            ->take(5)
+            ->get();
+
+        // Get fee information
+        $feeRecords = \App\Models\Fee\StudentFee::where('student_id', $student->id)->get();
+        $totalFees = $feeRecords->sum('total_amount');
+        $totalPaid = $feeRecords->sum('paid_amount');
+        $totalOutstanding = $totalFees - $totalPaid;
+
+        // Get upcoming exams
+        $upcomingExams = \App\Models\Result\Examination::where('start_date', '>=', now())
+            ->where('status', '!=', 'cancelled') // Use status field instead of is_active
+            ->orderBy('start_date')
+            ->take(3)
+            ->get();
+
+        // Get student profile
+        $studentProfile = $student->studentProfile;
+
         return view('student.dashboard', compact(
             'student',
+            'studentProfile',
             'todayClasses',
             'attendanceSummary',
             'notifications',
-            'upcomingClasses'
+            'upcomingClasses',
+            'recentResults',
+            'totalFees',
+            'totalPaid',
+            'totalOutstanding',
+            'upcomingExams'
         ));
     }
 

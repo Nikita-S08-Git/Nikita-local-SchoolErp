@@ -85,18 +85,43 @@
         @if($existingAttendance->count() > 0)
         <div class="alert alert-info alert-dismissible fade show" role="alert">
             <i class="bi bi-info-circle me-2"></i>
-            <strong>Editing Attendance</strong> for {{ \Carbon\Carbon::parse($date)->format('d M Y') }}. 
+            <strong>Editing Attendance</strong> for {{ \Carbon\Carbon::parse($date)->format('d M Y') }}.
             Modify the status and remarks as needed, then click Update.
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
         @endif
 
+        <!-- Action Buttons - Top -->
+        <div class="card shadow-sm mb-3">
+            <div class="card-body p-2">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-success" onclick="markAll('present')">
+                            <i class="bi bi-check-circle me-1"></i>Mark All Present
+                        </button>
+                        <button type="button" class="btn btn-warning" onclick="markAll('late')">
+                            <i class="bi bi-clock me-1"></i>Mark All Late
+                        </button>
+                        <button type="button" class="btn btn-danger" onclick="markAll('absent')">
+                            <i class="bi bi-x-circle me-1"></i>Mark All Absent
+                        </button>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="bi bi-save me-2"></i>{{ $existingAttendance->count() > 0 ? 'Update Attendance' : 'Submit Attendance' }}
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <div class="card shadow-sm">
             <div class="card-header bg-white d-flex justify-content-between align-items-center">
                 <h5 class="mb-0"><i class="bi bi-list-check me-2"></i>Student List ({{ $students->total() }} students)</h5>
-                <div class="btn-group">
+                <div class="btn-group" role="group">
                     <button type="button" class="btn btn-sm btn-outline-success" onclick="markAll('present')">
                         <i class="bi bi-check-circle me-1"></i>Mark All Present
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-warning" onclick="markAll('late')">
+                        <i class="bi bi-clock me-1"></i>Mark All Late
                     </button>
                     <button type="button" class="btn btn-sm btn-outline-danger" onclick="markAll('absent')">
                         <i class="bi bi-x-circle me-1"></i>Mark All Absent

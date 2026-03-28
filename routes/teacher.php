@@ -26,6 +26,10 @@ Route::middleware(['auth', 'role:admin|teacher|class_teacher|subject_teacher|hod
     Route::get('/profile/edit', [DashboardController::class, 'editProfile'])->name('profile.edit');
     Route::put('/profile', [DashboardController::class, 'updateProfile'])->name('profile.update');
 
+    // Teacher Settings
+    Route::get('/settings', [DashboardController::class, 'settings'])->name('settings');
+    Route::put('/settings', [DashboardController::class, 'updateSettings'])->name('settings.update');
+
     // Assigned Divisions
     Route::get('/divisions', [DashboardController::class, 'divisions'])->name('divisions.index');
     Route::get('/divisions/{divisionId}/students', [DashboardController::class, 'divisionStudents'])->name('divisions.students');

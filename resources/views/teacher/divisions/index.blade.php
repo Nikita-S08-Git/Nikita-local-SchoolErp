@@ -46,7 +46,7 @@
                         <i class="fas fa-users"></i>
                     </div>
                     <h5 class="mb-2">Total Divisions</h5>
-                    <p class="display-4 fw-bold text-primary mb-0">{{ $divisions->count() }}</p>
+                    <p class="display-4 fw-bold text-primary mb-0">{{ $divisions->total() }}</p>
                     <small class="text-muted">Assigned to you</small>
                 </div>
             </div>
@@ -60,7 +60,7 @@
                         <i class="fas fa-user-graduate"></i>
                     </div>
                     <h5 class="mb-2">Total Students</h5>
-                    <p class="display-4 fw-bold text-success mb-0">{{ $divisions->sum('student_count') }}</p>
+                    <p class="display-4 fw-bold text-success mb-0">{{ number_format($divisions->sum('student_count')) }}</p>
                     <small class="text-muted">Across all divisions</small>
                 </div>
             </div>
@@ -182,14 +182,29 @@
         </div>
         @endif
 
-        <!-- Section Title -->
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h4 class="fw-bold mb-0">
-                <i class="bi bi-grid-3x3-gap me-2 text-primary"></i>Division Cards
-            </h4>
-            <span class="badge bg-primary fs-6">
-                <i class="bi bi-collection me-1"></i>{{ $divisions->count() }} Divisions
-            </span>
+        <!-- Section Title with Pagination Controls -->
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+            <div>
+                <h4 class="fw-bold mb-0">
+                    <i class="bi bi-grid-3x3-gap me-2 text-primary"></i>Division Cards
+                </h4>
+                <small class="text-muted">Showing {{ $divisions->firstItem() ?? 0 }} to {{ $divisions->lastItem() ?? 0 }} of {{ $divisions->total() }} divisions</small>
+            </div>
+            <div class="d-flex gap-2 align-items-center">
+                <form method="GET" action="{{ route('teacher.divisions.index') }}" class="d-flex align-items-center gap-2">
+                    <label class="text-muted small mb-0">Per Page:</label>
+                    <select name="per_page" class="form-select form-select-sm" style="width: auto;" onchange="this.form.submit()">
+                        <option value="6" {{ $perPage == 6 ? 'selected' : '' }}>6</option>
+                        <option value="9" {{ $perPage == 9 ? 'selected' : '' }}>9</option>
+                        <option value="12" {{ $perPage == 12 ? 'selected' : '' }}>12</option>
+                        <option value="15" {{ $perPage == 15 ? 'selected' : '' }}>15</option>
+                        <option value="25" {{ $perPage == 25 ? 'selected' : '' }}>25</option>
+                    </select>
+                </form>
+                <span class="badge bg-primary fs-6">
+                    <i class="bi bi-collection me-1"></i>{{ $divisions->count() }} on page
+                </span>
+            </div>
         </div>
 
         <!-- Division Cards Grid -->
@@ -303,6 +318,15 @@
                 </div>
             @endforeach
         </div>
+
+        <!-- Pagination -->
+        @if($divisions->hasPages())
+            <div class="d-flex justify-content-center mt-5">
+                <nav aria-label="Division pagination">
+                    {{ $divisions->links('pagination::bootstrap-5') }}
+                </nav>
+            </div>
+        @endif
     @else
         <!-- Empty State -->
         <div class="empty-state-container">

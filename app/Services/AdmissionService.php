@@ -19,14 +19,19 @@ class AdmissionService
     public function createStudentFromAdmission(array $data): Student
     {
         return DB::transaction(function () use ($data) {
-            // Create user first
+            // Generate random password
+            $tempPassword = \Illuminate\Support\Str::random(8);
+            
+            // Create user first with auto-generated password
             $user = \App\Models\User::create([
                 'name' => $data['first_name'] . ' ' . ($data['middle_name'] ?? '') . ' ' . $data['last_name'],
                 'email' => $data['email'],
-                'password' => bcrypt('password123'), // Default password
-                'role' => 'student',
+                'password' => bcrypt($tempPassword),
+                'temp_password' => $tempPassword, // Plain text for admin viewing
+                'password_generated_at' => now(), // Track when generated
+                'email_verified_at' => now(), // Auto-verify email
             ]);
-            
+
             // Map fields to students table
             // roll_number = admission_number (they are the same)
             $studentData = [
@@ -57,17 +62,26 @@ class AdmissionService
                 'marksheet_path' => $data['marksheet_path'] ?? null,
                 'cast_certificate_path' => $data['cast_certificate_path'] ?? null,
             ];
-            
+
             $student = Student::create($studentData);
-            
-            // Log the admission
+
+            // Assign student role
+            $user->assignRole('student');
+
+            // Log the admission with password info (for admin to view)
             AuditLog::logEvent(
                 $student,
                 'admission_created',
                 null,
-                $student->toArray()
+                [
+                    'student_id' => $student->id,
+                    'admission_number' => $student->admission_number,
+                    'email' => $student->email,
+                    'temp_password' => $tempPassword, // Store in audit log for admin reference
+                    'password_generated_at' => now()
+                ]
             );
-            
+
             return $student;
         });
     }

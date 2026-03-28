@@ -261,9 +261,26 @@
                         </div>
                         
                         @if(session('success'))
-                        <div class="alert alert-success alert-dismissible fade show mb-4">
-                            {{ session('success') }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-check-circle-fill me-2 fs-4"></i>
+                                <div class="flex-grow-1">
+                                    <strong>Admission Submitted Successfully!</strong>
+                                    <p class="mb-2 mt-2">{{ session('success') }}</p>
+                                    <div class="alert alert-warning mb-0" style="background-color: #fff3cd; border-color: #ffecb5;">
+                                        <strong><i class="bi bi-key me-1"></i>Login Credentials:</strong>
+                                        <div class="mt-2">
+                                            <strong>Email:</strong> <code class="bg-light px-2 py-1 rounded">{{ session('student_email') }}</code><br>
+                                            <strong class="text-danger">Temporary Password:</strong> <code class="bg-danger text-white px-2 py-1 rounded">{{ session('temp_password') }}</code>
+                                        </div>
+                                        <small class="text-danger mt-1 d-block">
+                                            <i class="bi bi-exclamation-triangle me-1"></i>
+                                            Please save these credentials securely. You will need them to login.
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                         @endif
                         
