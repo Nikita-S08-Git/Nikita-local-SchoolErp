@@ -25,11 +25,13 @@
         <li class="nav-item" role="presentation">
             <button class="nav-link active" id="students-tab" data-bs-toggle="tab" data-bs-target="#students" type="button">
                 <i class="bi bi-mortarboard me-2"></i>Students
+                <span class="badge bg-primary ms-2">{{ $students->total() }}</span>
             </button>
         </li>
         <li class="nav-item" role="presentation">
             <button class="nav-link" id="teachers-tab" data-bs-toggle="tab" data-bs-target="#teachers" type="button">
                 <i class="bi bi-person-badge me-2"></i>Teachers
+                <span class="badge bg-info ms-2">{{ $teachers->total() }}</span>
             </button>
         </li>
     </ul>
@@ -38,13 +40,293 @@
     <div class="tab-content" id="credentialsTabContent">
         <!-- Students Tab -->
         <div class="tab-pane fade show active" id="students" role="tabpanel">
+            <!-- Search and Filter -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <form method="GET" action="{{ route('admin.credentials.index') }}" class="row g-3">
+                        <input type="hidden" name="tab" value="students">
+                        <div class="col-md-4">
+                            <label class="form-label small text-muted">Search Students</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                <input type="text" name="student_search" class="form-control" 
+                                       placeholder="Name, Email, Admission No, Roll No..." 
+                                       value="{{ $studentSearch }}">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small text-muted">Filter by Division</label>
+                            <select name="division_filter" class="form-select">
+                                <option value="">All Divisions</option>
+                                @foreach($divisions as $division)
+                                    <option value="{{ $division->id }}" {{ $divisionFilter == $division->id ? 'selected' : '' }}>
+                                        {{ $division->program->name ?? '' }} - {{ $division->division_name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <div class="btn-group w-100">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-filter me-1"></i>Filter
+                                </button>
+                                <a href="{{ route('admin.credentials.index', ['tab' => 'students']) }}" class="btn btn-outline-secondary">
+                                    <i class="bi bi-x-circle"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end justify-content-end">
+                            <button type="button" class="btn btn-success" onclick="exportTable('students')">
+                                <i class="bi bi-download me-1"></i>Export CSV
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Results Info -->
+            @if($studentSearch || $divisionFilter)
+            <div class="alert alert-info d-flex align-items-center mb-3">
+                <i class="bi bi-info-circle me-2"></i>
+                <span>Showing {{ $students->count() }} of {{ $students->total() }} students
+                @if($studentSearch) with "{{ $studentSearch }}" @endif
+                @if($divisionFilter) in selected division @endif</span>
+            </div>
+            @endif
+
             <div class="card shadow-sm">
                 <div class="card-header bg-white d-flex justify-content-between align-items-center">
                     <h5 class="mb-0"><i class="bi bi-table me-2"></i>Student Credentials</h5>
-                    <button class="btn btn-sm btn-success" onclick="exportTable('students')">
-                        <i class="bi bi-download me-1"></i>Export
-                    </button>
                 </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0" id="studentsTable">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="ps-4">#</th>
+                                    <th>Student Name</th>
+                                    <th>Email</th>
+                                    <th>Admission No</th>
+                                    <th>Roll No</th>
+                                    <th>Division</th>
+                                    <th>Password</th>
+                                    <th>Generated On</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($students as $index => $student)
+                                <tr>
+                                    <td class="ps-4">{{ $students->firstItem() + $index }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            @if($student->photo_path)
+                                                <img src="{{ asset('storage/' . $student->photo_path) }}" 
+                                                     class="rounded-circle me-2" width="32" height="32" alt="Photo">
+                                            @else
+                                                <div class="bg-primary rounded-circle me-2 d-flex align-items-center justify-content-center text-white fw-bold"
+                                                     style="width: 32px; height: 32px; min-width: 32px;">
+                                                    {{ strtoupper(substr($student->first_name, 0, 1)) }}
+                                                </div>
+                                            @endif
+                                            <div>
+                                                <div class="fw-semibold">{{ $student->first_name }} {{ $student->last_name }}</div>
+                                                <small class="text-muted">{{ $student->email }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info">{{ $student->user->email ?? 'N/A' }}</span>
+                                    </td>
+                                    <td><span class="badge bg-primary">{{ $student->admission_number }}</span></td>
+                                    <td><span class="badge bg-secondary">{{ $student->roll_number }}</span></td>
+                                    <td>{{ $student->division->division_name ?? 'N/A' }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="input-group input-group-sm" style="max-width: 200px;">
+                                                <input type="password" class="form-control font-monospace" value="{{ $student->user->temp_password ?? 'Not Set' }}" 
+                                                       id="password-{{ $student->id }}" readonly style="background-color: #f8f9fa; letter-spacing: 2px;">
+                                                <button class="btn btn-outline-success" type="button" 
+                                                        onclick="togglePassword('password-{{ $student->id }}')" title="Show/Hide Password">
+                                                    <i class="bi bi-eye" id="eye-icon-{{ $student->id }}"></i>
+                                                </button>
+                                            </div>
+                                            <button class="btn btn-sm btn-outline-primary" onclick="copyPassword('password-{{ $student->id }}')" title="Copy Password">
+                                                <i class="bi bi-clipboard"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-info text-white" onclick="viewPasswordModal('{{ $student->first_name }} {{ $student->last_name }}', '{{ $student->user->email ?? '' }}', '{{ $student->user->temp_password ?? 'Not Set' }}', '{{ $student->admission_number }}')" title="View Full Details">
+                                                <i class="bi bi-eye"></i> View
+                                            </button>
+                                        </div>
+                                        <small class="text-muted">Generated: {{ $student->user->password_generated_at ? $student->user->password_generated_at->diffForHumans() : 'N/A' }}</small>
+                                    </td>
+                                    <td>{{ $student->user->password_generated_at ? $student->user->password_generated_at->format('d M Y') : 'N/A' }}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary" onclick="resetPassword('student', {{ $student->user->id }})">
+                                            <i class="bi bi-arrow-clockwise"></i> Reset
+                                        </button>
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="9" class="text-center py-5">
+                                        <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+                                        <h5 class="text-muted mt-3">No students found</h5>
+                                        @if($studentSearch || $divisionFilter)
+                                        <p class="text-muted">Try adjusting your search or filter criteria</p>
+                                        <a href="{{ route('admin.credentials.index', ['tab' => 'students']) }}" class="btn btn-outline-primary">Clear Filters</a>
+                                        @endif
+                                    </td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                @if($students->hasPages())
+                <div class="card-footer bg-white border-0 p-3">
+                    {{ $students->appends(['student_search' => $studentSearch, 'division_filter' => $divisionFilter])->links() }}
+                </div>
+                @endif
+            </div>
+        </div>
+
+        <!-- Teachers Tab -->
+        <div class="tab-pane fade" id="teachers" role="tabpanel">
+            <!-- Search -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <form method="GET" action="{{ route('admin.credentials.index') }}" class="row g-3">
+                        <input type="hidden" name="tab" value="teachers">
+                        <div class="col-md-6">
+                            <label class="form-label small text-muted">Search Teachers</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                <input type="text" name="teacher_search" class="form-control" 
+                                       placeholder="Name or Email..." 
+                                       value="{{ $teacherSearch }}">
+                            </div>
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <div class="btn-group w-100">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-filter me-1"></i>Filter
+                                </button>
+                                <a href="{{ route('admin.credentials.index', ['tab' => 'teachers']) }}" class="btn btn-outline-secondary">
+                                    <i class="bi bi-x-circle"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end justify-content-end">
+                            <button type="button" class="btn btn-success" onclick="exportTable('teachers')">
+                                <i class="bi bi-download me-1"></i>Export CSV
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Results Info -->
+            @if($teacherSearch)
+            <div class="alert alert-info d-flex align-items-center mb-3">
+                <i class="bi bi-info-circle me-2"></i>
+                <span>Showing {{ $teachers->count() }} of {{ $teachers->total() }} teachers with "{{ $teacherSearch }}"</span>
+            </div>
+            @endif
+
+            <div class="card shadow-sm">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-table me-2"></i>Teacher Credentials</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0" id="teachersTable">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="ps-4">#</th>
+                                    <th>Teacher Name</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Password</th>
+                                    <th>Generated On</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($teachers as $index => $teacher)
+                                <tr>
+                                    <td class="ps-4">{{ $teachers->firstItem() + $index }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-primary rounded-circle me-2 d-flex align-items-center justify-content-center text-white fw-bold"
+                                                 style="width: 32px; height: 32px; min-width: 32px;">
+                                                {{ strtoupper(substr($teacher->name, 0, 1)) }}
+                                            </div>
+                                            <div>
+                                                <div class="fw-semibold">{{ $teacher->name }}</div>
+                                                <small class="text-muted">{{ $teacher->email }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge bg-info">{{ $teacher->email }}</span></td>
+                                    <td>
+                                        @if($teacher->roles->count() > 0)
+                                            <span class="badge bg-primary">{{ $teacher->roles->first()->name }}</span>
+                                        @else
+                                            <span class="badge bg-secondary">No Role</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="input-group input-group-sm" style="max-width: 200px;">
+                                                <input type="password" class="form-control font-monospace" value="{{ $teacher->temp_password ?? 'Not Set' }}" 
+                                                       id="teacher-password-{{ $teacher->id }}" readonly style="background-color: #f8f9fa; letter-spacing: 2px;">
+                                                <button class="btn btn-outline-success" type="button" 
+                                                        onclick="togglePassword('teacher-password-{{ $teacher->id }}')" title="Show/Hide Password">
+                                                    <i class="bi bi-eye" id="teacher-eye-icon-{{ $teacher->id }}"></i>
+                                                </button>
+                                            </div>
+                                            <button class="btn btn-sm btn-outline-primary" onclick="copyPassword('teacher-password-{{ $teacher->id }}')" title="Copy Password">
+                                                <i class="bi bi-clipboard"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-info text-white" onclick="viewPasswordModal('{{ $teacher->name }}', '{{ $teacher->email }}', '{{ $teacher->temp_password ?? 'Not Set' }}', 'Teacher')" title="View Full Details">
+                                                <i class="bi bi-eye"></i> View
+                                            </button>
+                                        </div>
+                                        <small class="text-muted">Generated: {{ $teacher->password_generated_at ? $teacher->password_generated_at->diffForHumans() : 'N/A' }}</small>
+                                    </td>
+                                    <td>{{ $teacher->password_generated_at ? $teacher->password_generated_at->format('d M Y') : 'N/A' }}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary" onclick="resetPassword('teacher', {{ $teacher->id }})">
+                                            <i class="bi bi-arrow-clockwise"></i> Reset
+                                        </button>
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="7" class="text-center py-5">
+                                        <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+                                        <h5 class="text-muted mt-3">No teachers found</h5>
+                                        @if($teacherSearch)
+                                        <p class="text-muted">Try adjusting your search criteria</p>
+                                        <a href="{{ route('admin.credentials.index', ['tab' => 'teachers']) }}" class="btn btn-outline-primary">Clear Filters</a>
+                                        @endif
+                                    </td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                @if($teachers->hasPages())
+                <div class="card-footer bg-white border-0 p-3">
+                    {{ $teachers->appends(['teacher_search' => $teacherSearch])->links() }}
+                </div>
+                @endif
+            </div>
+        </div>
+    </div>
+</div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
                         <table class="table table-hover align-middle mb-0" id="studentsTable">
@@ -231,6 +513,26 @@
 
 @push('scripts')
 <script>
+// Handle tab persistence from URL
+document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tab = urlParams.get('tab');
+    
+    if (tab === 'teachers') {
+        const teachersTab = document.getElementById('teachers-tab');
+        const teachersPane = document.getElementById('teachers');
+        const studentsTab = document.getElementById('students-tab');
+        const studentsPane = document.getElementById('students');
+        
+        if (teachersTab && teachersPane) {
+            studentsTab.classList.remove('active');
+            studentsPane.classList.remove('show', 'active');
+            teachersTab.classList.add('active');
+            teachersPane.classList.add('show', 'active');
+        }
+    }
+});
+
 function togglePassword(inputId) {
     const input = document.getElementById(inputId);
     const eyeIcon = document.getElementById('eye-icon-' + inputId.replace('password-', '').replace('teacher-password-', ''));
