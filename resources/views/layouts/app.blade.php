@@ -734,8 +734,8 @@
             $isTeacher = in_array($role, ['teacher','class_teacher','subject_teacher','hod_commerce','hod_science','hod_management','hod_arts']);
         @endphp
 
-        @if($isTeacher)
-            <!-- Teacher Dashboard Link (skip generic one) -->
+        @if($isTeacher || $role === 'admin' || $role === 'librarian')
+            <!-- Skip generic dashboard for teachers, admin, and librarian (they have their own) -->
         @else
         <!-- Dashboard -->
         <span class="nav-label">Main</span>
@@ -822,7 +822,7 @@
         </ul>
 
         {{-- ── PRINCIPAL / OFFICE ── --}}
-        @if(in_array($role, ['principal', 'office']))
+        @if(in_array($role, ['principal', 'office']) && $role !== 'admin')
 
         <div class="sidebar-divider"></div>
         <span class="nav-label">Administration</span>
@@ -1193,24 +1193,58 @@
         {{-- ── LIBRARIAN ── --}}
         @if($role === 'librarian')
         <div class="sidebar-divider"></div>
-        <span class="nav-label">Library</span>
+        <span class="nav-label">Main</span>
         <ul class="nav flex-column mb-0">
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('library.*') ? '' : 'collapsed' }}"
-                   data-bs-toggle="collapse" data-bs-target="#nav-libr" href="#">
-                    <span class="nav-icon"><i class="fas fa-book-bookmark"></i></span>
-                    Books & Issues
-                    <i class="fas fa-chevron-down toggle-arrow"></i>
+                <a class="nav-link {{ request()->routeIs('librarian.dashboard') ? 'active' : '' }}" href="{{ route('librarian.dashboard') }}">
+                    <span class="nav-icon"><i class="fas fa-home"></i></span> Dashboard
                 </a>
-                <div class="collapse {{ request()->routeIs('library.*') ? 'show' : '' }}" id="nav-libr">
-                    <ul class="sidebar-submenu">
-                        <li><a class="{{ request()->routeIs('library.books.index') ? 'active' : '' }}" href="{{ route('library.books.index') }}"><i class="fas fa-book fa-fw"></i> Books</a></li>
-                        <li><a class="{{ request()->routeIs('library.issues.create') ? 'active' : '' }}" href="{{ route('library.issues.create') }}"><i class="fas fa-circle-plus fa-fw"></i> Issue Book</a></li>
-                        <li><a class="{{ request()->routeIs('library.issues.index') ? 'active' : '' }}" href="{{ route('library.issues.index') }}"><i class="fas fa-arrow-turn-left fa-fw"></i> Returns</a></li>
-                        <li><a class="{{ request()->routeIs('library.students') ? 'active' : '' }}" href="{{ route('library.students') }}"><i class="fas fa-users fa-fw"></i> Students</a></li>
-                    </ul>
-                </div>
             </li>
+        </ul>
+
+        <div class="sidebar-divider"></div>
+        <span class="nav-label">Profile & Settings</span>
+        <ul class="nav flex-column mb-0">
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('librarian.profile*') ? 'active' : '' }}" href="{{ route('librarian.profile') }}">
+                    <span class="nav-icon"><i class="fas fa-user-circle"></i></span> My Profile
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-divider"></div>
+        <span class="nav-label">Library Management</span>
+        <ul class="nav flex-column mb-0">
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('library.books.*') ? 'active' : '' }}" href="{{ route('library.books.index') }}">
+                    <span class="nav-icon"><i class="fas fa-book"></i></span> Books
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('library.issues.create') ? 'active' : '' }}" href="{{ route('library.issues.create') }}">
+                    <span class="nav-icon"><i class="fas fa-plus-circle"></i></span> Issue Book
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('librarian.issued-books') ? 'active' : '' }}" href="{{ route('librarian.issued-books') }}">
+                    <span class="nav-icon"><i class="fas fa-arrow-left-right"></i></span> Issued Books
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('librarian.students') ? 'active' : '' }}" href="{{ route('librarian.students') }}">
+                    <span class="nav-icon"><i class="fas fa-users"></i></span> Students List
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('library.issues.index') ? 'active' : '' }}" href="{{ route('library.issues.index') }}">
+                    <span class="nav-icon"><i class="fas fa-undo"></i></span> Return Books
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-divider"></div>
+        <span class="nav-label">Other</span>
+        <ul class="nav flex-column mb-0">
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('academic.holidays.*') ? 'active' : '' }}" href="{{ route('academic.holidays.index') }}">
                     <span class="nav-icon"><i class="fas fa-calendar-xmark"></i></span> Holidays

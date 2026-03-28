@@ -15,10 +15,11 @@ class SettingsController extends Controller
     {
         // Get all settings from database or config
         $settings = [
-            'school_name' => config('app.name', 'School ERP'),
-            'school_email' => config('mail.from.address', 'info@schoolerp.com'),
-            'school_phone' => config('app.phone', ''),
-            'school_address' => config('app.address', ''),
+            'college_name' => config('app.name', 'College ERP'),
+            'college_email' => config('mail.from.address', 'info@collegeerp.com'),
+            'college_phone' => config('app.phone', ''),
+            'college_address' => config('app.address', ''),
+            'affiliation_number' => config('app.affiliation', ''),
             'academic_year_start' => config('app.academic_year_start', '01-06'),
             'attendance_required' => config('app.attendance_required', 75),
             'fee_late_fee_percent' => config('app.fee_late_fee_percent', 5),
@@ -34,10 +35,11 @@ class SettingsController extends Controller
     public function update(Request $request)
     {
         $validated = $request->validate([
-            'school_name' => 'required|string|max:255',
-            'school_email' => 'required|email|max:255',
-            'school_phone' => 'nullable|string|max:15',
-            'school_address' => 'nullable|string|max:500',
+            'college_name' => 'required|string|max:255',
+            'college_email' => 'required|email|max:255',
+            'college_phone' => 'nullable|string|max:15',
+            'college_address' => 'nullable|string|max:500',
+            'affiliation_number' => 'nullable|string|max:100',
             'academic_year_start' => 'nullable|date_format:m-d',
             'attendance_required' => 'nullable|integer|min:0|max:100',
             'fee_late_fee_percent' => 'nullable|integer|min:0|max:100',
@@ -74,5 +76,19 @@ class SettingsController extends Controller
         ];
 
         return view('admin.settings.system', compact('systemInfo'));
+    }
+
+    /**
+     * Clear application cache
+     */
+    public function clearCache()
+    {
+        \Artisan::call('cache:clear');
+        \Artisan::call('view:clear');
+        \Artisan::call('config:clear');
+        \Artisan::call('route:clear');
+
+        return redirect()->route('admin.settings.system')
+            ->with('success', 'All caches cleared successfully!');
     }
 }

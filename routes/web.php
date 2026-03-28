@@ -21,6 +21,7 @@ use App\Http\Controllers\Teacher\AttendanceController;
 use App\Http\Controllers\Web\AcademicRuleController;
 use App\Http\Controllers\Student\AuthController as StudentAuthController;
 use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
+use App\Http\Controllers\LibrarianDashboardController;
 use App\Http\Controllers\Web\DocumentDownloadController;
 
 // Bulk action route - moved inside auth middleware
@@ -69,11 +70,30 @@ Route::middleware('auth:student')->prefix('student')->name('student.')->group(fu
     
     // Library
     Route::get('/library', [StudentDashboardController::class, 'library'])->name('library');
-    
+
     // Notifications
     Route::get('/notifications', [StudentDashboardController::class, 'notifications'])->name('notifications');
     Route::post('/notifications/{id}/read', [StudentDashboardController::class, 'markNotificationAsRead'])->name('notifications.read');
     Route::post('/notifications/read-all', [StudentDashboardController::class, 'markAllNotificationsAsRead'])->name('notifications.read-all');
+});
+
+// Librarian Routes
+Route::middleware(['auth', 'role:librarian'])->prefix('librarian')->name('librarian.')->group(function () {
+    // Librarian Dashboard
+    Route::get('/dashboard', [LibrarianDashboardController::class, 'index'])->name('dashboard');
+    
+    // Librarian Profile
+    Route::get('/profile', [LibrarianDashboardController::class, 'profile'])->name('profile');
+    Route::put('/profile', [LibrarianDashboardController::class, 'updateProfile'])->name('profile.update');
+    Route::post('/profile/change-password', [LibrarianDashboardController::class, 'changePassword'])->name('profile.change-password');
+    
+    // Issued Books
+    Route::get('/issued-books', [LibrarianDashboardController::class, 'issuedBooks'])->name('issued-books');
+    
+    // Students List
+    Route::get('/students', [LibrarianDashboardController::class, 'students'])->name('students');
+    Route::get('/students/{student}', [LibrarianDashboardController::class, 'studentDetails'])->name('student-details');
+    Route::post('/students/{student}/contact', [LibrarianDashboardController::class, 'contactStudent'])->name('contact-student');
 });
 
 Route::prefix('dashboard/principal')
@@ -169,6 +189,7 @@ Route::middleware(['auth', 'role:super_admin|admin'])->prefix('admin')->name('ad
     Route::get('/settings', [\App\Http\Controllers\Admin\SettingsController::class, 'index'])->name('settings');
     Route::put('/settings', [\App\Http\Controllers\Admin\SettingsController::class, 'update'])->name('settings.update');
     Route::get('/settings/system', [\App\Http\Controllers\Admin\SettingsController::class, 'system'])->name('settings.system');
+    Route::post('/settings/clear-cache', [\App\Http\Controllers\Admin\SettingsController::class, 'clearCache'])->name('settings.clear-cache');
 
     // Admin Fee Management
     Route::get('/fees', [\App\Http\Controllers\Admin\FeeManagementController::class, 'index'])->name('fees');
