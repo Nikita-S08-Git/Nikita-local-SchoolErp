@@ -247,6 +247,11 @@ class StudentController extends Controller
 
         $student->update($validated);
 
+        // Also update the user's email if it was changed
+        if ($student->user && isset($validated['email'])) {
+            $student->user->update(['email' => $validated['email']]);
+        }
+
         return redirect()
             ->route('dashboard.students.show', $student)
             ->with('success', 'Student updated successfully.');
