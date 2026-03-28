@@ -106,32 +106,36 @@
                         @forelse($attendanceBySubject as $item)
                             <tr>
                                 <td>
-                                    <strong>{{ $item->subject->name ?? 'N/A' }}</strong>
+                                    <strong>{{ $item->subject_name ?? ($item->subject->name ?? 'N/A') }}</strong>
                                     <br>
-                                    <small class="text-muted">{{ $item->subject->code ?? '' }}</small>
+                                    <small class="text-muted">{{ $item->subject_code ?? ($item->subject->code ?? '') }}</small>
                                 </td>
-                                <td class="text-center">{{ $item->total }}</td>
-                                <td class="text-center"><span class="badge bg-success">{{ $item->present }}</span></td>
-                                <td class="text-center"><span class="badge bg-danger">{{ $item->absent }}</span></td>
+                                <td class="text-center">{{ $item->total ?? 0 }}</td>
+                                <td class="text-center"><span class="badge bg-success">{{ $item->present ?? 0 }}</span></td>
+                                <td class="text-center"><span class="badge bg-danger">{{ $item->absent ?? 0 }}</span></td>
                                 <td class="text-center">
+                                    @php
+                                        $percentage = $item->percentage ?? ($item->total > 0 ? round(($item->present / $item->total) * 100, 2) : 0);
+                                        $badgeClass = $percentage >= 75 ? 'success' : ($percentage >= 65 ? 'warning' : 'danger');
+                                    @endphp
                                     <div class="progress" style="width: 120px; margin: 0 auto;">
-                                        <div class="progress-bar bg-{{ $item->percentage >= 75 ? 'success' : ($item->percentage >= 65 ? 'warning' : 'danger') }}" 
-                                             role="progressbar" 
-                                             style="width: {{ $item->percentage }}%"
-                                             aria-valuenow="{{ $item->percentage }}" 
-                                             aria-valuemin="0" 
+                                        <div class="progress-bar bg-{{ $badgeClass }}"
+                                             role="progressbar"
+                                             style="width: {{ $percentage }}%"
+                                             aria-valuenow="{{ $percentage }}"
+                                             aria-valuemin="0"
                                              aria-valuemax="100">
-                                            {{ $item->percentage }}%
+                                            {{ $percentage }}%
                                         </div>
                                     </div>
                                 </td>
                                 <td class="text-center">
-                                    @if($item->percentage >= 75)
+                                    @if($percentage >= 75)
                                         <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Safe</span>
-                                    @elseif($item->percentage >= 65)
+                                    @elseif($percentage >= 65)
                                         <span class="badge bg-warning text-dark"><i class="bi bi-exclamation-circle me-1"></i>Warning</span>
                                     @else
-                                        <span class="badge bg-danger"><i class="bi bi-x-circle me-1"></i>Low ({{ 75 - $item->percentage }}% needed)</span>
+                                        <span class="badge bg-danger"><i class="bi bi-x-circle me-1"></i>Low ({{ 75 - $percentage }}% needed)</span>
                                     @endif
                                 </td>
                             </tr>
@@ -168,14 +172,20 @@
                     <tbody>
                         @forelse($recentAttendance as $attendance)
                             <tr>
-                                <td>{{ $attendance->date->format('d M Y') }}</td>
+                                <td>{{ $attendance->attendance_date ? \Carbon\Carbon::parse($attendance->attendance_date)->format('d M Y') : ($attendance->date->format('d M Y') ?? 'N/A') }}</td>
                                 <td>{{ $attendance->timetable->subject->name ?? 'N/A' }}</td>
                                 <td>
                                     <span class="badge bg-{{ $attendance->status === 'present' ? 'success' : ($attendance->status === 'absent' ? 'danger' : 'warning') }}">
                                         {{ ucfirst($attendance->status) }}
                                     </span>
                                 </td>
-                                <td>{{ $attendance->remarks ?? '-' }}</td>
+                                <td>
+                                    @if($attendance->remarks && trim($attendance->remarks) !== '')
+                                        {{ $attendance->remarks }}
+                                    @else
+                                        <span class="text-muted">-</span>
+                                    @endif
+                                </td>
                             </tr>
                         @empty
                             <tr>
@@ -185,6 +195,21 @@
                     </tbody>
                 </table>
             </div>
+
+            @if($recentAttendance->hasPages())
+            <div class="card-footer bg-white border-0 py-3">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                    <div class="text-muted">
+                        Showing <strong>{{ $recentAttendance->firstItem() ?? 0 }}</strong> to 
+                        <strong>{{ $recentAttendance->lastItem() ?? 0 }}</strong> of 
+                        <strong>{{ $recentAttendance->total() }}</strong> records
+                    </div>
+                    <nav aria-label="Attendance pagination">
+                        {{ $recentAttendance->links('pagination::bootstrap-5') }}
+                    </nav>
+                </div>
+            </div>
+            @endif
         </div>
     </div>
 </div>

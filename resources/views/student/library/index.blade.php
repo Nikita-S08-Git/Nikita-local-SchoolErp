@@ -66,6 +66,21 @@
                 </div>
             @endif
         </div>
+
+        @if($issuedBooks->count() > 0 && $issuedBooks->hasPages())
+        <div class="card-footer bg-white border-0 py-3">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div class="text-muted">
+                    Showing <strong>{{ $issuedBooks->firstItem() ?? 0 }}</strong> to 
+                    <strong>{{ $issuedBooks->lastItem() ?? 0 }}</strong> of 
+                    <strong>{{ $issuedBooks->total() }}</strong> books
+                </div>
+                <nav aria-label="Book pagination">
+                    {{ $issuedBooks->links('pagination::bootstrap-5') }}
+                </nav>
+            </div>
+        </div>
+        @endif
     </div>
 </div>
 @endsection

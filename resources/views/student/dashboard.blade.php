@@ -5,6 +5,42 @@
 
 @section('content')
 <div class="container-fluid">
+    <!-- Admin Notifications/Important Notes -->
+    @if($notifications->count() > 0)
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm" style="border-radius: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-megaphone-fill text-white me-2" style="font-size: 1.5rem;"></i>
+                        <h5 class="text-white mb-0">Important Notifications</h5>
+                    </div>
+                    <div class="row g-3">
+                        @foreach($notifications as $notification)
+                        <div class="col-md-6">
+                            <div class="bg-white bg-opacity-10 rounded-3 p-3">
+                                <div class="d-flex align-items-start">
+                                    <span class="badge bg-{{ $notification->badge_color }} me-2">
+                                        <i class="bi {{ $notification->icon }}"></i>
+                                    </span>
+                                    <div class="flex-grow-1">
+                                        <h6 class="text-white mb-1">{{ $notification->title }}</h6>
+                                        <p class="text-white-50 small mb-1">{{ Str::limit($notification->message, 100) }}</p>
+                                        <small class="text-white-50">
+                                            <i class="bi bi-clock me-1"></i>{{ $notification->created_at->diffForHumans() }}
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
     <!-- Welcome Header -->
     <div class="row mb-4">
         <div class="col-12">
@@ -16,7 +52,16 @@
                                 <i class="bi bi-mortarboard-fill me-2"></i>Welcome back, {{ $student->first_name }}!
                             </h2>
                             <p class="mb-0 opacity-75">
-                                <i class="bi bi-building me-1"></i>{{ $student->division->division_name ?? 'N/A' }} | 
+                                <i class="bi bi-building me-1"></i>
+                                @if($student->division)
+                                    {{ $student->division->division_name }} 
+                                    @if($student->division->program)
+                                        ({{ $student->division->program->name }})
+                                    @endif
+                                @else
+                                    N/A
+                                @endif
+                                |
                                 <i class="bi bi-person-badge me-1"></i>Roll No: {{ $student->roll_number ?? 'N/A' }} |
                                 <i class="bi bi-calendar me-1"></i>{{ now()->format('l, F d, Y') }}
                             </p>

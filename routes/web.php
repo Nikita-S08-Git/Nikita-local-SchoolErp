@@ -141,12 +141,44 @@ Route::middleware(['auth', 'role:super_admin|admin'])->prefix('admin')->name('ad
     Route::resource('roles', \App\Http\Controllers\Web\RoleController::class);
     Route::get('roles/{role}/permissions', [\App\Http\Controllers\Web\RoleController::class, 'permissions'])->name('roles.permissions');
     Route::put('roles/{role}/permissions', [\App\Http\Controllers\Web\RoleController::class, 'updatePermissions'])->name('roles.permissions.update');
-    
+
     // Permissions Management
     Route::resource('permissions', \App\Http\Controllers\Web\PermissionController::class);
-    
+
     // Activity Logs
     Route::get('activity-logs', [\App\Http\Controllers\Web\ActivityLogController::class, 'index'])->name('activity-logs.index');
+
+    // Notifications Management
+    Route::get('/notifications', [\App\Http\Controllers\Admin\NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/create', [\App\Http\Controllers\Admin\NotificationController::class, 'create'])->name('notifications.create');
+    Route::post('/notifications', [\App\Http\Controllers\Admin\NotificationController::class, 'store'])->name('notifications.store');
+    Route::get('/notifications/{notification}', [\App\Http\Controllers\Admin\NotificationController::class, 'show'])->name('notifications.show');
+    Route::get('/notifications/{notification}/edit', [\App\Http\Controllers\Admin\NotificationController::class, 'edit'])->name('notifications.edit');
+    Route::put('/notifications/{notification}', [\App\Http\Controllers\Admin\NotificationController::class, 'update'])->name('notifications.update');
+    Route::delete('/notifications/{notification}', [\App\Http\Controllers\Admin\NotificationController::class, 'destroy'])->name('notifications.destroy');
+    Route::post('/notifications/{notification}/toggle', [\App\Http\Controllers\Admin\NotificationController::class, 'toggleActive'])->name('notifications.toggle');
+
+    // Admin Profile
+    Route::get('/profile', [\App\Http\Controllers\Admin\ProfileController::class, 'index'])->name('profile');
+    Route::get('/profile/edit', [\App\Http\Controllers\Admin\ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [\App\Http\Controllers\Admin\ProfileController::class, 'update'])->name('profile.update');
+    Route::get('/profile/change-password', [\App\Http\Controllers\Admin\ProfileController::class, 'editPassword'])->name('profile.edit-password');
+    Route::post('/profile/change-password', [\App\Http\Controllers\Admin\ProfileController::class, 'updatePassword'])->name('profile.update-password');
+
+    // Admin Settings
+    Route::get('/settings', [\App\Http\Controllers\Admin\SettingsController::class, 'index'])->name('settings');
+    Route::put('/settings', [\App\Http\Controllers\Admin\SettingsController::class, 'update'])->name('settings.update');
+    Route::get('/settings/system', [\App\Http\Controllers\Admin\SettingsController::class, 'system'])->name('settings.system');
+
+    // Admin Fee Management
+    Route::get('/fees', [\App\Http\Controllers\Admin\FeeManagementController::class, 'index'])->name('fees');
+    Route::get('/fees/structures', [\App\Http\Controllers\Admin\FeeManagementController::class, 'structures'])->name('fees.structures');
+    Route::get('/fees/structures/create', [\App\Http\Controllers\Admin\FeeManagementController::class, 'createStructure'])->name('fees.structures.create');
+    Route::post('/fees/structures', [\App\Http\Controllers\Admin\FeeManagementController::class, 'storeStructure'])->name('fees.structures.store');
+    Route::get('/fees/student-fees', [\App\Http\Controllers\Admin\FeeManagementController::class, 'studentFees'])->name('fees.student-fees');
+    Route::get('/fees/payments', [\App\Http\Controllers\Admin\FeeManagementController::class, 'payments'])->name('fees.payments');
+    Route::get('/fees/outstanding', [\App\Http\Controllers\Admin\FeeManagementController::class, 'outstanding'])->name('fees.outstanding');
+    Route::get('/fees/reports', [\App\Http\Controllers\Admin\FeeManagementController::class, 'reports'])->name('fees.reports');
 });
 
 // Academic Management

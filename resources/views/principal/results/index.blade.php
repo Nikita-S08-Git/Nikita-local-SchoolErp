@@ -190,50 +190,7 @@
                 @if($students instanceof \Illuminate\Pagination\LengthAwarePaginator)
                     <div class="mt-4">
                         <nav aria-label="Page navigation">
-                            <ul class="pagination justify-content-center">
-                                {{-- Previous Page Link --}}
-                                @if ($students->onFirstPage())
-                                    <li class="page-item disabled">
-                                        <span class="page-link"><i class="bi bi-chevron-left"></i> Previous</span>
-                                    </li>
-                                @else
-                                    <li class="page-item">
-                                        <a class="page-link" href="{{ $students->previousPageUrl() }}" rel="prev"><i class="bi bi-chevron-left"></i> Previous</a>
-                                    </li>
-                                @endif
-
-                                {{-- Pagination Elements --}}
-                                @foreach ($elements as $element)
-                                    {{-- "Three Dots" Separator --}}
-                                    @if (is_string($element))
-                                        <li class="page-item disabled"><span class="page-link">{{ $element }}</span></li>
-                                    @endif
-
-                                    {{-- Array Of Links --}}
-                                    @if (is_array($element))
-                                        @foreach ($element as $page => $url)
-                                            @if ($page == $students->currentPage())
-                                                <li class="page-item active"><span class="page-link">{{ $page }}</span></li>
-                                            @elseif ($page == 1 || $page == $students->lastPage() || abs($page - $students->currentPage()) <= 2)
-                                                <li class="page-item"><a class="page-link" href="{{ $url }}">{{ $page }}</a></li>
-                                            @elseif ($page == $students->currentPage() - 3 || $page == $students->currentPage() + 3)
-                                                <li class="page-item disabled"><span class="page-link">...</span></li>
-                                            @endif
-                                        @endforeach
-                                    @endif
-                                @endforeach
-
-                                {{-- Next Page Link --}}
-                                @if ($students->hasMorePages())
-                                    <li class="page-item">
-                                        <a class="page-link" href="{{ $students->nextPageUrl() }}" rel="next">Next <i class="bi bi-chevron-right"></i></a>
-                                    </li>
-                                @else
-                                    <li class="page-item disabled">
-                                        <span class="page-link">Next <i class="bi bi-chevron-right"></i></span>
-                                    </li>
-                                @endif
-                            </ul>
+                            {{ $students->links('pagination::bootstrap-5') }}
                         </nav>
                         <div class="text-center mt-2">
                             <small class="text-muted">

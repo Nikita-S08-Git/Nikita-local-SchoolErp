@@ -28,9 +28,21 @@ class DashboardController extends Controller
     public function index()
     {
         $student = Auth::guard('student')->user();
-        
-        // Load necessary relationships
-        $student->load(['division', 'division.academicYear', 'program', 'academicSession']);
+
+        // Load necessary relationships with proper eager loading
+        $student->load([
+            'division.program',
+            'division.academicYear',
+            'program',
+            'academicSession'
+        ]);
+
+        // Get dashboard notifications
+        $notifications = \App\Models\Notification::active()
+            ->forAudience('students')
+            ->latest()
+            ->limit(5)
+            ->get();
 
         // Get today's timetable
         $today = strtolower(Carbon::now()->format('l'));
@@ -216,12 +228,11 @@ class DashboardController extends Controller
         $lateDays = $student->attendances()->where('status', 'late')->count();
         $overallPercentage = $totalLectures > 0 ? round(($presentDays / $totalLectures) * 100, 2) : 0;
 
-        // Recent attendance records
+        // Recent attendance records with pagination
         $recentAttendance = $student->attendances()
             ->with(['timetable.subject'])
             ->latest('date')
-            ->take(10)
-            ->get();
+            ->paginate(15);
 
         return view('student.attendance.index', compact(
             'attendanceBySubject',
@@ -382,13 +393,13 @@ class DashboardController extends Controller
     public function library()
     {
         $student = Auth::guard('student')->user();
-        
-        // Get issued books for the student
+
+        // Get issued books for the student with pagination
         $issuedBooks = \App\Models\Library\BookIssue::where('student_id', $student->id)
             ->with(['book'])
             ->orderBy('issue_date', 'desc')
-            ->get();
-        
+            ->paginate(10);
+
         return view('student.library.index', compact('student', 'issuedBooks'));
     }
 

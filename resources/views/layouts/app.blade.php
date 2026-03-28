@@ -753,6 +753,78 @@
         @if($role === 'admin')
 
         <div class="sidebar-divider"></div>
+        <span class="nav-label">Main</span>
+        <ul class="nav flex-column mb-0">
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('dashboard.admin') ? 'active' : '' }}" href="{{ route('dashboard.admin') }}">
+                    <span class="nav-icon"><i class="fas fa-home"></i></span> Dashboard
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-divider"></div>
+        <span class="nav-label">Profile & Settings</span>
+        <ul class="nav flex-column mb-0">
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('admin.profile*') ? 'active' : '' }}" href="{{ route('admin.profile') }}">
+                    <span class="nav-icon"><i class="fas fa-user-shield"></i></span> My Profile
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('admin.settings*') ? 'active' : '' }}" href="{{ route('admin.settings') }}">
+                    <span class="nav-icon"><i class="fas fa-cog"></i></span> Settings
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-divider"></div>
+        <span class="nav-label">Fee Management</span>
+        <ul class="nav flex-column mb-0">
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('admin.fees') ? 'active' : '' }}" href="{{ route('admin.fees') }}">
+                    <span class="nav-icon"><i class="fas fa-rupee-sign"></i></span> Fee Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('admin.fees.structures*') ? '' : 'collapsed' }}"
+                   data-bs-toggle="collapse" data-bs-target="#nav-admin-fee-struct" href="#">
+                    <span class="nav-icon"><i class="fas fa-list-alt"></i></span>
+                    Fee Structures
+                    <i class="fas fa-chevron-down toggle-arrow"></i>
+                </a>
+                <div class="collapse {{ request()->routeIs('admin.fees.structures*') ? 'show' : '' }}" id="nav-admin-fee-struct">
+                    <ul class="sidebar-submenu">
+                        <li><a class="{{ request()->routeIs('admin.fees.structures') ? 'active' : '' }}" href="{{ route('admin.fees.structures') }}"><i class="fas fa-list fa-fw"></i> All Structures</a></li>
+                        <li><a class="{{ request()->routeIs('admin.fees.structures.create') ? 'active' : '' }}" href="{{ route('admin.fees.structures.create') }}"><i class="fas fa-plus fa-fw"></i> Create Structure</a></li>
+                    </ul>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('admin.fees.student-fees') ? 'active' : '' }}" href="{{ route('admin.fees.student-fees') }}">
+                    <span class="nav-icon"><i class="fas fa-user-graduate"></i></span> Student Fees
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('admin.fees.payments') ? 'active' : '' }}" href="{{ route('admin.fees.payments') }}">
+                    <span class="nav-icon"><i class="fas fa-credit-card"></i></span> Payments
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('admin.fees.outstanding') ? 'active' : '' }}" href="{{ route('admin.fees.outstanding') }}">
+                    <span class="nav-icon"><i class="fas fa-exclamation-triangle"></i></span> Outstanding
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('admin.fees.reports') ? 'active' : '' }}" href="{{ route('admin.fees.reports') }}">
+                    <span class="nav-icon"><i class="fas fa-chart-line"></i></span> Reports
+                </a>
+            </li>
+        </ul>
+
+        {{-- ── PRINCIPAL / OFFICE ── --}}
+        @if(in_array($role, ['principal', 'office']))
+
+        <div class="sidebar-divider"></div>
         <span class="nav-label">Administration</span>
         <ul class="nav flex-column mb-0">
 
@@ -826,9 +898,6 @@
             </li>
         </ul>
         @endif
-
-        {{-- ── PRINCIPAL / OFFICE ── --}}
-        @if(in_array($role, ['principal', 'office']))
 
         <div class="sidebar-divider"></div>
         <span class="nav-label">Management</span>

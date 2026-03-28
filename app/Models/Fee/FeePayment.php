@@ -26,6 +26,30 @@ class FeePayment extends Model
         return $this->belongsTo(StudentFee::class);
     }
 
+    public function student(): BelongsTo
+    {
+        return $this->hasOneThrough(
+            \App\Models\User\Student::class,
+            StudentFee::class,
+            'id', // Foreign key on student_fees table
+            'id', // Foreign key on students table
+            'student_fee_id', // Local key on fee_payments table
+            'student_id' // Local key on student_fees table
+        );
+    }
+
+    public function feeStructure(): BelongsTo
+    {
+        return $this->hasOneThrough(
+            FeeStructure::class,
+            StudentFee::class,
+            'id',
+            'id',
+            'student_fee_id',
+            'fee_structure_id'
+        );
+    }
+
     public function scopeSuccess($query)
     {
         return $query->where('status', 'success');
