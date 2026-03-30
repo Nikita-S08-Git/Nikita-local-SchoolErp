@@ -786,7 +786,7 @@
                         Add Subject
                     </a>
                     <a href="{{ route('examinations.create') }}" class="q-btn">
-                        <span class="q-icon" style="background:#fff1f1; color:#dc2626;"><i class="fas fa-clipboard-plus"></i></span>
+                        <span class="q-icon" style="background:#fff1f1; color:#dc2626;"><i class="fas fa-clipboard"></i></span>
                         Create Exam
                     </a>
                     <a href="{{ route('principal.results') }}" class="q-btn full">
