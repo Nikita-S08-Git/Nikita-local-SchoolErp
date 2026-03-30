@@ -43,7 +43,11 @@ class AdmissionController extends Controller
 
     public function showApplyForm()
     {
-        return view('admissions.apply');
+        $programs = \App\Models\Academic\Program::where('is_active', true)->get();
+        $divisions = \App\Models\Academic\Division::where('is_active', true)->get();
+        $sessions = \App\Models\Academic\AcademicSession::where('is_active', true)->get();
+        
+        return view('admissions.apply', compact('programs', 'divisions', 'sessions'));
     }
 
     public function apply(Request $request)

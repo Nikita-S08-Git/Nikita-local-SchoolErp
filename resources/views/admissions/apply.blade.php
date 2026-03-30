@@ -360,11 +360,9 @@
                                     <select class="form-select @error('program_id') is-invalid @endif" 
                                             id="program_id" name="program_id" required>
                                         <option value="">Select Program</option>
-                                        <option value="1" {{ old('program_id') == '1' ? 'selected' : '' }}>B.Com</option>
-                                        <option value="2" {{ old('program_id') == '2' ? 'selected' : '' }}>B.Sc</option>
-                                        <option value="3" {{ old('program_id') == '3' ? 'selected' : '' }}>BBA</option>
-                                        <option value="4" {{ old('program_id') == '4' ? 'selected' : '' }}>BA</option>
-                                        <option value="5" {{ old('program_id') == '5' ? 'selected' : '' }}>BCA</option>
+                                        @foreach($programs ?? [] as $program)
+                                            <option value="{{ $program->id }}" {{ old('program_id') == $program->id ? 'selected' : '' }}>{{ $program->name }}</option>
+                                        @endforeach
                                     </select>
                                     @error('program_id')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -378,9 +376,9 @@
                                     <select class="form-select @error('division_id') is-invalid @endif" 
                                             id="division_id" name="division_id" required>
                                         <option value="">Select Division</option>
-                                        <option value="1" {{ old('division_id') == '1' ? 'selected' : '' }}>A</option>
-                                        <option value="2" {{ old('division_id') == '2' ? 'selected' : '' }}>B</option>
-                                        <option value="3" {{ old('division_id') == '3' ? 'selected' : '' }}>C</option>
+                                        @foreach($divisions ?? [] as $division)
+                                            <option value="{{ $division->id }}" {{ old('division_id') == $division->id ? 'selected' : '' }}>{{ $division->division_name }}</option>
+                                        @endforeach
                                     </select>
                                     @error('division_id')
                                         <div class="invalid-feedback">{{ $message }}</div>

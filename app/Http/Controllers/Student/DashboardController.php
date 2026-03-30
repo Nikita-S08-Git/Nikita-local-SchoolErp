@@ -315,11 +315,19 @@ class DashboardController extends Controller
      */
     public function fees()
     {
-        $student = Auth::guard('student')->user();
+        $user = Auth::guard('student')->user();
+        
+        // Get the associated student record via user_id
+        $student = \App\Models\User\Student::where('user_id', $user->id)->first();
+        
+        if (!$student) {
+            // Try getting by id directly (if student guard returns Student model)
+            $student = $user;
+        }
         
         // Get fee records for the student
         $feeRecords = \App\Models\Fee\StudentFee::where('student_id', $student->id)
-            ->with(['feeStructure'])
+            ->with(['feeStructure.feeHead'])
             ->orderBy('created_at', 'desc')
             ->get();
         
