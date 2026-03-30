@@ -125,22 +125,32 @@ class DashboardController extends Controller
     public function updatePassword(Request $request)
     {
         $student = Auth::guard('student')->user();
+        
+        // Get the associated user for password verification
+        $user = $student->user;
+        
+        if (!$user) {
+            return back()->withErrors([
+                'current_password' => 'User account not found.',
+            ]);
+        }
 
         $validated = $request->validate([
             'current_password' => 'required',
             'password' => 'required|min:8|confirmed',
         ]);
 
-        // Verify current password
-        if (!Hash::check($validated['current_password'], $student->password)) {
+        // Verify current password using the user model
+        if (!Hash::check($validated['current_password'], $user->password)) {
             return back()->withErrors([
                 'current_password' => 'The current password is incorrect.',
-            ]);
+            ])->withInput();
         }
 
-        // Update password
-        $student->update([
+        // Update password on the user model
+        $user->update([
             'password' => Hash::make($validated['password']),
+            'temp_password' => null, // Clear temp password after first change
         ]);
 
         return redirect()->route('student.profile')
