@@ -9,7 +9,7 @@
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h3 class="mb-1"><i class="bi bi-people me-2 text-primary"></i> Students Management</h3>
+                    <h3 class="mb-1"><i class="fas fa-user-graduate me-2 text-primary"></i> Students Management</h3>
                     <p class="text-muted mb-0">Manage student records, admissions, and academic information</p>
                 </div>
                 <div class="d-flex gap-2">
@@ -130,7 +130,7 @@
                     <div class="input-group">
                         <input type="text" name="search" class="form-control" placeholder="Name, Email, Roll No..." value="{{ request('search') }}">
                         <button class="btn btn-outline-secondary" type="submit">
-                            <i class="bi bi-search"></i>
+                            <i class="fas fa-search"></i>
                         </button>
                     </div>
                 </div>
@@ -206,13 +206,13 @@
                                     </td>
                                     <td class="text-center">
                                     @if($student->photo_path)
-                                        <img src="{{ asset('storage/' . $student->photo_path) }}" 
+                                        <img src="{{ route('documents.students.document', [$student, 'photo']) }}" 
                                              class="rounded-circle" 
                                              style="width: 40px; height: 40px; object-fit: cover;">
                                     @else
                                         <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center" 
                                              style="width: 40px; height: 40px;">
-                                            <i class="bi bi-person text-white"></i>
+                                            <i class="fas fa-user text-white"></i>
                                         </div>
                                     @endif
                                 </td>
@@ -257,11 +257,11 @@
                                                    id="student-password-{{ $student->id }}" readonly style="background-color: #f8f9fa; letter-spacing: 2px;">
                                             <button class="btn btn-outline-success" type="button" 
                                                     onclick="toggleStudentPassword('student-password-{{ $student->id }}')" title="Show/Hide">
-                                                <i class="bi bi-eye" id="student-eye-{{ $student->id }}"></i>
+                                                <i class="fas fa-eye" id="student-eye-{{ $student->id }}"></i>
                                             </button>
                                             <button class="btn btn-outline-primary" type="button" 
                                                     onclick="copyStudentPassword('student-password-{{ $student->id }}')" title="Copy">
-                                                <i class="bi bi-clipboard"></i>
+                                                <i class="fas fa-clipboard"></i>
                                             </button>
                                         </div>
                                         <small class="text-muted">Generated: {{ $student->user->password_generated_at ? \Carbon\Carbon::parse($student->user->password_generated_at)->diffForHumans() : 'N/A' }}</small>
