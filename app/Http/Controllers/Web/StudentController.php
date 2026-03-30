@@ -247,9 +247,13 @@ class StudentController extends Controller
 
         $student->update($validated);
 
-        // Also update the user's email if it was changed
-        if ($student->user && isset($validated['email'])) {
-            $student->user->update(['email' => $validated['email']]);
+        // Also update the user's email if it was changed AND the new email is unique in users table
+        if ($student->user && isset($validated['email']) && $validated['email'] !== $student->user->email) {
+            // Check if email already exists for another user
+            $existingUser = User::where('email', $validated['email'])->where('id', '!=', $student->user->id)->first();
+            if (!$existingUser) {
+                $student->user->update(['email' => $validated['email']]);
+            }
         }
 
         return redirect()
