@@ -109,11 +109,26 @@ class StudentController extends Controller
         $validated['roll_number']           = $numbers['roll_number'];
         $validated['prn']                   = null;
         $validated['university_seat_number'] = null;
-        $validated['user_id']               = auth()->id();
 
         // Generate password for student
         $generatedPassword = PasswordHelper::generate(10);
         $hashedPassword = Hash::make($generatedPassword);
+
+        // Create user account for student with generated password FIRST
+        $studentEmail = $request->input('email') ?? strtolower($validated['first_name'] . '.' . $validated['last_name'] . '@student.schoolerp.com');
+        
+        $user = User::create([
+            'name' => $validated['first_name'] . ' ' . $validated['last_name'],
+            'email' => $studentEmail,
+            'password' => $hashedPassword,
+            'temp_password' => $generatedPassword,
+            'password_generated_at' => now(),
+            'email_verified_at' => now(),
+            'role' => 'student',
+        ]);
+        
+        // Remove user_id from validated data and set proper user_id
+        $validated['user_id'] = $user->id;
 
         if ($request->hasFile('photo')) {
             $validated['photo_path'] = $request->file('photo')->store('uploads/students/photos', 'public');
@@ -137,26 +152,8 @@ class StudentController extends Controller
             $validated['domicile_certificate_path'] = $request->file('domicile_certificate')->store('uploads/students/documents', 'public');
         }
 
-        // Remove user_id from validated data so we can set it properly after user creation
-        $validated['user_id'] = null;
-
+        // Create student with user_id already set
         $student = Student::create($validated);
-
-        // Create user account for student with generated password
-        $studentEmail = $request->input('email') ?? strtolower($validated['first_name'] . '.' . $validated['last_name'] . $student->id . '@student.schoolerp.com');
-        
-        $user = User::create([
-            'name' => $validated['first_name'] . ' ' . $validated['last_name'],
-            'email' => $studentEmail,
-            'password' => $hashedPassword,
-            'temp_password' => $generatedPassword,
-            'password_generated_at' => now(),
-            'email_verified_at' => now(),
-        ])->assignRole('student');
-        
-        // Associate user with student
-        $student->user_id = $user->id;
-        $student->save();
 
         return redirect()
             ->route('dashboard.students.show', $student)
