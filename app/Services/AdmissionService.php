@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Academic\Admission;
 use App\Models\Academic\StudentDocument;
 use App\Models\AuditLog;
+use App\Models\User;
 use App\Models\User\Student;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -19,11 +20,16 @@ class AdmissionService
     public function createStudentFromAdmission(array $data): Student
     {
         return DB::transaction(function () use ($data) {
+            // Generate random temporary password (8 characters)
+            $tempPassword = bin2hex(random_bytes(4)); // 8 character random string
+            
             // Create user first
-            $user = \App\Models\User::create([
+            $user = User::create([
                 'name' => $data['first_name'] . ' ' . ($data['middle_name'] ?? '') . ' ' . $data['last_name'],
                 'email' => $data['email'],
-                'password' => bcrypt('password123'), // Default password
+                'password' => bcrypt($tempPassword),
+                'temp_password' => $tempPassword,
+                'password_generated_at' => now(),
                 'role' => 'student',
             ]);
             
