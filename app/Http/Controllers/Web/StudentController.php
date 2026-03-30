@@ -137,12 +137,15 @@ class StudentController extends Controller
             $validated['domicile_certificate_path'] = $request->file('domicile_certificate')->store('uploads/students/documents', 'public');
         }
 
+        // Remove user_id from validated data so we can set it properly after user creation
+        $validated['user_id'] = null;
+
         $student = Student::create($validated);
 
         // Create user account for student with generated password
         $studentEmail = $request->input('email') ?? strtolower($validated['first_name'] . '.' . $validated['last_name'] . $student->id . '@student.schoolerp.com');
         
-        User::create([
+        $user = User::create([
             'name' => $validated['first_name'] . ' ' . $validated['last_name'],
             'email' => $studentEmail,
             'password' => $hashedPassword,
@@ -150,6 +153,10 @@ class StudentController extends Controller
             'password_generated_at' => now(),
             'email_verified_at' => now(),
         ])->assignRole('student');
+        
+        // Associate user with student
+        $student->user_id = $user->id;
+        $student->save();
 
         return redirect()
             ->route('dashboard.students.show', $student)
