@@ -22,9 +22,8 @@ class AdminController extends Controller
             abort(403, 'Unauthorized access. Only administrators can view this page.');
         }
 
-        // Get all students with their user accounts
+        // Get all students with their user accounts (include all statuses)
         $students = Student::with(['user', 'division'])
-            ->where('student_status', 'active')
             ->paginate(20);
 
         // Get all teachers (users with teacher role)
@@ -32,7 +31,11 @@ class AdminController extends Controller
             ->with('roles')
             ->paginate(20);
 
-        return view('admin.credentials', compact('students', 'teachers'));
+        // Get all staff members
+        $staff = \App\Models\HR\StaffProfile::with(['user', 'department'])
+            ->paginate(20);
+
+        return view('admin.credentials', compact('students', 'teachers', 'staff'));
     }
 
     /**

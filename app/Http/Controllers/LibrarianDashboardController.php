@@ -18,7 +18,7 @@ class LibrarianDashboardController extends Controller
      */
     public function index()
     {
-        $librarian = Auth::guard('librarian')->user();
+        $librarian = auth()->user();
         
         // Get dashboard statistics
         $totalBooks = Book::count();
@@ -168,7 +168,7 @@ class LibrarianDashboardController extends Controller
      */
     public function profile()
     {
-        $librarian = Auth::guard('librarian')->user();
+        $librarian = auth()->user();
         return view('librarian.profile', compact('librarian'));
     }
 
@@ -177,7 +177,7 @@ class LibrarianDashboardController extends Controller
      */
     public function updateProfile(Request $request)
     {
-        $librarian = Auth::guard('librarian')->user();
+        $librarian = auth()->user();
         
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -200,7 +200,7 @@ class LibrarianDashboardController extends Controller
             'new_password' => 'required|min:8|confirmed',
         ]);
         
-        $librarian = Auth::guard('librarian')->user();
+        $librarian = auth()->user();
         
         if (!Hash::check($validated['current_password'], $librarian->password)) {
             return back()->withErrors(['current_password' => 'Current password is incorrect']);

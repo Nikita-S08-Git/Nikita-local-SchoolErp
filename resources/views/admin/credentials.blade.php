@@ -32,6 +32,11 @@
                 <i class="bi bi-person-badge me-2"></i>Teachers
             </button>
         </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="staff-tab" data-bs-toggle="tab" data-bs-target="#staff" type="button">
+                <i class="bi bi-people me-2"></i>Staff
+            </button>
+        </li>
     </ul>
 
     <!-- Tab Content -->
@@ -128,7 +133,16 @@
                 </div>
                 @if($students->hasPages())
                 <div class="card-footer bg-white border-0 p-3">
-                    {{ $students->links() }}
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                        <div class="text-muted">
+                            Showing <strong>{{ $students->firstItem() ?? 0 }}</strong> to 
+                            <strong>{{ $students->lastItem() ?? 0 }}</strong> of 
+                            <strong>{{ $students->total() }}</strong> students
+                        </div>
+                        <nav aria-label="Student pagination">
+                            {{ $students->links('pagination::bootstrap-5') }}
+                        </nav>
+                    </div>
                 </div>
                 @endif
             </div>
@@ -221,7 +235,115 @@
                 </div>
                 @if($teachers->hasPages())
                 <div class="card-footer bg-white border-0 p-3">
-                    {{ $teachers->links() }}
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                        <div class="text-muted">
+                            Showing <strong>{{ $teachers->firstItem() ?? 0 }}</strong> to 
+                            <strong>{{ $teachers->lastItem() ?? 0 }}</strong> of 
+                            <strong>{{ $teachers->total() }}</strong> teachers
+                        </div>
+                        <nav aria-label="Teacher pagination">
+                            {{ $teachers->links('pagination::bootstrap-5') }}
+                        </nav>
+                    </div>
+                </div>
+                @endif
+            </div>
+        </div>
+
+        <!-- Staff Tab -->
+        <div class="tab-pane fade" id="staff" role="tabpanel">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-table me-2"></i>Staff Credentials</h5>
+                    <button class="btn btn-sm btn-success" onclick="exportTable('staff')">
+                        <i class="bi bi-download me-1"></i>Export
+                    </button>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0" id="staffTable">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="ps-4">#</th>
+                                    <th>Staff Name</th>
+                                    <th>Email</th>
+                                    <th>Employee ID</th>
+                                    <th>Designation</th>
+                                    <th>Department</th>
+                                    <th>Password</th>
+                                    <th>Generated On</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($staff as $index => $member)
+                                <tr>
+                                    <td class="ps-4">{{ $staff->firstItem() + $index }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-info rounded-circle me-2 d-flex align-items-center justify-content-center text-white fw-bold"
+                                                 style="width: 32px; height: 32px; min-width: 32px;">
+                                                {{ strtoupper(substr($member->first_name, 0, 1)) }}
+                                            </div>
+                                            <div>
+                                                <div class="fw-semibold">{{ $member->first_name }} {{ $member->last_name }}</div>
+                                                <small class="text-muted">{{ $member->user->email ?? 'N/A' }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info">{{ $member->user->email ?? 'N/A' }}</span>
+                                    </td>
+                                    <td><span class="badge bg-primary">{{ $member->employee_id }}</span></td>
+                                    <td>{{ $member->designation }}</td>
+                                    <td>{{ $member->department->name ?? 'N/A' }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="input-group input-group-sm" style="max-width: 200px;">
+                                                <input type="password" class="form-control font-monospace" value="{{ $member->user->temp_password ?? 'Not Set' }}"
+                                                       id="staff-password-{{ $member->id }}" readonly style="background-color: #f8f9fa; letter-spacing: 2px;">
+                                                <button class="btn btn-outline-success" type="button"
+                                                        onclick="toggleStaffPassword('staff-password-{{ $member->id }}')" title="Show/Hide Password">
+                                                    <i class="bi bi-eye" id="staff-eye-{{ $member->id }}"></i>
+                                                </button>
+                                            </div>
+                                            <button class="btn btn-sm btn-outline-primary" onclick="copyStaffPassword('staff-password-{{ $member->id }}')" title="Copy Password">
+                                                <i class="bi bi-clipboard"></i>
+                                            </button>
+                                        </div>
+                                        <small class="text-muted">Generated: {{ $member->user->password_generated_at ? $member->user->password_generated_at->diffForHumans() : 'N/A' }}</small>
+                                    </td>
+                                    <td>{{ $member->user->password_generated_at ? $member->user->password_generated_at->format('d M Y') : 'N/A' }}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary" onclick="resetPassword('staff', {{ $member->user->id }})">
+                                            <i class="bi bi-arrow-clockwise"></i> Reset
+                                        </button>
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="9" class="text-center py-5">
+                                        <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+                                        <h5 class="text-muted mt-3">No staff members found</h5>
+                                    </td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                @if($staff->hasPages())
+                <div class="card-footer bg-white border-0 p-3">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                        <div class="text-muted">
+                            Showing <strong>{{ $staff->firstItem() ?? 0 }}</strong> to 
+                            <strong>{{ $staff->lastItem() ?? 0 }}</strong> of 
+                            <strong>{{ $staff->total() }}</strong> staff
+                        </div>
+                        <nav aria-label="Staff pagination">
+                            {{ $staff->links('pagination::bootstrap-5') }}
+                        </nav>
+                    </div>
                 </div>
                 @endif
             </div>
@@ -331,6 +453,36 @@ function toggleModalPassword() {
 
 function copyModalPassword() {
     const input = document.getElementById('modalUserPassword');
+    input.select();
+    input.setSelectionRange(0, 99999);
+    navigator.clipboard.writeText(input.value).then(function() {
+        showToast('Password copied to clipboard!', 'success');
+    }, function(err) {
+        showToast('Failed to copy password', 'danger');
+    });
+}
+
+function toggleStaffPassword(inputId) {
+    const input = document.getElementById(inputId);
+    const eyeIcon = document.getElementById('staff-eye-' + inputId.replace('staff-password-', ''));
+    
+    if (input.type === 'password') {
+        input.type = 'text';
+        if (eyeIcon) {
+            eyeIcon.classList.remove('bi-eye');
+            eyeIcon.classList.add('bi-eye-slash');
+        }
+    } else {
+        input.type = 'password';
+        if (eyeIcon) {
+            eyeIcon.classList.remove('bi-eye-slash');
+            eyeIcon.classList.add('bi-eye');
+        }
+    }
+}
+
+function copyStaffPassword(inputId) {
+    const input = document.getElementById(inputId);
     input.select();
     input.setSelectionRange(0, 99999);
     navigator.clipboard.writeText(input.value).then(function() {

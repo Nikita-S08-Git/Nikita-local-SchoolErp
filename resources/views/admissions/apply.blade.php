@@ -259,7 +259,7 @@
                             <h3 class="fw-bold text-dark mb-2">Apply for Admission</h3>
                             <p class="text-muted mb-0">Fill out the form below to apply for admission</p>
                         </div>
-                        
+
                         @if(session('success'))
                         <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
                             <div class="d-flex align-items-start">
@@ -267,20 +267,109 @@
                                 <div class="flex-grow-1">
                                     <strong>Admission Submitted Successfully!</strong>
                                     <p class="mb-2 mt-2">{{ session('success') }}</p>
-                                    <div class="alert alert-warning mb-0" style="background-color: #fff3cd; border-color: #ffecb5;">
-                                        <strong><i class="bi bi-key me-1"></i>Login Credentials:</strong>
-                                        <div class="mt-2">
-                                            <strong>Email:</strong> <code class="bg-light px-2 py-1 rounded">{{ session('student_email') }}</code><br>
-                                            <strong class="text-danger">Temporary Password:</strong> <code class="bg-danger text-white px-2 py-1 rounded">{{ session('temp_password') }}</code>
-                                        </div>
-                                        <small class="text-danger mt-1 d-block">
-                                            <i class="bi bi-exclamation-triangle me-1"></i>
-                                            Please save these credentials securely. You will need them to login.
-                                        </small>
-                                    </div>
+                                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#credentialsModal">
+                                        <i class="bi bi-key me-1"></i>View Login Credentials
+                                    </button>
                                 </div>
                             </div>
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+
+                        <!-- Credentials Modal -->
+                        <div class="modal fade" id="credentialsModal" tabindex="-1" aria-labelledby="credentialsModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header bg-success text-white">
+                                        <h5 class="modal-title" id="credentialsModalLabel">
+                                            <i class="bi bi-check-circle me-2"></i>Admission Successful!
+                                        </h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="text-center mb-4">
+                                            <div class="success-icon mb-3">
+                                                <i class="bi bi-mortarboard-fill text-success" style="font-size: 4rem;"></i>
+                                            </div>
+                                            <h4 class="fw-bold text-success">Welcome to Our College!</h4>
+                                            <p class="text-muted">Your admission has been successfully submitted.</p>
+                                        </div>
+
+                                        <div class="card bg-light border-0 mb-3">
+                                            <div class="card-body">
+                                                <h6 class="fw-bold mb-3">
+                                                    <i class="bi bi-key text-primary me-2"></i>Login Credentials
+                                                </h6>
+                                                
+                                                <div class="mb-3">
+                                                    <label class="text-muted small">Student Email</label>
+                                                    <div class="input-group">
+                                                        <input type="text" class="form-control font-monospace" id="studentEmail" 
+                                                               value="{{ session('student_email') }}" readonly>
+                                                        <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('studentEmail')" title="Copy Email">
+                                                            <i class="bi bi-clipboard"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <label class="text-muted small">Temporary Password</label>
+                                                    <div class="input-group">
+                                                        <input type="text" class="form-control font-monospace" id="tempPassword" 
+                                                               value="{{ session('temp_password') }}" readonly>
+                                                        <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('tempPassword')" title="Copy Password">
+                                                            <i class="bi bi-clipboard"></i>
+                                                        </button>
+                                                        <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility()" title="Show/Hide">
+                                                            <i class="bi bi-eye" id="toggleEye"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                                <div class="alert alert-warning mb-0">
+                                                    <i class="bi bi-exclamation-triangle me-1"></i>
+                                                    <strong>Important:</strong> Please save these credentials securely. You will need them to login.
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="card bg-primary bg-opacity-10 border-0 mb-3">
+                                            <div class="card-body">
+                                                <h6 class="fw-bold mb-2">
+                                                    <i class="bi bi-box-arrow-in-right text-primary me-2"></i>Student Login
+                                                </h6>
+                                                <div class="input-group">
+                                                    <input type="text" class="form-control" value="http://127.0.0.1:8000/student/login" readonly>
+                                                    <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('loginUrl')" title="Copy URL">
+                                                        <i class="bi bi-clipboard"></i>
+                                                    </button>
+                                                    <a href="http://127.0.0.1:8000/student/login" target="_blank" class="btn btn-primary">
+                                                        <i class="bi bi-box-arrow-up-right me-1"></i>Open
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="alert alert-info mb-0">
+                                            <i class="bi bi-info-circle me-1"></i>
+                                            <strong>Next Steps:</strong>
+                                            <ol class="mb-0 mt-2">
+                                                <li>Save your login credentials</li>
+                                                <li>Login to student portal</li>
+                                                <li>Change your password after first login</li>
+                                                <li>Complete your profile</li>
+                                            </ol>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                            <i class="bi bi-printer me-1"></i>Print
+                                        </button>
+                                        <button type="button" class="btn btn-success" data-bs-dismiss="modal">
+                                            <i class="bi bi-check-lg me-1"></i>I Have Saved Credentials
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         @endif
                         
@@ -297,7 +386,7 @@
                                     <label for="first_name" class="form-label fw-semibold required-field">
                                         <i class="bi bi-person me-2"></i>First Name
                                     </label>
-                                    <input type="text" class="form-control @error('first_name') is-invalid @endif"
+                                    <input type="text" class="form-control @error('first_name') is-invalid @enderror"
                                            id="first_name" name="first_name" value="{{ old('first_name') }}"
                                            placeholder="Enter first name (letters only)" required pattern="[a-zA-Z\s]+"
                                            title="Only letters are allowed">
@@ -311,7 +400,7 @@
                                     <label for="middle_name" class="form-label fw-semibold">
                                         <i class="bi bi-person me-2"></i>Middle Name
                                     </label>
-                                    <input type="text" class="form-control @error('middle_name') is-invalid @endif"
+                                    <input type="text" class="form-control @error('middle_name') is-invalid @enderror"
                                            id="middle_name" name="middle_name" value="{{ old('middle_name') }}"
                                            placeholder="Enter middle name (letters only)" pattern="[a-zA-Z\s]+"
                                            title="Only letters are allowed">
@@ -325,7 +414,7 @@
                                     <label for="last_name" class="form-label fw-semibold required-field">
                                         <i class="bi bi-person me-2"></i>Last Name
                                     </label>
-                                    <input type="text" class="form-control @error('last_name') is-invalid @endif"
+                                    <input type="text" class="form-control @error('last_name') is-invalid @enderror"
                                            id="last_name" name="last_name" value="{{ old('last_name') }}"
                                            placeholder="Enter last name (letters only)" required pattern="[a-zA-Z\s]+"
                                            title="Only letters are allowed">
@@ -341,7 +430,7 @@
                                     <label for="date_of_birth" class="form-label fw-semibold required-field">
                                         <i class="bi bi-calendar-date me-2"></i>Date of Birth
                                     </label>
-                                    <input type="date" class="form-control @error('date_of_birth') is-invalid @endif"
+                                    <input type="date" class="form-control @error('date_of_birth') is-invalid @enderror"
                                            id="date_of_birth" name="date_of_birth" value="{{ old('date_of_birth') }}"
                                            required max="{{ date('Y-m-d', strtotime('-5 years')) }}">
                                     <span class="error-message" id="date_of_birth_error"></span>
@@ -354,7 +443,7 @@
                                     <label for="gender" class="form-label fw-semibold required-field">
                                         <i class="bi bi-gender-ambiguous me-2"></i>Gender
                                     </label>
-                                    <select class="form-select @error('gender') is-invalid @endif"
+                                    <select class="form-select @error('gender') is-invalid @enderror"
                                             id="gender" name="gender" required>
                                         <option value="">Select Gender</option>
                                         <option value="male" {{ old('gender') == 'male' ? 'selected' : '' }}>Male</option>
@@ -373,7 +462,7 @@
                                     <label for="blood_group" class="form-label fw-semibold">
                                         <i class="bi bi-droplet me-2"></i>Blood Group
                                     </label>
-                                    <select class="form-select @error('blood_group') is-invalid @endif" 
+                                    <select class="form-select @error('blood_group') is-invalid @enderror" 
                                             id="blood_group" name="blood_group">
                                         <option value="">Select Blood Group</option>
                                         <option value="A+" {{ old('blood_group') == 'A+' ? 'selected' : '' }}>A+</option>
@@ -394,7 +483,7 @@
                                     <label for="religion" class="form-label fw-semibold">
                                         <i class="bi bi-bookmark me-2"></i>Religion
                                     </label>
-                                    <select class="form-select @error('religion') is-invalid @endif" 
+                                    <select class="form-select @error('religion') is-invalid @enderror" 
                                             id="religion" name="religion">
                                         <option value="">Select Religion</option>
                                         <option value="Hindu" {{ old('religion') == 'Hindu' ? 'selected' : '' }}>Hindu</option>
@@ -416,7 +505,7 @@
                                     <label for="category" class="form-label fw-semibold required-field">
                                         <i class="bi bi-people me-2"></i>Category
                                     </label>
-                                    <select class="form-select @error('category') is-invalid @endif"
+                                    <select class="form-select @error('category') is-invalid @enderror"
                                             id="category" name="category" required>
                                         <option value="">Select Category</option>
                                         <option value="general" {{ old('category') == 'general' ? 'selected' : '' }}>General</option>
@@ -435,7 +524,7 @@
                                     <label for="aadhar_number" class="form-label fw-semibold">
                                         <i class="bi bi-person-vcard me-2"></i>Aadhar Number
                                     </label>
-                                    <input type="text" class="form-control @error('aadhar_number') is-invalid @endif" 
+                                    <input type="text" class="form-control @error('aadhar_number') is-invalid @enderror" 
                                            id="aadhar_number" name="aadhar_number" value="{{ old('aadhar_number') }}" 
                                            placeholder="Enter 12-digit Aadhar number" maxlength="12" pattern="\d{12}"
                                            title="Must be 12 digits">
@@ -455,7 +544,7 @@
                                     <label for="email" class="form-label fw-semibold required-field">
                                         <i class="bi bi-envelope me-2"></i>Email Address
                                     </label>
-                                    <input type="email" class="form-control @error('email') is-invalid @endif"
+                                    <input type="email" class="form-control @error('email') is-invalid @enderror"
                                            id="email" name="email" value="{{ old('email') }}"
                                            placeholder="Enter email address" required>
                                     <span class="error-message" id="email_error"></span>
@@ -468,7 +557,7 @@
                                     <label for="mobile_number" class="form-label fw-semibold required-field">
                                         <i class="bi bi-phone me-2"></i>Mobile Number
                                     </label>
-                                    <input type="tel" class="form-control @error('mobile_number') is-invalid @endif"
+                                    <input type="tel" class="form-control @error('mobile_number') is-invalid @enderror"
                                            id="mobile_number" name="mobile_number" value="{{ old('mobile_number') }}"
                                            placeholder="Enter 10-digit mobile (start with 6-9)" required pattern="[6-9]\d{9}"
                                            maxlength="10" title="Must be 10 digits, starting with 6-9">
@@ -483,7 +572,7 @@
                                 <label for="current_address" class="form-label fw-semibold required-field">
                                     <i class="bi bi-house me-2"></i>Current Address
                                 </label>
-                                <textarea class="form-control @error('current_address') is-invalid @endif"
+                                <textarea class="form-control @error('current_address') is-invalid @enderror"
                                           id="current_address" name="current_address" rows="2"
                                           placeholder="Enter complete address" required minlength="10">{{ old('current_address') }}</textarea>
                                 <span class="error-message" id="current_address_error"></span>
@@ -496,7 +585,7 @@
                                 <label for="permanent_address" class="form-label fw-semibold">
                                     <i class="bi bi-house-door me-2"></i>Permanent Address
                                 </label>
-                                <textarea class="form-control @error('permanent_address') is-invalid @endif"
+                                <textarea class="form-control @error('permanent_address') is-invalid @enderror"
                                           id="permanent_address" name="permanent_address" rows="2"
                                           placeholder="Enter permanent address (same as current if not specified)">{{ old('permanent_address') }}</textarea>
                                 <span class="error-message" id="permanent_address_error"></span>
@@ -515,7 +604,7 @@
                                     <label for="program_id" class="form-label fw-semibold required-field">
                                         <i class="bi bi-mortarboard me-2"></i>Program / Course
                                     </label>
-                                    <select class="form-select @error('program_id') is-invalid @endif" 
+                                    <select class="form-select @error('program_id') is-invalid @enderror" 
                                             id="program_id" name="program_id" required>
                                         <option value="">Select Program</option>
                                         <option value="1" {{ old('program_id') == '1' ? 'selected' : '' }}>B.Com</option>
@@ -533,16 +622,14 @@
                                     <label for="division_id" class="form-label fw-semibold required-field">
                                         <i class="bi bi-people me-2"></i>Division / Class
                                     </label>
-                                    <select class="form-select @error('division_id') is-invalid @endif" 
-                                            id="division_id" name="division_id" required>
-                                        <option value="">Select Division</option>
-                                        <option value="1" {{ old('division_id') == '1' ? 'selected' : '' }}>A</option>
-                                        <option value="2" {{ old('division_id') == '2' ? 'selected' : '' }}>B</option>
-                                        <option value="3" {{ old('division_id') == '3' ? 'selected' : '' }}>C</option>
+                                    <select class="form-select @error('division_id') is-invalid @enderror"
+                                            id="division_id" name="division_id" required disabled>
+                                        <option value="">Select Program First</option>
                                     </select>
                                     @error('division_id')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
+                                    <small class="text-muted">Select program to see available divisions</small>
                                 </div>
                             </div>
                             
@@ -551,7 +638,7 @@
                                     <label for="academic_session_id" class="form-label fw-semibold required-field">
                                         <i class="bi bi-calendar-event me-2"></i>Academic Session
                                     </label>
-                                    <select class="form-select @error('academic_session_id') is-invalid @endif" 
+                                    <select class="form-select @error('academic_session_id') is-invalid @enderror" 
                                             id="academic_session_id" name="academic_session_id" required>
                                         <option value="">Select Academic Year</option>
                                         <option value="1" {{ old('academic_session_id') == '1' ? 'selected' : '' }}>2025-2026</option>
@@ -566,7 +653,7 @@
                                     <label for="academic_year" class="form-label fw-semibold required-field">
                                         <i class="bi bi-calendar me-2"></i>Year of Admission
                                     </label>
-                                    <select class="form-select @error('academic_year') is-invalid @endif" 
+                                    <select class="form-select @error('academic_year') is-invalid @enderror" 
                                             id="academic_year" name="academic_year" required>
                                         <option value="">Select Year</option>
                                         <option value="FY" {{ old('academic_year') == 'FY' ? 'selected' : '' }}>First Year</option>
@@ -1002,7 +1089,7 @@
             } else {
                 clearError('current_address');
             }
-            
+
             // If invalid, prevent submission and scroll to first error
             if (!isValid) {
                 e.preventDefault();
@@ -1012,6 +1099,133 @@
                 }
             }
         });
+
+        // Copy to Clipboard Function
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            element.select();
+            element.setSelectionRange(0, 99999); // For mobile devices
+            navigator.clipboard.writeText(element.value).then(function() {
+                showToast('Copied to clipboard!', 'success');
+            }, function(err) {
+                showToast('Failed to copy', 'danger');
+            });
+        }
+
+        // Toggle Password Visibility
+        function togglePasswordVisibility() {
+            const passwordField = document.getElementById('tempPassword');
+            const eyeIcon = document.getElementById('toggleEye');
+            
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                eyeIcon.classList.remove('bi-eye');
+                eyeIcon.classList.add('bi-eye-slash');
+            } else {
+                passwordField.type = 'password';
+                eyeIcon.classList.remove('bi-eye-slash');
+                eyeIcon.classList.add('bi-eye');
+            }
+        }
+
+        // Show Toast Notification
+        function showToast(message, type = 'info') {
+            const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+            const toast = document.createElement('div');
+            toast.className = `alert alert-${type} alert-dismissible fade show mb-2`;
+            toast.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        // Create Toast Container
+        function createToastContainer() {
+            const container = document.createElement('div');
+            container.id = 'toastContainer';
+            container.className = 'position-fixed top-0 end-0 p-3';
+            container.style.zIndex = '9999';
+            document.body.appendChild(container);
+            return container;
+        }
+
+        // Auto-show modal on success
+        document.addEventListener('DOMContentLoaded', function() {
+            const successAlert = document.querySelector('.alert-success');
+            if (successAlert) {
+                const credentialsModal = new bootstrap.Modal(document.getElementById('credentialsModal'));
+                setTimeout(() => {
+                    credentialsModal.show();
+                }, 500);
+            }
+        });
+
+        // Dynamic Division Loading based on Program Selection
+        const programSelect = document.getElementById('program_id');
+        const divisionSelect = document.getElementById('division_id');
+
+        // Sample divisions data by program (in production, fetch via AJAX)
+        const divisionsByProgram = {
+            '1': [ // B.Com
+                { id: '1', name: 'A' },
+                { id: '2', name: 'B' },
+                { id: '3', name: 'C' }
+            ],
+            '2': [ // B.Sc
+                { id: '4', name: 'A' },
+                { id: '5', name: 'B' },
+                { id: '20', name: 'COM-2025-A' }
+            ],
+            '3': [ // BBA
+                { id: '6', name: 'A' },
+                { id: '7', name: 'B' }
+            ],
+            '4': [ // BA
+                { id: '8', name: 'A' },
+                { id: '9', name: 'B' }
+            ],
+            '5': [ // BCA
+                { id: '10', name: 'A' },
+                { id: '11', name: 'B' }
+            ]
+        };
+
+        programSelect.addEventListener('change', function() {
+            const programId = this.value;
+            
+            // Clear division dropdown
+            divisionSelect.innerHTML = '<option value="">Select Division</option>';
+            
+            if (programId && divisionsByProgram[programId]) {
+                // Enable division dropdown
+                divisionSelect.disabled = false;
+                
+                // Populate divisions
+                divisionsByProgram[programId].forEach(function(division) {
+                    const option = document.createElement('option');
+                    option.value = division.id;
+                    option.textContent = division.name;
+                    
+                    // Preserve old selection
+                    if (division.id == '{{ old('division_id') }}') {
+                        option.selected = true;
+                    }
+                    
+                    divisionSelect.appendChild(option);
+                });
+            } else {
+                // Disable division dropdown if no program selected
+                divisionSelect.disabled = true;
+                divisionSelect.innerHTML = '<option value="">Select Program First</option>';
+            }
+        });
+
+        // Trigger change on page load to preserve old selection
+        if (programSelect.value) {
+            programSelect.dispatchEvent(new Event('change'));
+        }
     </script>
 </body>
 </html>
