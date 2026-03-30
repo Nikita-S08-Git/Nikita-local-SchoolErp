@@ -185,7 +185,7 @@
                                     </label>
                                     <input type="date" class="form-control @error('date_of_birth') is-invalid @endif"
                                            id="date_of_birth" name="date_of_birth" value="{{ old('date_of_birth') }}"
-                                           required max="{{ date('Y-m-d', strtotime('-5 years')) }}">
+                                           max="{{ date('Y-m-d') }}" required>
                                     <span class="error-message" id="date_of_birth_error"></span>
                                     @error('date_of_birth')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -642,10 +642,13 @@
         document.getElementById('date_of_birth').addEventListener('change', function(e) {
             const dob = new Date(this.value);
             const today = new Date();
+            today.setHours(0, 0, 0, 0);
             const minAge = 5;
             const minDate = new Date(today.getFullYear() - minAge, today.getMonth(), today.getDate());
             
-            if (dob > minDate) {
+            if (dob > today) {
+                showError('date_of_birth', 'Date of birth cannot be in the future');
+            } else if (dob > minDate) {
                 showError('date_of_birth', 'Student must be at least 5 years old');
             } else {
                 showValid('date_of_birth');
