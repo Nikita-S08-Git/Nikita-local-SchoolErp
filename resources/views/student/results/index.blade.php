@@ -39,11 +39,10 @@
                                     <td class="text-center">
                                         <strong>{{ $result->marks_obtained }}</strong>
                                     </td>
-                                    <td class="text-center">{{ $result->total_marks ?? 100 }}</td>
+                                    <td class="text-center">{{ $result->total_marks }}</td>
                                     <td class="text-center">
                                         @php
-                                            $totalMarks = $result->total_marks ?? 100;
-                                            $percentage = $totalMarks > 0 ? ($result->marks_obtained / $totalMarks) * 100 : 0;
+                                            $percentage = ($result->marks_obtained / $result->total_marks) * 100;
                                             $grade = '';
                                             if ($percentage >= 90) $grade = 'A+';
                                             elseif ($percentage >= 80) $grade = 'A';

@@ -54,19 +54,7 @@
                     </tbody>
                 </table>
             </div>
-
-            @if($issues->hasPages())
-            <div class="mt-4">
-                <nav aria-label="Book issues pagination">
-                    {{ $issues->links('pagination::bootstrap-5') }}
-                </nav>
-                <div class="text-center mt-2">
-                    <small class="text-muted">
-                        Showing {{ $issues->firstItem() ?? 0 }} to {{ $issues->lastItem() ?? 0 }} of {{ $issues->total() }} records
-                    </small>
-                </div>
-            </div>
-            @endif
+            {{ $issues->links() }}
         </div>
     </div>
 </div>

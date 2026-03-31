@@ -3,83 +3,51 @@
 @section('title', 'My Divisions')
 
 @section('content')
-<div class="container-fluid">
+<div class="container-fluid px-4 py-4">
     <!-- Holiday Alert -->
     @if($todayHoliday)
-    <div class="alert alert-danger d-flex align-items-center mb-4" role="alert" style="border-radius: 14px; border: none; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);">
-        <i class="fas fa-exclamation-triangle-fill fs-3 me-3"></i>
-        <div class="flex-grow-1">
-            <strong class="fs-5">Today is a Holiday!</strong> - {{ $todayHoliday->title }}
-            @if($todayHoliday->start_date != $todayHoliday->end_date)
-                <span class="ms-2">
-                    ({{ \Carbon\Carbon::parse($todayHoliday->start_date)->format('d M') }} to {{ \Carbon\Carbon::parse($todayHoliday->end_date)->format('d M Y') }})
-                </span>
-            @else
-                <span class="ms-2">({{ \Carbon\Carbon::parse($todayHoliday->start_date)->format('d M Y') }})</span>
-            @endif
+        <div class="alert alert-danger d-flex align-items-center mb-4" role="alert" style="border-radius: 12px; border: none; background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%); color: white;">
+            <i class="bi bi-exclamation-triangle-fill fs-4 me-3"></i>
+            <div class="flex-grow-1">
+                <strong>Today is a Holiday!</strong> - {{ $todayHoliday->title }}
+                @if($todayHoliday->start_date != $todayHoliday->end_date)
+                    <span class="ms-2">
+                        (Holiday from {{ \Carbon\Carbon::parse($todayHoliday->start_date)->format('d M') }} to {{ \Carbon\Carbon::parse($todayHoliday->end_date)->format('d M Y') }})
+                    </span>
+                @else
+                    <span class="ms-2">({{ \Carbon\Carbon::parse($todayHoliday->start_date)->format('d M Y') }})</span>
+                @endif
+            </div>
         </div>
-    </div>
     @endif
 
-    <!-- Page Header -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h2 class="mb-1"><i class="fas fa-users me-2 text-primary"></i>My Assigned Divisions</h2>
-                    <p class="text-muted mb-0">Manage your class divisions and students</p>
+    <!-- Modern Header with Gradient Background -->
+    <div class="welcome-header mb-4">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <div class="d-flex align-items-center">
+                    <div class="header-icon-wrapper me-3">
+                        <i class="bi bi-layers-fill"></i>
+                    </div>
+                    <div>
+                        <h2 class="mb-1 fw-bold text-white">
+                            <i class="bi bi-people me-2"></i>My Assigned Divisions
+                        </h2>
+                        <p class="mb-0 text-white-50">
+                            <i class="bi bi-collection me-1"></i>Manage your class divisions and students
+                        </p>
+                    </div>
                 </div>
-                <a href="{{ route('teacher.dashboard') }}" class="btn btn-outline-secondary">
-                    <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+            </div>
+            <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                <a href="{{ route('teacher.dashboard') }}" class="btn btn-light">
+                    <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
                 </a>
             </div>
         </div>
     </div>
 
     <!-- Statistics Cards -->
-    <div class="row g-4 mb-4">
-        <div class="col-md-4">
-            <div class="card shadow-sm h-100" style="border-radius: 14px; border: none;">
-                <div class="card-body text-center p-4">
-                    <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-inline-flex align-items-center justify-content-center mb-3"
-                         style="width: 70px; height: 70px; font-size: 2rem;">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <h5 class="mb-2">Total Divisions</h5>
-                    <p class="display-4 fw-bold text-primary mb-0">{{ $divisions->total() }}</p>
-                    <small class="text-muted">Assigned to you</small>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card shadow-sm h-100" style="border-radius: 14px; border: none;">
-                <div class="card-body text-center p-4">
-                    <div class="rounded-circle bg-success bg-opacity-10 text-success d-inline-flex align-items-center justify-content-center mb-3"
-                         style="width: 70px; height: 70px; font-size: 2rem;">
-                        <i class="fas fa-user-graduate"></i>
-                    </div>
-                    <h5 class="mb-2">Total Students</h5>
-                    <p class="display-4 fw-bold text-success mb-0">{{ number_format($divisions->sum('student_count')) }}</p>
-                    <small class="text-muted">Across all divisions</small>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card shadow-sm h-100" style="border-radius: 14px; border: none;">
-                <div class="card-body text-center p-4">
-                    <div class="rounded-circle bg-info bg-opacity-10 text-info d-inline-flex align-items-center justify-content-center mb-3"
-                         style="width: 70px; height: 70px; font-size: 2rem;">
-                        <i class="fas fa-chalkboard"></i>
-                    </div>
-                    <h5 class="mb-2">Active Divisions</h5>
-                    <p class="display-4 fw-bold text-info mb-0">{{ $divisions->where('is_active', true)->count() }}</p>
-                    <small class="text-muted">Currently active</small>
-                </div>
-            </div>
-        </div>
-    </div>
     @if($divisions->count() > 0)
         @if($todayHoliday)
         <div class="row g-4 mb-4">
@@ -182,29 +150,14 @@
         </div>
         @endif
 
-        <!-- Section Title with Pagination Controls -->
-        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-            <div>
-                <h4 class="fw-bold mb-0">
-                    <i class="bi bi-grid-3x3-gap me-2 text-primary"></i>Division Cards
-                </h4>
-                <small class="text-muted">Showing {{ $divisions->firstItem() ?? 0 }} to {{ $divisions->lastItem() ?? 0 }} of {{ $divisions->total() }} divisions</small>
-            </div>
-            <div class="d-flex gap-2 align-items-center">
-                <form method="GET" action="{{ route('teacher.divisions.index') }}" class="d-flex align-items-center gap-2">
-                    <label class="text-muted small mb-0">Per Page:</label>
-                    <select name="per_page" class="form-select form-select-sm" style="width: auto;" onchange="this.form.submit()">
-                        <option value="6" {{ $perPage == 6 ? 'selected' : '' }}>6</option>
-                        <option value="9" {{ $perPage == 9 ? 'selected' : '' }}>9</option>
-                        <option value="12" {{ $perPage == 12 ? 'selected' : '' }}>12</option>
-                        <option value="15" {{ $perPage == 15 ? 'selected' : '' }}>15</option>
-                        <option value="25" {{ $perPage == 25 ? 'selected' : '' }}>25</option>
-                    </select>
-                </form>
-                <span class="badge bg-primary fs-6">
-                    <i class="bi bi-collection me-1"></i>{{ $divisions->count() }} on page
-                </span>
-            </div>
+        <!-- Section Title -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="fw-bold mb-0">
+                <i class="bi bi-grid-3x3-gap me-2 text-primary"></i>Division Cards
+            </h4>
+            <span class="badge bg-primary fs-6">
+                <i class="bi bi-collection me-1"></i>{{ $divisions->count() }} Divisions
+            </span>
         </div>
 
         <!-- Division Cards Grid -->
@@ -318,15 +271,6 @@
                 </div>
             @endforeach
         </div>
-
-        <!-- Pagination -->
-        @if($divisions->hasPages())
-            <div class="d-flex justify-content-center mt-5">
-                <nav aria-label="Division pagination">
-                    {{ $divisions->links('pagination::bootstrap-5') }}
-                </nav>
-            </div>
-        @endif
     @else
         <!-- Empty State -->
         <div class="empty-state-container">

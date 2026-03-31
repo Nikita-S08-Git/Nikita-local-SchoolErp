@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Academic\Admission;
 use App\Models\Academic\StudentDocument;
 use App\Models\AuditLog;
+use App\Models\User;
 use App\Models\User\Student;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -19,19 +20,19 @@ class AdmissionService
     public function createStudentFromAdmission(array $data): Student
     {
         return DB::transaction(function () use ($data) {
-            // Generate random password
-            $tempPassword = \Illuminate\Support\Str::random(8);
+            // Generate random temporary password (8 characters)
+            $tempPassword = bin2hex(random_bytes(4)); // 8 character random string
             
-            // Create user first with auto-generated password
-            $user = \App\Models\User::create([
+            // Create user first
+            $user = User::create([
                 'name' => $data['first_name'] . ' ' . ($data['middle_name'] ?? '') . ' ' . $data['last_name'],
                 'email' => $data['email'],
                 'password' => bcrypt($tempPassword),
-                'temp_password' => $tempPassword, // Plain text for admin viewing
-                'password_generated_at' => now(), // Track when generated
-                'email_verified_at' => now(), // Auto-verify email
+                'temp_password' => $tempPassword,
+                'password_generated_at' => now(),
+                'role' => 'student',
             ]);
-
+            
             // Map fields to students table
             // roll_number = admission_number (they are the same)
             $studentData = [
@@ -62,26 +63,17 @@ class AdmissionService
                 'marksheet_path' => $data['marksheet_path'] ?? null,
                 'cast_certificate_path' => $data['cast_certificate_path'] ?? null,
             ];
-
+            
             $student = Student::create($studentData);
-
-            // Assign student role
-            $user->assignRole('student');
-
-            // Log the admission with password info (for admin to view)
+            
+            // Log the admission
             AuditLog::logEvent(
                 $student,
                 'admission_created',
                 null,
-                [
-                    'student_id' => $student->id,
-                    'admission_number' => $student->admission_number,
-                    'email' => $student->email,
-                    'temp_password' => $tempPassword, // Store in audit log for admin reference
-                    'password_generated_at' => now()
-                ]
+                $student->toArray()
             );
-
+            
             return $student;
         });
     }

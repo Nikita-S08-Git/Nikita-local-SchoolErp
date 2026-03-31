@@ -115,7 +115,7 @@
                         </button>
                         @if(request()->anyFilled(['division_id', 'teacher_id', 'day_of_week', 'status', 'search', 'date']))
                         <a href="{{ route('academic.timetable.grid') }}" class="btn btn-outline-secondary">
-                            <i class="bi bi-x-lg"></i>
+                            <i class="fas fa-times"></i>
                         </a>
                         @endif
                     </div>
@@ -263,14 +263,14 @@
                                            class="btn btn-warning btn-sm"
                                            title="Edit"
                                            data-bs-toggle="tooltip">
-                                            <i class="bi bi-pencil"></i>
+                                            <i class="fas fa-pencil"></i>
                                         </a>
                                         <button type="button" 
                                                 class="btn btn-danger btn-sm"
                                                 title="Delete"
                                                 data-bs-toggle="tooltip"
                                                 onclick="confirmDelete({{ $timetable->id }}, '{{ $timetable->subject->name ?? 'this entry' }} - {{ ucfirst($timetable->day_of_week) }}')">
-                                            <i class="bi bi-trash"></i>
+                                            <i class="fas fa-trash-alt"></i>
                                         </button>
                                     </div>
                                     @endrole

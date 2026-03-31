@@ -15,16 +15,6 @@
                 @method('PUT')
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label class="form-label">Employee ID</label>
-                        <input type="text" name="employee_id" class="form-control" value="{{ $staff->employee_id }}" readonly disabled>
-                        <small class="text-muted">Cannot be changed</small>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Email</label>
-                        <input type="email" name="email" class="form-control" value="{{ $staff->user->email }}" readonly disabled>
-                        <small class="text-muted">Cannot be changed</small>
-                    </div>
-                    <div class="col-md-6 mb-3">
                         <label class="form-label">First Name *</label>
                         <input type="text" name="first_name" class="form-control" value="{{ $staff->first_name }}" required>
                     </div>
@@ -34,31 +24,11 @@
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Phone *</label>
-                        <input type="text" name="phone" class="form-control" value="{{ $staff->phone }}" required pattern="[6-9]\d{9}" maxlength="10" 
-                               placeholder="Enter 10-digit mobile (start with 6-9)"
-                               title="Mobile number must be 10 digits starting with 6-9">
+                        <input type="text" name="phone" class="form-control" value="{{ $staff->phone }}" required>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Emergency Contact</label>
-                        <input type="text" name="emergency_contact" class="form-control" value="{{ $staff->emergency_contact }}" pattern="[6-9]\d{9}" maxlength="10"
-                               placeholder="Enter 10-digit mobile (start with 6-9)"
-                               title="Mobile number must be 10 digits starting with 6-9">
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Date of Birth *</label>
-                        <input type="date" name="date_of_birth" class="form-control" value="{{ $staff->date_of_birth }}" required 
-                               max="{{ date('Y-m-d', strtotime('-18 years')) }}" 
-                               min="{{ date('Y-m-d', strtotime('-60 years')) }}"
-                               title="Date of birth (must be between 18 and 60 years)">
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Gender *</label>
-                        <select name="gender" class="form-select" required>
-                            <option value="">Select Gender</option>
-                            <option value="male" {{ $staff->gender == 'male' ? 'selected' : '' }}>Male</option>
-                            <option value="female" {{ $staff->gender == 'female' ? 'selected' : '' }}>Female</option>
-                            <option value="other" {{ $staff->gender == 'other' ? 'selected' : '' }}>Other</option>
-                        </select>
+                        <input type="text" name="emergency_contact" class="form-control" value="{{ $staff->emergency_contact }}">
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Designation *</label>
@@ -77,15 +47,10 @@
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Employment Type *</label>
                         <select name="employment_type" class="form-select" required>
-                            <option value="">Select Type</option>
                             <option value="permanent" {{ $staff->employment_type == 'permanent' ? 'selected' : '' }}>Permanent</option>
                             <option value="contract" {{ $staff->employment_type == 'contract' ? 'selected' : '' }}>Contract</option>
                             <option value="part_time" {{ $staff->employment_type == 'part_time' ? 'selected' : '' }}>Part Time</option>
                         </select>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Joining Date *</label>
-                        <input type="date" name="joining_date" class="form-control" value="{{ $staff->joining_date }}" required>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Status *</label>

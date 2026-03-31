@@ -6,243 +6,102 @@
     <title>Apply for Admission - School ERP</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            font-family: 'Poppins', sans-serif;
-        }
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #007bff 0%, #1a1a1a 100%);
             min-height: 100vh;
-            padding: 40px 0;
-            position: relative;
-            overflow-x: hidden;
-        }
-        body::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-            opacity: 0.3;
         }
         .application-card {
-            backdrop-filter: blur(20px);
-            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
             border: none;
-            border-radius: 24px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            position: relative;
-            z-index: 1;
+            border-radius: 20px;
         }
         .form-control, .form-select {
-            border-radius: 12px;
-            padding: 14px 18px;
+            border-radius: 10px;
+            padding: 12px 15px;
             border: 2px solid #e9ecef;
-            font-size: 0.95rem;
-            transition: all 0.3s ease;
         }
         .form-control:focus, .form-select:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
-            transform: translateY(-1px);
-        }
-        .form-label {
-            font-weight: 500;
-            color: #2d3748;
-            margin-bottom: 8px;
-            font-size: 0.9rem;
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
         }
         .btn-apply {
-            border-radius: 12px;
-            padding: 14px 40px;
+            border-radius: 10px;
+            padding: 12px;
             font-weight: 600;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
             border: none;
-            transition: all 0.3s ease;
-            font-size: 1.1rem;
-            letter-spacing: 0.5px;
         }
         .btn-apply:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4);
         }
         .school-logo {
-            width: 100px;
-            height: 100px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #007bff 0%, #1a1a1a 100%);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 25px;
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
-            animation: float 3s ease-in-out infinite;
-        }
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
+            margin: 0 auto 20px;
         }
         .section-title {
-            color: #667eea;
-            font-weight: 700;
-            font-size: 1.2rem;
-            margin-top: 2rem;
-            margin-bottom: 1.5rem;
-            padding-bottom: 0.75rem;
-            border-bottom: 3px solid #667eea;
-            display: flex;
-            align-items: center;
-        }
-        .section-title i {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: #007bff;
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #007bff;
         }
         .required-field::after {
             content: " *";
-            color: #e53e3e;
+            color: red;
         }
         /* Error styling */
         .form-control.error, .form-select.error {
-            border-color: #e53e3e !important;
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23e53e3e'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23e53e3e' stroke='none'/%3e%3c/svg%3e");
+            border-color: #dc3545 !important;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
             background-repeat: no-repeat;
             background-position: right calc(0.375em + 0.1875rem) center;
             background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
         }
         .form-control.error:focus, .form-select.error:focus {
-            border-color: #e53e3e !important;
-            box-shadow: 0 0 0 0.2rem rgba(229, 62, 62, 0.25) !important;
+            border-color: #dc3545 !important;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
         }
         .form-control.valid, .form-select.valid {
-            border-color: #38a169 !important;
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2338a169' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.66-.11.11z'/%3e%3c/svg%3e");
+            border-color: #198754 !important;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.66-.11.11z'/%3e%3c/svg%3e");
             background-repeat: no-repeat;
             background-position: right calc(0.375em + 0.1875rem) center;
             background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
         }
         .error-message {
-            color: #e53e3e;
-            font-size: 0.8rem;
-            margin-top: 6px;
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
             display: none;
-            font-weight: 500;
         }
         .error-message.show {
             display: block;
-            animation: shake 0.3s ease-in-out;
-        }
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
         }
         .file-upload-wrapper {
-            border: 2px dashed #e2e8f0;
-            border-radius: 12px;
-            padding: 25px;
+            border: 2px dashed #dee2e6;
+            border-radius: 10px;
+            padding: 20px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s;
-            background: #f8fafc;
         }
         .file-upload-wrapper:hover {
-            border-color: #667eea;
-            background: #f0f4ff;
-            transform: translateY(-2px);
+            border-color: #007bff;
+            background: #f8f9fa;
         }
         .file-upload-wrapper input[type="file"] {
             display: none;
-        }
-        .card {
-            border: none;
-            border-radius: 16px;
-            background: #f8fafc;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-        }
-        .input-group-text {
-            background: #f0f4ff;
-            border: 2px solid #e9ecef;
-            border-radius: 12px 0 0 12px;
-            color: #667eea;
-        }
-        .form-control:focus + .input-group-text,
-        .form-select:focus + .input-group-text {
-            border-color: #667eea;
-        }
-        /* Progress indicator */
-        .progress-steps {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 30px;
-            position: relative;
-        }
-        .progress-steps::before {
-            content: '';
-            position: absolute;
-            top: 20px;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: #e2e8f0;
-            z-index: 0;
-        }
-        .step {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            z-index: 1;
-            flex: 1;
-        }
-        .step-circle {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: #fff;
-            border: 3px solid #e2e8f0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            color: #a0aec0;
-            transition: all 0.3s ease;
-        }
-        .step.active .step-circle {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-color: #667eea;
-            color: #fff;
-            transform: scale(1.1);
-        }
-        .step-label {
-            margin-top: 8px;
-            font-size: 0.85rem;
-            color: #718096;
-            font-weight: 500;
-        }
-        .step.active .step-label {
-            color: #667eea;
-        }
-        /* Floating labels */
-        .form-floating > .form-control:focus ~ label,
-        .form-floating > .form-control:not(:placeholder-shown) ~ label,
-        .form-floating > .form-select ~ label {
-            opacity: 1;
-            transform: scale(0.85) translateY(-0.65rem);
-            color: #667eea;
-        }
-        /* Responsive */
-        @media (max-width: 768px) {
-            .application-card {
-                border-radius: 16px;
-            }
-            .btn-apply {
-                padding: 12px 30px;
-                font-size: 1rem;
-            }
         }
     </style>
 </head>
@@ -259,117 +118,11 @@
                             <h3 class="fw-bold text-dark mb-2">Apply for Admission</h3>
                             <p class="text-muted mb-0">Fill out the form below to apply for admission</p>
                         </div>
-
+                        
                         @if(session('success'))
-                        <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
-                            <div class="d-flex align-items-start">
-                                <i class="bi bi-check-circle-fill me-2 fs-4"></i>
-                                <div class="flex-grow-1">
-                                    <strong>Admission Submitted Successfully!</strong>
-                                    <p class="mb-2 mt-2">{{ session('success') }}</p>
-                                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#credentialsModal">
-                                        <i class="bi bi-key me-1"></i>View Login Credentials
-                                    </button>
-                                </div>
-                            </div>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-
-                        <!-- Credentials Modal -->
-                        <div class="modal fade" id="credentialsModal" tabindex="-1" aria-labelledby="credentialsModalLabel" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered">
-                                <div class="modal-content">
-                                    <div class="modal-header bg-success text-white">
-                                        <h5 class="modal-title" id="credentialsModalLabel">
-                                            <i class="bi bi-check-circle me-2"></i>Admission Successful!
-                                        </h5>
-                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <div class="text-center mb-4">
-                                            <div class="success-icon mb-3">
-                                                <i class="bi bi-mortarboard-fill text-success" style="font-size: 4rem;"></i>
-                                            </div>
-                                            <h4 class="fw-bold text-success">Welcome to Our College!</h4>
-                                            <p class="text-muted">Your admission has been successfully submitted.</p>
-                                        </div>
-
-                                        <div class="card bg-light border-0 mb-3">
-                                            <div class="card-body">
-                                                <h6 class="fw-bold mb-3">
-                                                    <i class="bi bi-key text-primary me-2"></i>Login Credentials
-                                                </h6>
-                                                
-                                                <div class="mb-3">
-                                                    <label class="text-muted small">Student Email</label>
-                                                    <div class="input-group">
-                                                        <input type="text" class="form-control font-monospace" id="studentEmail" 
-                                                               value="{{ session('student_email') }}" readonly>
-                                                        <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('studentEmail')" title="Copy Email">
-                                                            <i class="bi bi-clipboard"></i>
-                                                        </button>
-                                                    </div>
-                                                </div>
-
-                                                <div class="mb-3">
-                                                    <label class="text-muted small">Temporary Password</label>
-                                                    <div class="input-group">
-                                                        <input type="text" class="form-control font-monospace" id="tempPassword" 
-                                                               value="{{ session('temp_password') }}" readonly>
-                                                        <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('tempPassword')" title="Copy Password">
-                                                            <i class="bi bi-clipboard"></i>
-                                                        </button>
-                                                        <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility()" title="Show/Hide">
-                                                            <i class="bi bi-eye" id="toggleEye"></i>
-                                                        </button>
-                                                    </div>
-                                                </div>
-
-                                                <div class="alert alert-warning mb-0">
-                                                    <i class="bi bi-exclamation-triangle me-1"></i>
-                                                    <strong>Important:</strong> Please save these credentials securely. You will need them to login.
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="card bg-primary bg-opacity-10 border-0 mb-3">
-                                            <div class="card-body">
-                                                <h6 class="fw-bold mb-2">
-                                                    <i class="bi bi-box-arrow-in-right text-primary me-2"></i>Student Login
-                                                </h6>
-                                                <div class="input-group">
-                                                    <input type="text" class="form-control" value="http://127.0.0.1:8000/student/login" readonly>
-                                                    <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('loginUrl')" title="Copy URL">
-                                                        <i class="bi bi-clipboard"></i>
-                                                    </button>
-                                                    <a href="http://127.0.0.1:8000/student/login" target="_blank" class="btn btn-primary">
-                                                        <i class="bi bi-box-arrow-up-right me-1"></i>Open
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="alert alert-info mb-0">
-                                            <i class="bi bi-info-circle me-1"></i>
-                                            <strong>Next Steps:</strong>
-                                            <ol class="mb-0 mt-2">
-                                                <li>Save your login credentials</li>
-                                                <li>Login to student portal</li>
-                                                <li>Change your password after first login</li>
-                                                <li>Complete your profile</li>
-                                            </ol>
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                                            <i class="bi bi-printer me-1"></i>Print
-                                        </button>
-                                        <button type="button" class="btn btn-success" data-bs-dismiss="modal">
-                                            <i class="bi bi-check-lg me-1"></i>I Have Saved Credentials
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="alert alert-success alert-dismissible fade show mb-4">
+                            {{ session('success') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
                         @endif
                         
@@ -386,7 +139,7 @@
                                     <label for="first_name" class="form-label fw-semibold required-field">
                                         <i class="bi bi-person me-2"></i>First Name
                                     </label>
-                                    <input type="text" class="form-control @error('first_name') is-invalid @enderror"
+                                    <input type="text" class="form-control @error('first_name') is-invalid @endif"
                                            id="first_name" name="first_name" value="{{ old('first_name') }}"
                                            placeholder="Enter first name (letters only)" required pattern="[a-zA-Z\s]+"
                                            title="Only letters are allowed">
@@ -400,7 +153,7 @@
                                     <label for="middle_name" class="form-label fw-semibold">
                                         <i class="bi bi-person me-2"></i>Middle Name
                                     </label>
-                                    <input type="text" class="form-control @error('middle_name') is-invalid @enderror"
+                                    <input type="text" class="form-control @error('middle_name') is-invalid @endif"
                                            id="middle_name" name="middle_name" value="{{ old('middle_name') }}"
                                            placeholder="Enter middle name (letters only)" pattern="[a-zA-Z\s]+"
                                            title="Only letters are allowed">
@@ -414,7 +167,7 @@
                                     <label for="last_name" class="form-label fw-semibold required-field">
                                         <i class="bi bi-person me-2"></i>Last Name
                                     </label>
-                                    <input type="text" class="form-control @error('last_name') is-invalid @enderror"
+                                    <input type="text" class="form-control @error('last_name') is-invalid @endif"
                                            id="last_name" name="last_name" value="{{ old('last_name') }}"
                                            placeholder="Enter last name (letters only)" required pattern="[a-zA-Z\s]+"
                                            title="Only letters are allowed">
@@ -430,9 +183,9 @@
                                     <label for="date_of_birth" class="form-label fw-semibold required-field">
                                         <i class="bi bi-calendar-date me-2"></i>Date of Birth
                                     </label>
-                                    <input type="date" class="form-control @error('date_of_birth') is-invalid @enderror"
+                                    <input type="date" class="form-control @error('date_of_birth') is-invalid @endif"
                                            id="date_of_birth" name="date_of_birth" value="{{ old('date_of_birth') }}"
-                                           required max="{{ date('Y-m-d', strtotime('-5 years')) }}">
+                                           max="{{ date('Y-m-d') }}" required>
                                     <span class="error-message" id="date_of_birth_error"></span>
                                     @error('date_of_birth')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -443,7 +196,7 @@
                                     <label for="gender" class="form-label fw-semibold required-field">
                                         <i class="bi bi-gender-ambiguous me-2"></i>Gender
                                     </label>
-                                    <select class="form-select @error('gender') is-invalid @enderror"
+                                    <select class="form-select @error('gender') is-invalid @endif"
                                             id="gender" name="gender" required>
                                         <option value="">Select Gender</option>
                                         <option value="male" {{ old('gender') == 'male' ? 'selected' : '' }}>Male</option>
@@ -462,7 +215,7 @@
                                     <label for="blood_group" class="form-label fw-semibold">
                                         <i class="bi bi-droplet me-2"></i>Blood Group
                                     </label>
-                                    <select class="form-select @error('blood_group') is-invalid @enderror" 
+                                    <select class="form-select @error('blood_group') is-invalid @endif" 
                                             id="blood_group" name="blood_group">
                                         <option value="">Select Blood Group</option>
                                         <option value="A+" {{ old('blood_group') == 'A+' ? 'selected' : '' }}>A+</option>
@@ -483,7 +236,7 @@
                                     <label for="religion" class="form-label fw-semibold">
                                         <i class="bi bi-bookmark me-2"></i>Religion
                                     </label>
-                                    <select class="form-select @error('religion') is-invalid @enderror" 
+                                    <select class="form-select @error('religion') is-invalid @endif" 
                                             id="religion" name="religion">
                                         <option value="">Select Religion</option>
                                         <option value="Hindu" {{ old('religion') == 'Hindu' ? 'selected' : '' }}>Hindu</option>
@@ -505,7 +258,7 @@
                                     <label for="category" class="form-label fw-semibold required-field">
                                         <i class="bi bi-people me-2"></i>Category
                                     </label>
-                                    <select class="form-select @error('category') is-invalid @enderror"
+                                    <select class="form-select @error('category') is-invalid @endif"
                                             id="category" name="category" required>
                                         <option value="">Select Category</option>
                                         <option value="general" {{ old('category') == 'general' ? 'selected' : '' }}>General</option>
@@ -524,7 +277,7 @@
                                     <label for="aadhar_number" class="form-label fw-semibold">
                                         <i class="bi bi-person-vcard me-2"></i>Aadhar Number
                                     </label>
-                                    <input type="text" class="form-control @error('aadhar_number') is-invalid @enderror" 
+                                    <input type="text" class="form-control @error('aadhar_number') is-invalid @endif" 
                                            id="aadhar_number" name="aadhar_number" value="{{ old('aadhar_number') }}" 
                                            placeholder="Enter 12-digit Aadhar number" maxlength="12" pattern="\d{12}"
                                            title="Must be 12 digits">
@@ -544,7 +297,7 @@
                                     <label for="email" class="form-label fw-semibold required-field">
                                         <i class="bi bi-envelope me-2"></i>Email Address
                                     </label>
-                                    <input type="email" class="form-control @error('email') is-invalid @enderror"
+                                    <input type="email" class="form-control @error('email') is-invalid @endif"
                                            id="email" name="email" value="{{ old('email') }}"
                                            placeholder="Enter email address" required>
                                     <span class="error-message" id="email_error"></span>
@@ -557,7 +310,7 @@
                                     <label for="mobile_number" class="form-label fw-semibold required-field">
                                         <i class="bi bi-phone me-2"></i>Mobile Number
                                     </label>
-                                    <input type="tel" class="form-control @error('mobile_number') is-invalid @enderror"
+                                    <input type="tel" class="form-control @error('mobile_number') is-invalid @endif"
                                            id="mobile_number" name="mobile_number" value="{{ old('mobile_number') }}"
                                            placeholder="Enter 10-digit mobile (start with 6-9)" required pattern="[6-9]\d{9}"
                                            maxlength="10" title="Must be 10 digits, starting with 6-9">
@@ -572,7 +325,7 @@
                                 <label for="current_address" class="form-label fw-semibold required-field">
                                     <i class="bi bi-house me-2"></i>Current Address
                                 </label>
-                                <textarea class="form-control @error('current_address') is-invalid @enderror"
+                                <textarea class="form-control @error('current_address') is-invalid @endif"
                                           id="current_address" name="current_address" rows="2"
                                           placeholder="Enter complete address" required minlength="10">{{ old('current_address') }}</textarea>
                                 <span class="error-message" id="current_address_error"></span>
@@ -585,7 +338,7 @@
                                 <label for="permanent_address" class="form-label fw-semibold">
                                     <i class="bi bi-house-door me-2"></i>Permanent Address
                                 </label>
-                                <textarea class="form-control @error('permanent_address') is-invalid @enderror"
+                                <textarea class="form-control @error('permanent_address') is-invalid @endif"
                                           id="permanent_address" name="permanent_address" rows="2"
                                           placeholder="Enter permanent address (same as current if not specified)">{{ old('permanent_address') }}</textarea>
                                 <span class="error-message" id="permanent_address_error"></span>
@@ -604,14 +357,12 @@
                                     <label for="program_id" class="form-label fw-semibold required-field">
                                         <i class="bi bi-mortarboard me-2"></i>Program / Course
                                     </label>
-                                    <select class="form-select @error('program_id') is-invalid @enderror" 
+                                    <select class="form-select @error('program_id') is-invalid @endif" 
                                             id="program_id" name="program_id" required>
                                         <option value="">Select Program</option>
-                                        <option value="1" {{ old('program_id') == '1' ? 'selected' : '' }}>B.Com</option>
-                                        <option value="2" {{ old('program_id') == '2' ? 'selected' : '' }}>B.Sc</option>
-                                        <option value="3" {{ old('program_id') == '3' ? 'selected' : '' }}>BBA</option>
-                                        <option value="4" {{ old('program_id') == '4' ? 'selected' : '' }}>BA</option>
-                                        <option value="5" {{ old('program_id') == '5' ? 'selected' : '' }}>BCA</option>
+                                        @foreach($programs ?? [] as $program)
+                                            <option value="{{ $program->id }}" {{ old('program_id') == $program->id ? 'selected' : '' }}>{{ $program->name }}</option>
+                                        @endforeach
                                     </select>
                                     @error('program_id')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -622,14 +373,16 @@
                                     <label for="division_id" class="form-label fw-semibold required-field">
                                         <i class="bi bi-people me-2"></i>Division / Class
                                     </label>
-                                    <select class="form-select @error('division_id') is-invalid @enderror"
-                                            id="division_id" name="division_id" required disabled>
-                                        <option value="">Select Program First</option>
+                                    <select class="form-select @error('division_id') is-invalid @endif" 
+                                            id="division_id" name="division_id" required>
+                                        <option value="">Select Division</option>
+                                        @foreach($divisions ?? [] as $division)
+                                            <option value="{{ $division->id }}" {{ old('division_id') == $division->id ? 'selected' : '' }}>{{ $division->division_name }}</option>
+                                        @endforeach
                                     </select>
                                     @error('division_id')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
-                                    <small class="text-muted">Select program to see available divisions</small>
                                 </div>
                             </div>
                             
@@ -638,7 +391,7 @@
                                     <label for="academic_session_id" class="form-label fw-semibold required-field">
                                         <i class="bi bi-calendar-event me-2"></i>Academic Session
                                     </label>
-                                    <select class="form-select @error('academic_session_id') is-invalid @enderror" 
+                                    <select class="form-select @error('academic_session_id') is-invalid @endif" 
                                             id="academic_session_id" name="academic_session_id" required>
                                         <option value="">Select Academic Year</option>
                                         <option value="1" {{ old('academic_session_id') == '1' ? 'selected' : '' }}>2025-2026</option>
@@ -653,7 +406,7 @@
                                     <label for="academic_year" class="form-label fw-semibold required-field">
                                         <i class="bi bi-calendar me-2"></i>Year of Admission
                                     </label>
-                                    <select class="form-select @error('academic_year') is-invalid @enderror" 
+                                    <select class="form-select @error('academic_year') is-invalid @endif" 
                                             id="academic_year" name="academic_year" required>
                                         <option value="">Select Year</option>
                                         <option value="FY" {{ old('academic_year') == 'FY' ? 'selected' : '' }}>First Year</option>
@@ -887,10 +640,13 @@
         document.getElementById('date_of_birth').addEventListener('change', function(e) {
             const dob = new Date(this.value);
             const today = new Date();
+            today.setHours(0, 0, 0, 0);
             const minAge = 5;
             const minDate = new Date(today.getFullYear() - minAge, today.getMonth(), today.getDate());
             
-            if (dob > minDate) {
+            if (dob > today) {
+                showError('date_of_birth', 'Date of birth cannot be in the future');
+            } else if (dob > minDate) {
                 showError('date_of_birth', 'Student must be at least 5 years old');
             } else {
                 showValid('date_of_birth');
@@ -1089,7 +845,7 @@
             } else {
                 clearError('current_address');
             }
-
+            
             // If invalid, prevent submission and scroll to first error
             if (!isValid) {
                 e.preventDefault();
@@ -1099,133 +855,6 @@
                 }
             }
         });
-
-        // Copy to Clipboard Function
-        function copyToClipboard(elementId) {
-            const element = document.getElementById(elementId);
-            element.select();
-            element.setSelectionRange(0, 99999); // For mobile devices
-            navigator.clipboard.writeText(element.value).then(function() {
-                showToast('Copied to clipboard!', 'success');
-            }, function(err) {
-                showToast('Failed to copy', 'danger');
-            });
-        }
-
-        // Toggle Password Visibility
-        function togglePasswordVisibility() {
-            const passwordField = document.getElementById('tempPassword');
-            const eyeIcon = document.getElementById('toggleEye');
-            
-            if (passwordField.type === 'password') {
-                passwordField.type = 'text';
-                eyeIcon.classList.remove('bi-eye');
-                eyeIcon.classList.add('bi-eye-slash');
-            } else {
-                passwordField.type = 'password';
-                eyeIcon.classList.remove('bi-eye-slash');
-                eyeIcon.classList.add('bi-eye');
-            }
-        }
-
-        // Show Toast Notification
-        function showToast(message, type = 'info') {
-            const toastContainer = document.getElementById('toastContainer') || createToastContainer();
-            const toast = document.createElement('div');
-            toast.className = `alert alert-${type} alert-dismissible fade show mb-2`;
-            toast.innerHTML = `
-                ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            `;
-            toastContainer.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
-        }
-
-        // Create Toast Container
-        function createToastContainer() {
-            const container = document.createElement('div');
-            container.id = 'toastContainer';
-            container.className = 'position-fixed top-0 end-0 p-3';
-            container.style.zIndex = '9999';
-            document.body.appendChild(container);
-            return container;
-        }
-
-        // Auto-show modal on success
-        document.addEventListener('DOMContentLoaded', function() {
-            const successAlert = document.querySelector('.alert-success');
-            if (successAlert) {
-                const credentialsModal = new bootstrap.Modal(document.getElementById('credentialsModal'));
-                setTimeout(() => {
-                    credentialsModal.show();
-                }, 500);
-            }
-        });
-
-        // Dynamic Division Loading based on Program Selection
-        const programSelect = document.getElementById('program_id');
-        const divisionSelect = document.getElementById('division_id');
-
-        // Sample divisions data by program (in production, fetch via AJAX)
-        const divisionsByProgram = {
-            '1': [ // B.Com
-                { id: '1', name: 'A' },
-                { id: '2', name: 'B' },
-                { id: '3', name: 'C' }
-            ],
-            '2': [ // B.Sc
-                { id: '4', name: 'A' },
-                { id: '5', name: 'B' },
-                { id: '20', name: 'COM-2025-A' }
-            ],
-            '3': [ // BBA
-                { id: '6', name: 'A' },
-                { id: '7', name: 'B' }
-            ],
-            '4': [ // BA
-                { id: '8', name: 'A' },
-                { id: '9', name: 'B' }
-            ],
-            '5': [ // BCA
-                { id: '10', name: 'A' },
-                { id: '11', name: 'B' }
-            ]
-        };
-
-        programSelect.addEventListener('change', function() {
-            const programId = this.value;
-            
-            // Clear division dropdown
-            divisionSelect.innerHTML = '<option value="">Select Division</option>';
-            
-            if (programId && divisionsByProgram[programId]) {
-                // Enable division dropdown
-                divisionSelect.disabled = false;
-                
-                // Populate divisions
-                divisionsByProgram[programId].forEach(function(division) {
-                    const option = document.createElement('option');
-                    option.value = division.id;
-                    option.textContent = division.name;
-                    
-                    // Preserve old selection
-                    if (division.id == '{{ old('division_id') }}') {
-                        option.selected = true;
-                    }
-                    
-                    divisionSelect.appendChild(option);
-                });
-            } else {
-                // Disable division dropdown if no program selected
-                divisionSelect.disabled = true;
-                divisionSelect.innerHTML = '<option value="">Select Program First</option>';
-            }
-        });
-
-        // Trigger change on page load to preserve old selection
-        if (programSelect.value) {
-            programSelect.dispatchEvent(new Event('change'));
-        }
     </script>
 </body>
 </html>

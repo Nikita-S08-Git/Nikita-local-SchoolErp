@@ -15,8 +15,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <style>
         /* ─── Design Tokens ─── */
@@ -43,18 +41,14 @@
             --danger:        #dc2626;
             --danger-light:  #fff1f1;
 
-            /* Sidebar specific - Black Text Theme */
-            --sb-bg:         #ffffff;              /* White background */
-            --sb-bg-gradient: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
-            --sb-border:     #e5e7eb;              /* Light border */
-            --sb-text:       #000000;              /* Black text for content */
-            --sb-text-brand: #000000;              /* Black for branding */
-            --sb-muted:      #6b7280;              /* Gray muted text */
-            --sb-hover-bg:   #f3f4f6;              /* Light gray hover */
-            --sb-active-bg:  #2563eb;              /* Blue active background */
-            --sb-active-txt: #ffffff;              /* White active text */
-            --sb-icon-color: #6b7280;              /* Gray icon color */
-            --sb-icon-active: #ffffff;             /* White active icon */
+            /* Sidebar specific */
+            --sb-bg:         #ffffff;
+            --sb-border:     #e5e7eb;
+            --sb-text:       #374151;
+            --sb-muted:      #9ca3af;
+            --sb-hover-bg:   #f3f4f6;
+            --sb-active-bg:  #eff4ff;
+            --sb-active-txt: #2563eb;
 
             /* Surfaces */
             --card-bg:       #ffffff;
@@ -164,9 +158,9 @@
             gap: 10px;
             padding: 8px 10px;
             border-radius: var(--r-md);
-            color: var(--sb-text);  /* Black text */
+            color: var(--sb-text);
             font-size: 13.5px;
-            font-weight: 500;  /* Slightly bolder for black text */
+            font-weight: 400;
             text-decoration: none;
             transition: background .15s, color .15s;
             position: relative;
@@ -689,28 +683,7 @@
     <nav class="sidebar-nav" id="sidebarNav">
         @php
             $user = auth()->check() ? auth()->user() : null;
-            $role = 'student'; // Default fallback
-            
-            if ($user) {
-                // Check if user has roles relationship (User model does, Student model doesn't)
-                if (method_exists($user, 'roles') && $user->roles && $user->roles->isNotEmpty()) {
-                    $role = $user->roles->first()->name ?? 'student';
-                }
-                // Fallback: check if user has role_name attribute
-                elseif (isset($user->role_name)) {
-                    $role = $user->role_name;
-                }
-                // Fallback: check user type for student guard
-                elseif (auth()->guard('student')->check()) {
-                    $role = 'student';
-                }
-                // Fallback: check class name
-                elseif (get_class($user) === 'App\Models\User\Student') {
-                    $role = 'student';
-                }
-            }
-            
-            // Special case for librarian
+            $role = $user ? ($user->roles->first()->name ?? 'student') : 'student';
             if ($role === 'student' && $user && $user->email === 'librarian@schoolerp.com') {
                 $role = 'librarian';
             }
@@ -724,7 +697,6 @@
                 'hod_science'     => 'teacher.dashboard',
                 'hod_management'  => 'teacher.dashboard',
                 'hod_arts'        => 'teacher.dashboard',
-                'accountant'      => 'dashboard.accountant',
                 'student'         => 'dashboard.student',
                 'accounts_staff'  => 'dashboard.accounts_staff',
                 'office'          => 'dashboard.office',
@@ -734,95 +706,23 @@
             $isTeacher = in_array($role, ['teacher','class_teacher','subject_teacher','hod_commerce','hod_science','hod_management','hod_arts']);
         @endphp
 
-        @if($isTeacher || $role === 'admin' || $role === 'librarian')
-            <!-- Skip generic dashboard for teachers, admin, and librarian (they have their own) -->
-        @else
         <!-- Dashboard -->
         <span class="nav-label">Main</span>
         <ul class="nav flex-column mb-0">
             <li class="nav-item">
+                @if($isTeacher)
+                <a class="nav-link {{ request()->routeIs('teacher.dashboard') ? 'active' : '' }}" href="{{ route('teacher.dashboard') }}">
+                @else
                 <a class="nav-link {{ request()->routeIs('dashboard.*') ? 'active' : '' }}" href="{{ route($dashboardRoute) }}">
+                @endif
                     <span class="nav-icon"><i class="fas fa-home"></i></span>
                     Dashboard
                 </a>
             </li>
         </ul>
-        @endif
 
         {{-- ── ADMIN ── --}}
         @if($role === 'admin')
-
-        <div class="sidebar-divider"></div>
-        <span class="nav-label">Main</span>
-        <ul class="nav flex-column mb-0">
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('dashboard.admin') ? 'active' : '' }}" href="{{ route('dashboard.admin') }}">
-                    <span class="nav-icon"><i class="fas fa-home"></i></span> Dashboard
-                </a>
-            </li>
-        </ul>
-
-        <div class="sidebar-divider"></div>
-        <span class="nav-label">Profile & Settings</span>
-        <ul class="nav flex-column mb-0">
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('admin.profile*') ? 'active' : '' }}" href="{{ route('admin.profile') }}">
-                    <span class="nav-icon"><i class="fas fa-user-shield"></i></span> My Profile
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('admin.settings*') ? 'active' : '' }}" href="{{ route('admin.settings') }}">
-                    <span class="nav-icon"><i class="fas fa-cog"></i></span> Settings
-                </a>
-            </li>
-        </ul>
-
-        <div class="sidebar-divider"></div>
-        <span class="nav-label">Fee Management</span>
-        <ul class="nav flex-column mb-0">
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('admin.fees') ? 'active' : '' }}" href="{{ route('admin.fees') }}">
-                    <span class="nav-icon"><i class="fas fa-rupee-sign"></i></span> Fee Dashboard
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('admin.fees.structures*') ? '' : 'collapsed' }}"
-                   data-bs-toggle="collapse" data-bs-target="#nav-admin-fee-struct" href="#">
-                    <span class="nav-icon"><i class="fas fa-list-alt"></i></span>
-                    Fee Structures
-                    <i class="fas fa-chevron-down toggle-arrow"></i>
-                </a>
-                <div class="collapse {{ request()->routeIs('admin.fees.structures*') ? 'show' : '' }}" id="nav-admin-fee-struct">
-                    <ul class="sidebar-submenu">
-                        <li><a class="{{ request()->routeIs('admin.fees.structures') ? 'active' : '' }}" href="{{ route('admin.fees.structures') }}"><i class="fas fa-list fa-fw"></i> All Structures</a></li>
-                        <li><a class="{{ request()->routeIs('admin.fees.structures.create') ? 'active' : '' }}" href="{{ route('admin.fees.structures.create') }}"><i class="fas fa-plus fa-fw"></i> Create Structure</a></li>
-                    </ul>
-                </div>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('admin.fees.student-fees') ? 'active' : '' }}" href="{{ route('admin.fees.student-fees') }}">
-                    <span class="nav-icon"><i class="fas fa-user-graduate"></i></span> Student Fees
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('admin.fees.payments') ? 'active' : '' }}" href="{{ route('admin.fees.payments') }}">
-                    <span class="nav-icon"><i class="fas fa-credit-card"></i></span> Payments
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('admin.fees.outstanding') ? 'active' : '' }}" href="{{ route('admin.fees.outstanding') }}">
-                    <span class="nav-icon"><i class="fas fa-exclamation-triangle"></i></span> Outstanding
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('admin.fees.reports') ? 'active' : '' }}" href="{{ route('admin.fees.reports') }}">
-                    <span class="nav-icon"><i class="fas fa-chart-line"></i></span> Reports
-                </a>
-            </li>
-        </ul>
-
-        {{-- ── PRINCIPAL / OFFICE ── --}}
-        @if(in_array($role, ['principal', 'office']) && $role !== 'admin')
 
         <div class="sidebar-divider"></div>
         <span class="nav-label">Administration</span>
@@ -898,6 +798,9 @@
             </li>
         </ul>
         @endif
+
+        {{-- ── PRINCIPAL / OFFICE ── --}}
+        @if(in_array($role, ['principal', 'office']))
 
         <div class="sidebar-divider"></div>
         <span class="nav-label">Management</span>
@@ -1017,61 +920,13 @@
         </ul>
         @endif
 
-        {{-- ── ACCOUNTANT ── --}}
-        @if($role === 'accountant')
-        <div class="sidebar-divider"></div>
-        <span class="nav-label">Fee Management</span>
-        <ul class="nav flex-column mb-0">
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('fees.structures.*') ? 'active' : '' }}" href="{{ route('fees.structures.index') }}">
-                    <span class="nav-icon"><i class="fas fa-list-columns"></i></span> Fee Structures
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('fees.assignments.*') ? 'active' : '' }}" href="{{ route('fees.assignments.index') }}">
-                    <span class="nav-icon"><i class="fas fa-clipboard-plus"></i></span> Fee Assignment
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('fees.payments.*') ? 'active' : '' }}" href="{{ route('fees.payments.index') }}">
-                    <span class="nav-icon"><i class="fas fa-cash-register"></i></span> Fee Collection
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('fees.outstanding.*') ? 'active' : '' }}" href="{{ route('fees.outstanding.index') }}">
-                    <span class="nav-icon"><i class="fas fa-exclamation-triangle"></i></span> Outstanding Fees
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('fees.scholarships.*') ? 'active' : '' }}" href="{{ route('fees.scholarships.index') }}">
-                    <span class="nav-icon"><i class="fas fa-award"></i></span> Scholarships
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('fees.scholarship-applications.*') ? 'active' : '' }}" href="{{ route('fees.scholarship-applications.index') }}">
-                    <span class="nav-icon"><i class="fas fa-file-contract"></i></span> Scholarship Applications
-                </a>
-            </li>
-        </ul>
-        
-        <div class="sidebar-divider"></div>
-        <span class="nav-label">Reports</span>
-        <ul class="nav flex-column mb-0">
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }}" href="{{ route('reports.index') }}">
-                    <span class="nav-icon"><i class="fas fa-chart-bar"></i></span> Fee Reports
-                </a>
-            </li>
-        </ul>
-        @endif
-
         {{-- ── STUDENT ── --}}
         @if($role === 'student')
         <div class="sidebar-divider"></div>
         <span class="nav-label">My Account</span>
         <ul class="nav flex-column mb-0">
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('student.fees') ? 'active' : '' }}" href="{{ route('student.fees') }}">
+                <a class="nav-link {{ request()->routeIs('student.fees.*') ? 'active' : '' }}" href="{{ route('student.fees.index') }}">
                     <span class="nav-icon"><i class="fas fa-credit-card"></i></span> My Fees
                 </a>
             </li>
@@ -1084,26 +939,11 @@
                 </a>
                 <div class="collapse {{ request()->routeIs('academic.timetable.*','academic.attendance.*','academic.holidays.*') ? 'show' : '' }}" id="nav-stu-tt">
                     <ul class="sidebar-submenu">
-                        <li><a class="{{ request()->routeIs('student.timetable') ? 'active' : '' }}" href="{{ route('student.timetable') }}"><i class="fas fa-table fa-fw"></i> My Timetable</a></li>
-                        <li><a class="{{ request()->routeIs('student.attendance') ? 'active' : '' }}" href="{{ route('student.attendance') }}"><i class="fas fa-clipboard-check fa-fw"></i> My Attendance</a></li>
+                        <li><a class="{{ request()->routeIs('academic.timetable.*') ? 'active' : '' }}" href="{{ route('academic.timetable.index') }}"><i class="fas fa-table fa-fw"></i> My Timetable</a></li>
+                        <li><a class="{{ request()->routeIs('academic.attendance.*') ? 'active' : '' }}" href="{{ route('academic.attendance.index') }}"><i class="fas fa-clipboard-check fa-fw"></i> Attendance</a></li>
                         <li><a class="{{ request()->routeIs('academic.holidays.*') ? 'active' : '' }}" href="{{ route('academic.holidays.index') }}"><i class="fas fa-calendar-xmark fa-fw"></i> Holidays</a></li>
                     </ul>
                 </div>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('student.results') ? 'active' : '' }}" href="{{ route('student.results') }}">
-                    <span class="nav-icon"><i class="fas fa-graduation-cap"></i></span> My Results
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('student.library') ? 'active' : '' }}" href="{{ route('student.library') }}">
-                    <span class="nav-icon"><i class="fas fa-book"></i></span> Library
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('student.notifications') ? 'active' : '' }}" href="{{ route('student.notifications') }}">
-                    <span class="nav-icon"><i class="fas fa-bell"></i></span> Notifications
-                </a>
             </li>
         </ul>
         @endif
@@ -1111,17 +951,7 @@
         {{-- ── TEACHER ── --}}
         @if($isTeacher)
         <div class="sidebar-divider"></div>
-        <span class="nav-label">Main</span>
-        <ul class="nav flex-column mb-0">
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('teacher.dashboard*') ? 'active' : '' }}" href="{{ route('teacher.dashboard') }}">
-                    <span class="nav-icon"><i class="fas fa-home"></i></span> Dashboard
-                </a>
-            </li>
-        </ul>
-
-        <div class="sidebar-divider"></div>
-        <span class="nav-label">Profile & Settings</span>
+        <span class="nav-label">Teaching</span>
         <ul class="nav flex-column mb-0">
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('teacher.profile*') ? 'active' : '' }}" href="{{ route('teacher.profile') }}">
@@ -1129,63 +959,24 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('teacher.profile.edit*') ? 'active' : '' }}" href="{{ route('teacher.profile.edit') }}">
-                    <span class="nav-icon"><i class="fas fa-user-pen"></i></span> Edit Profile
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('teacher.settings*') ? 'active' : '' }}" href="{{ route('teacher.settings') }}">
-                    <span class="nav-icon"><i class="fas fa-gear"></i></span> Settings
-                </a>
-            </li>
-        </ul>
-
-        <div class="sidebar-divider"></div>
-        <span class="nav-label">Teaching</span>
-        <ul class="nav flex-column mb-0">
-            <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('teacher.divisions*') ? 'active' : '' }}" href="{{ route('teacher.divisions.index') }}">
                     <span class="nav-icon"><i class="fas fa-users-rectangle"></i></span> My Divisions
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('teacher.students*') ? 'active' : '' }}" href="{{ route('teacher.students.index') }}">
-                    <span class="nav-icon"><i class="fas fa-user-graduate"></i></span> Students
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('teacher.attendance*') ? '' : 'collapsed' }}"
-                   data-bs-toggle="collapse" data-bs-target="#nav-tch-att" href="#">
-                    <span class="nav-icon"><i class="fas fa-clipboard-check"></i></span>
-                    Attendance
+                <a class="nav-link {{ request()->routeIs('academic.timetable.*','academic.attendance.*','academic.holidays.*') ? '' : 'collapsed' }}"
+                   data-bs-toggle="collapse" data-bs-target="#nav-tch-tt" href="#">
+                    <span class="nav-icon"><i class="fas fa-calendar-week"></i></span>
+                    Schedule
                     <i class="fas fa-chevron-down toggle-arrow"></i>
                 </a>
-                <div class="collapse {{ request()->routeIs('teacher.attendance*') ? 'show' : '' }}" id="nav-tch-att">
+                <div class="collapse {{ request()->routeIs('academic.timetable.*','academic.attendance.*','academic.holidays.*') ? 'show' : '' }}" id="nav-tch-tt">
                     <ul class="sidebar-submenu">
-                        <li><a class="{{ request()->routeIs('teacher.attendance.index') ? 'active' : '' }}" href="{{ route('teacher.attendance.index') }}"><i class="fas fa-clipboard-list fa-fw"></i> Mark Attendance</a></li>
-                        <li><a class="{{ request()->routeIs('teacher.attendance.history') ? 'active' : '' }}" href="{{ route('teacher.attendance.history') }}"><i class="fas fa-history fa-fw"></i> Attendance History</a></li>
+                        <li><a class="{{ request()->routeIs('academic.timetable.*') ? 'active' : '' }}" href="{{ route('academic.timetable.teacher') }}"><i class="fas fa-table fa-fw"></i> My Timetable</a></li>
+                        <li><a class="{{ request()->routeIs('academic.attendance.*') ? 'active' : '' }}" href="{{ route('academic.attendance.create') }}"><i class="fas fa-clipboard-check fa-fw"></i> Mark Attendance</a></li>
+                        <li><a class="{{ request()->routeIs('academic.holidays.*') ? 'active' : '' }}" href="{{ route('academic.holidays.index') }}"><i class="fas fa-calendar-xmark fa-fw"></i> Holidays</a></li>
                     </ul>
                 </div>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('teacher.results*') ? 'active' : '' }}" href="{{ route('teacher.results.index') }}">
-                    <span class="nav-icon"><i class="fas fa-chart-bar"></i></span> Results
-                </a>
-            </li>
-        </ul>
-
-        <div class="sidebar-divider"></div>
-        <span class="nav-label">Schedule</span>
-        <ul class="nav flex-column mb-0">
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('academic.timetable.*') ? 'active' : '' }}" href="{{ route('academic.timetable.teacher') }}">
-                    <span class="nav-icon"><i class="fas fa-calendar-week"></i></span> My Timetable
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('academic.holidays.*') ? 'active' : '' }}" href="{{ route('academic.holidays.index') }}">
-                    <span class="nav-icon"><i class="fas fa-calendar-xmark"></i></span> Holidays
-                </a>
             </li>
         </ul>
         @endif
@@ -1193,58 +984,24 @@
         {{-- ── LIBRARIAN ── --}}
         @if($role === 'librarian')
         <div class="sidebar-divider"></div>
-        <span class="nav-label">Main</span>
+        <span class="nav-label">Library</span>
         <ul class="nav flex-column mb-0">
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('librarian.dashboard') ? 'active' : '' }}" href="{{ route('librarian.dashboard') }}">
-                    <span class="nav-icon"><i class="fas fa-home"></i></span> Dashboard
+                <a class="nav-link {{ request()->routeIs('library.*') ? '' : 'collapsed' }}"
+                   data-bs-toggle="collapse" data-bs-target="#nav-libr" href="#">
+                    <span class="nav-icon"><i class="fas fa-book-bookmark"></i></span>
+                    Books & Issues
+                    <i class="fas fa-chevron-down toggle-arrow"></i>
                 </a>
+                <div class="collapse {{ request()->routeIs('library.*') ? 'show' : '' }}" id="nav-libr">
+                    <ul class="sidebar-submenu">
+                        <li><a class="{{ request()->routeIs('library.books.index') ? 'active' : '' }}" href="{{ route('library.books.index') }}"><i class="fas fa-book fa-fw"></i> Books</a></li>
+                        <li><a class="{{ request()->routeIs('library.issues.create') ? 'active' : '' }}" href="{{ route('library.issues.create') }}"><i class="fas fa-circle-plus fa-fw"></i> Issue Book</a></li>
+                        <li><a class="{{ request()->routeIs('library.issues.index') ? 'active' : '' }}" href="{{ route('library.issues.index') }}"><i class="fas fa-arrow-turn-left fa-fw"></i> Returns</a></li>
+                        <li><a class="{{ request()->routeIs('library.students') ? 'active' : '' }}" href="{{ route('library.students') }}"><i class="fas fa-users fa-fw"></i> Students</a></li>
+                    </ul>
+                </div>
             </li>
-        </ul>
-
-        <div class="sidebar-divider"></div>
-        <span class="nav-label">Profile & Settings</span>
-        <ul class="nav flex-column mb-0">
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('librarian.profile*') ? 'active' : '' }}" href="{{ route('librarian.profile') }}">
-                    <span class="nav-icon"><i class="fas fa-user-circle"></i></span> My Profile
-                </a>
-            </li>
-        </ul>
-
-        <div class="sidebar-divider"></div>
-        <span class="nav-label">Library Management</span>
-        <ul class="nav flex-column mb-0">
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('library.books.*') ? 'active' : '' }}" href="{{ route('library.books.index') }}">
-                    <span class="nav-icon"><i class="fas fa-book"></i></span> Books
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('library.issues.create') ? 'active' : '' }}" href="{{ route('library.issues.create') }}">
-                    <span class="nav-icon"><i class="fas fa-plus-circle"></i></span> Issue Book
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('librarian.issued-books') ? 'active' : '' }}" href="{{ route('librarian.issued-books') }}">
-                    <span class="nav-icon"><i class="fas fa-arrow-left-right"></i></span> Issued Books
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('librarian.students') ? 'active' : '' }}" href="{{ route('librarian.students') }}">
-                    <span class="nav-icon"><i class="fas fa-users"></i></span> Students List
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('library.issues.index') ? 'active' : '' }}" href="{{ route('library.issues.index') }}">
-                    <span class="nav-icon"><i class="fas fa-undo"></i></span> Return Books
-                </a>
-            </li>
-        </ul>
-
-        <div class="sidebar-divider"></div>
-        <span class="nav-label">Other</span>
-        <ul class="nav flex-column mb-0">
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('academic.holidays.*') ? 'active' : '' }}" href="{{ route('academic.holidays.index') }}">
                     <span class="nav-icon"><i class="fas fa-calendar-xmark"></i></span> Holidays
@@ -1300,15 +1057,7 @@
                 <li>
                     <div class="dropdown-header">
                         <div style="font-weight:600; color:var(--ink-900);">{{ auth()->user()->name ?? 'User' }}</div>
-                        @php
-                            $userRole = 'User';
-                            if (auth()->user() && method_exists(auth()->user(), 'roles') && auth()->user()->roles && auth()->user()->roles->isNotEmpty()) {
-                                $userRole = auth()->user()->roles->first()->name ?? 'User';
-                            } elseif (auth()->guard('student')->check()) {
-                                $userRole = 'student';
-                            }
-                        @endphp
-                        <div>{{ ucfirst(str_replace('_', ' ', $userRole)) }}</div>
+                        <div>{{ ucfirst(str_replace('_', ' ', auth()->user()->roles->first()->name ?? 'User')) }}</div>
                     </div>
                 </li>
                 <li><hr class="dropdown-divider"></li>

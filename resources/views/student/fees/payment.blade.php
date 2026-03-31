@@ -14,42 +14,42 @@
                     <table class="table">
                         <tr>
                             <th>Fee Head:</th>
-                            <td>{{ $fee->feeStructure?->feeHead?->name ?? 'N/A' }}</td>
+                            <td>{{ $studentFee->feeStructure->feeHead->name }}</td>
                         </tr>
                         <tr>
                             <th>Total Amount:</th>
-                            <td>₹{{ number_format($fee->total_amount, 2) }}</td>
+                            <td>₹{{ number_format($studentFee->total_amount, 2) }}</td>
                         </tr>
                         <tr>
                             <th>Discount:</th>
-                            <td>₹{{ number_format($fee->discount_amount ?? 0, 2) }}</td>
+                            <td>₹{{ number_format($studentFee->discount_amount, 2) }}</td>
                         </tr>
                         <tr>
                             <th>Final Amount:</th>
-                            <td>₹{{ number_format($fee->final_amount ?? $fee->total_amount, 2) }}</td>
+                            <td>₹{{ number_format($studentFee->final_amount, 2) }}</td>
                         </tr>
                         <tr>
                             <th>Paid Amount:</th>
-                            <td class="text-success">₹{{ number_format($fee->paid_amount, 2) }}</td>
+                            <td class="text-success">₹{{ number_format($studentFee->paid_amount, 2) }}</td>
                         </tr>
                         <tr class="table-warning">
                             <th>Outstanding Amount:</th>
-                            <td><strong>₹{{ number_format($fee->outstanding_amount ?? ($fee->total_amount - $fee->paid_amount), 2) }}</strong></td>
+                            <td><strong>₹{{ number_format($studentFee->outstanding_amount, 2) }}</strong></td>
                         </tr>
                     </table>
 
                     <form id="paymentForm">
                         @csrf
-                        <input type="hidden" name="student_fee_id" value="{{ $fee->id }}">
-
+                        <input type="hidden" name="student_fee_id" value="{{ $studentFee->id }}">
+                        
                         <div class="mb-3">
                             <label class="form-label">Amount to Pay</label>
-                            <input type="number" name="amount" id="amount" class="form-control"
-                                   min="1" max="{{ $fee->outstanding_amount ?? ($fee->total_amount - $fee->paid_amount) }}"
-                                   value="{{ $fee->outstanding_amount ?? ($fee->total_amount - $fee->paid_amount) }}" required>
+                            <input type="number" name="amount" id="amount" class="form-control" 
+                                   min="1" max="{{ $studentFee->outstanding_amount }}" 
+                                   value="{{ $studentFee->outstanding_amount }}" required>
                             @php
-                                $installments = $fee->feeStructure?->installments ?? 1;
-                                $singleInstallment = $installments > 1 ? ($fee->final_amount ?? $fee->total_amount) / $installments : ($fee->outstanding_amount ?? ($fee->total_amount - $fee->paid_amount));
+                                $installments = $studentFee->feeStructure->installments ?? 1;
+                                $singleInstallment = $installments > 1 ? $studentFee->final_amount / $installments : $studentFee->outstanding_amount;
                             @endphp
                             @if($installments > 1)
                                 <small class="text-muted">{{ $installments }} installments (₹{{ number_format($singleInstallment, 2) }} per installment). You can pay one installment at a time.</small>
@@ -91,7 +91,7 @@
 <script>
 document.getElementById('payButton').addEventListener('click', function() {
     const amount = document.getElementById('amount').value;
-    const studentFeeId = {{ $fee->id }};
+    const studentFeeId = {{ $studentFee->id }};
 
     fetch('/razorpay/create-order', {
         method: 'POST',

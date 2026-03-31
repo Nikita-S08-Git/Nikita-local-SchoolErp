@@ -15,27 +15,62 @@ class AdminController extends Controller
     /**
      * Display user credentials management page (Admin Only)
      */
-    public function credentials()
+    public function credentials(Request $request)
     {
         // Only admins can view this page
         if (!Auth::check() || !Auth::user()->hasRole('admin')) {
             abort(403, 'Unauthorized access. Only administrators can view this page.');
         }
 
-        // Get all students with their user accounts (include all statuses)
-        $students = Student::with(['user', 'division'])
-            ->paginate(20);
+        // Get search parameters
+        $studentSearch = $request->get('student_search', '');
+        $teacherSearch = $request->get('teacher_search', '');
+        $divisionFilter = $request->get('division_filter', '');
+
+        // Get all divisions for filter dropdown
+        $divisions = \App\Models\Academic\Division::where('is_active', true)->get();
+
+        // Get all students with their user accounts
+        $studentsQuery = Student::with(['user', 'division', 'program'])
+            ->where('student_status', 'active')
+            ->orderBy('created_at', 'desc')
+            ->distinct();
+
+        // Apply student search
+        if ($studentSearch) {
+            $studentsQuery->where(function($q) use ($studentSearch) {
+                $q->where('first_name', 'like', "%{$studentSearch}%")
+                  ->orWhere('last_name', 'like', "%{$studentSearch}%")
+                  ->orWhere('admission_number', 'like', "%{$studentSearch}%")
+                  ->orWhere('roll_number', 'like', "%{$studentSearch}%")
+                  ->orWhereHas('user', function($uq) use ($studentSearch) {
+                      $uq->where('email', 'like', "%{$studentSearch}%");
+                  });
+            });
+        }
+
+        // Apply division filter
+        if ($divisionFilter) {
+            $studentsQuery->where('division_id', $divisionFilter);
+        }
+
+        $students = $studentsQuery->paginate(20)->appends($request->query());
 
         // Get all teachers (users with teacher role)
-        $teachers = User::role('teacher')
-            ->with('roles')
-            ->paginate(20);
+        $teachersQuery = User::role('teacher')
+            ->with('roles');
 
-        // Get all staff members
-        $staff = \App\Models\HR\StaffProfile::with(['user', 'department'])
-            ->paginate(20);
+        // Apply teacher search
+        if ($teacherSearch) {
+            $teachersQuery->where(function($q) use ($teacherSearch) {
+                $q->where('name', 'like', "%{$teacherSearch}%")
+                  ->orWhere('email', 'like', "%{$teacherSearch}%");
+            });
+        }
 
-        return view('admin.credentials', compact('students', 'teachers', 'staff'));
+        $teachers = $teachersQuery->paginate(20)->appends($request->query());
+
+        return view('admin.credentials', compact('students', 'teachers', 'divisions', 'studentSearch', 'teacherSearch', 'divisionFilter'));
     }
 
     /**

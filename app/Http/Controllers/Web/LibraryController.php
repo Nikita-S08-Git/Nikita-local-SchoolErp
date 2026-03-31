@@ -118,22 +118,6 @@ class LibraryController extends Controller
 
     public function destroy(Book $book)
     {
-        // Check if book has any issued copies
-        $issuedCount = $book->issues()->where('status', 'issued')->count();
-        
-        if ($issuedCount > 0) {
-            return redirect()->route('library.books.index')
-                ->with('error', 'Cannot delete book. This book has ' . $issuedCount . ' issued copy/copies that must be returned first.');
-        }
-        
-        // Check if book has any book issues (even returned ones)
-        $totalIssues = $book->issues()->count();
-        
-        if ($totalIssues > 0) {
-            return redirect()->route('library.books.index')
-                ->with('warning', 'Book deleted, but ' . $totalIssues . ' issue record(s) will remain in history.');
-        }
-        
         $book->delete();
         return redirect()->route('library.books.index')
             ->with('success', 'Book deleted successfully!');

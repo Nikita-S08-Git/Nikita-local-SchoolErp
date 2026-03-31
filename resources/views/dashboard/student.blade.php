@@ -1,15 +1,11 @@
 @extends('layouts.app')
 
 @section('title', 'Student Dashboard')
-@section('page-title', 'Dashboard')
+@section('page-title', 'Student Dashboard')
 
 @section('content')
 @php
     $student = auth()->user()->student ?? null;
-    // Load relationships if not loaded
-    if ($student && !$student->relationLoaded('division')) {
-        $student->load(['division', 'division.program', 'program']);
-    }
 @endphp
 
 @if($student)
@@ -20,10 +16,10 @@
             <div class="card-body">
                 <div class="row align-items-center">
                     <div class="col-md-2 text-center">
-                        @if($student->photo_path)
-                            <img src="{{ asset('storage/' . $student->photo_path) }}" class="rounded-circle" width="80" height="80" alt="Student Photo">
+                        @if($student->photo_url)
+                            <img src="{{ asset($student->photo_url) }}" class="rounded-circle" width="80" height="80" alt="Student Photo">
                         @else
-                            <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                            <div class="bg-secondary rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
                                 <i class="bi bi-person text-white" style="font-size: 2rem;"></i>
                             </div>
                         @endif
@@ -31,8 +27,8 @@
                     <div class="col-md-10">
                         <h4>{{ $student->first_name }} {{ $student->last_name }}</h4>
                         <p class="mb-1"><strong>Admission No:</strong> {{ $student->admission_number ?? 'N/A' }}</p>
-                        <p class="mb-1"><strong>Program:</strong> {{ $student->program->name ?? ($student->division->program->name ?? 'N/A') }}</p>
-                        <p class="mb-0"><strong>Division:</strong> {{ $student->division->division_name ?? 'N/A' }}</p>
+                        <p class="mb-1"><strong>Program:</strong> {{ $student->program->name ?? 'N/A' }}</p>
+                        <p class="mb-0"><strong>Division:</strong> {{ $student->division->name ?? 'N/A' }}</p>
                     </div>
                 </div>
             </div>
@@ -47,7 +43,7 @@
             <div class="card-body text-center">
                 <i class="bi bi-calendar-check fa-2x mb-2"></i>
                 <h5>Attendance</h5>
-                <p class="mb-0">{{ $attendancePercentage ?? 0 }}%</p>
+                <p class="mb-0">{{ $attendancePercentage }}%</p>
             </div>
         </div>
     </div>
@@ -89,23 +85,17 @@
             </div>
             <div class="card-body">
                 <div class="d-grid gap-2">
-                    <a href="{{ route('student.attendance') }}" class="btn btn-outline-primary">
+                    <a href="#" class="btn btn-outline-primary">
                         <i class="bi bi-calendar-check"></i> View Attendance
                     </a>
-                    <a href="{{ route('student.fees') }}" class="btn btn-outline-success">
+                    <a href="#" class="btn btn-outline-success">
                         <i class="bi bi-credit-card"></i> Fee Details
                     </a>
-                    <a href="{{ route('student.timetable') }}" class="btn btn-outline-info">
+                    <a href="#" class="btn btn-outline-info">
                         <i class="bi bi-clock"></i> Timetable
                     </a>
-                    <a href="{{ route('student.results') }}" class="btn btn-outline-warning">
-                        <i class="bi bi-file-text"></i> View Results
-                    </a>
-                    <a href="{{ route('student.profile') }}" class="btn btn-outline-secondary">
-                        <i class="bi bi-person"></i> My Profile
-                    </a>
-                    <a href="{{ route('student.library') }}" class="btn btn-outline-dark">
-                        <i class="bi bi-book"></i> Library
+                    <a href="#" class="btn btn-outline-warning">
+                        <i class="bi bi-file-text"></i> Study Materials
                     </a>
                 </div>
             </div>

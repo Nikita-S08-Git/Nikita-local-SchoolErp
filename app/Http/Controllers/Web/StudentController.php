@@ -83,7 +83,7 @@ class StudentController extends Controller
             'blood_group'          => ['nullable','regex:/^(A|B|AB|O)[+-]$/'],
             'religion'             => 'nullable|string|max:50',
             'category'             => 'required|in:general,obc,sc,st,vjnt,nt,ews',
-            'aadhar_number'        => 'nullable|digits:12|unique:students,aadhar_number',
+            'aadhar_number'        => 'nullable|digits:12',
             'mobile_number'        => 'required|regex:/^[6-9]\d{9}$/',
             'email'                => 'required|email|max:255|unique:students,email',
             'current_address'      => 'required|string|min:10|max:500',
@@ -109,11 +109,26 @@ class StudentController extends Controller
         $validated['roll_number']           = $numbers['roll_number'];
         $validated['prn']                   = null;
         $validated['university_seat_number'] = null;
-        $validated['user_id']               = auth()->id();
 
         // Generate password for student
         $generatedPassword = PasswordHelper::generate(10);
         $hashedPassword = Hash::make($generatedPassword);
+
+        // Create user account for student with generated password FIRST
+        $studentEmail = $request->input('email') ?? strtolower($validated['first_name'] . '.' . $validated['last_name'] . '@student.schoolerp.com');
+        
+        $user = User::create([
+            'name' => $validated['first_name'] . ' ' . $validated['last_name'],
+            'email' => $studentEmail,
+            'password' => $hashedPassword,
+            'temp_password' => $generatedPassword,
+            'password_generated_at' => now(),
+            'email_verified_at' => now(),
+            'role' => 'student',
+        ]);
+        
+        // Remove user_id from validated data and set proper user_id
+        $validated['user_id'] = $user->id;
 
         if ($request->hasFile('photo')) {
             $validated['photo_path'] = $request->file('photo')->store('uploads/students/photos', 'public');
@@ -137,19 +152,8 @@ class StudentController extends Controller
             $validated['domicile_certificate_path'] = $request->file('domicile_certificate')->store('uploads/students/documents', 'public');
         }
 
+        // Create student with user_id already set
         $student = Student::create($validated);
-
-        // Create user account for student with generated password
-        $studentEmail = $request->input('email') ?? strtolower($validated['first_name'] . '.' . $validated['last_name'] . $student->id . '@student.schoolerp.com');
-        
-        User::create([
-            'name' => $validated['first_name'] . ' ' . $validated['last_name'],
-            'email' => $studentEmail,
-            'password' => $hashedPassword,
-            'temp_password' => $generatedPassword,
-            'password_generated_at' => now(),
-            'email_verified_at' => now(),
-        ])->assignRole('student');
 
         return redirect()
             ->route('dashboard.students.show', $student)
@@ -246,6 +250,15 @@ class StudentController extends Controller
         $validated['user_id']          = $student->user_id;
 
         $student->update($validated);
+
+        // Also update the user's email if it was changed AND the new email is unique in users table
+        if ($student->user && isset($validated['email']) && $validated['email'] !== $student->user->email) {
+            // Check if email already exists for another user
+            $existingUser = User::where('email', $validated['email'])->where('id', '!=', $student->user->id)->first();
+            if (!$existingUser) {
+                $student->user->update(['email' => $validated['email']]);
+            }
+        }
 
         return redirect()
             ->route('dashboard.students.show', $student)

@@ -43,7 +43,11 @@ class AdmissionController extends Controller
 
     public function showApplyForm()
     {
-        return view('admissions.apply');
+        $programs = \App\Models\Academic\Program::where('is_active', true)->get();
+        $divisions = \App\Models\Academic\Division::where('is_active', true)->get();
+        $sessions = \App\Models\Academic\AcademicSession::where('is_active', true)->get();
+        
+        return view('admissions.apply', compact('programs', 'divisions', 'sessions'));
     }
 
     public function apply(Request $request)
@@ -57,7 +61,7 @@ class AdmissionController extends Controller
             'blood_group' => 'nullable|in:A+,A-,B+,B-,O+,O-,AB+,AB-',
             'religion' => 'nullable|string|max:50',
             'category' => 'required|in:general,obc,sc,st,ews',
-            'aadhar_number' => 'nullable|digits:12|unique:students,aadhar_number',
+            'aadhar_number' => 'nullable|digits:12',
             'mobile_number' => 'required|regex:/^[6-9]\d{9}$/',
             'email' => 'required|email|unique:students,email',
             'current_address' => 'required|string|min:10|max:500',
@@ -102,14 +106,8 @@ class AdmissionController extends Controller
         // Create student directly
         $student = $this->admissionService->createStudentFromAdmission($studentData);
 
-        // Get the temp password from the user record
-        $user = $student->user;
-        $tempPassword = $user->temp_password;
-
         return redirect()->route('admissions.apply.form')
-            ->with('success', 'Admission submitted successfully! Your Admission No. is: ' . $student->admission_number . '. Please save it for tracking.')
-            ->with('student_email', $student->email)
-            ->with('temp_password', $tempPassword);
+            ->with('success', 'Admission submitted successfully! Your Admission No. is: ' . $student->admission_number . '. Please save it for tracking.');
     }
 
     public function verify(Request $request, Admission $admission)

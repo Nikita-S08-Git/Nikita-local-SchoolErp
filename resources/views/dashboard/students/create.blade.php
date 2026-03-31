@@ -10,7 +10,7 @@
                 <div class="card-body p-5">
                     <div class="text-center mb-4">
                         <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #007bff 0%, #1a1a1a 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
-                            <i class="bi bi-person-plus-fill text-white fs-1"></i>
+                            <i class="fas fa-user-plus text-white fs-4"></i>
                         </div>
                         <h3 class="fw-bold text-dark mb-2">Add New Student</h3>
                         <p class="text-muted mb-0">Fill out the form below to create a student account</p>
@@ -54,7 +54,7 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="date_of_birth" class="form-label fw-semibold required-field">Date of Birth <span class="text-danger">*</span></label>
-                                <input type="date" class="form-control @error('date_of_birth') is-invalid @enderror" id="date_of_birth" name="date_of_birth" value="{{ old('date_of_birth') }}" required>
+                                <input type="date" class="form-control @error('date_of_birth') is-invalid @enderror" id="date_of_birth" name="date_of_birth" value="{{ old('date_of_birth') }}" max="{{ date('Y-m-d') }}" required>
                                 <span class="error-message" id="date_of_birth_error"></span>
                                 @error('date_of_birth')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>

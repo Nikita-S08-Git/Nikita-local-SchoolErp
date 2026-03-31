@@ -223,25 +223,22 @@
                                         <button type="button" class="btn btn-sm btn-primary btn-view"
                                                 data-id="{{ $timetable->id }}"
                                                 title="View"
-                                                data-bs-toggle="tooltip"
-                                                style="min-width: 34px; padding: 0.25rem 0.5rem; display: inline-flex; align-items: center; justify-content: center;">
-                                            <i class="bi bi-eye" style="font-size: 14px;"></i>
+                                                data-bs-toggle="tooltip">
+                                            <i class="bi bi-eye"></i>
                                         </button>
                                         @role('admin|principal')
                                         <button type="button" class="btn btn-sm btn-warning btn-edit"
                                                 data-id="{{ $timetable->id }}"
                                                 title="Edit"
-                                                data-bs-toggle="tooltip"
-                                                style="min-width: 34px; padding: 0.25rem 0.5rem; display: inline-flex; align-items: center; justify-content: center;">
-                                            <i class="bi bi-pencil" style="font-size: 14px;"></i>
+                                                data-bs-toggle="tooltip">
+                                            <i class="bi bi-pencil"></i>
                                         </button>
                                         <button type="button" class="btn btn-sm btn-danger btn-delete"
                                                 data-id="{{ $timetable->id }}"
                                                 data-name="{{ $timetable->subject->name ?? 'Entry' }} on {{ $timetable->date ? \Carbon\Carbon::parse($timetable->date)->format('d M Y') : $timetable->day_of_week }}"
                                                 title="Delete"
-                                                data-bs-toggle="tooltip"
-                                                style="min-width: 34px; padding: 0.25rem 0.5rem; display: inline-flex; align-items: center; justify-content: center;">
-                                            <i class="bi bi-trash" style="font-size: 14px;"></i>
+                                                data-bs-toggle="tooltip">
+                                            <i class="bi bi-trash"></i>
                                         </button>
                                         @endrole
                                     </div>
@@ -357,37 +354,6 @@
         overflow-y: visible;
         -webkit-overflow-scrolling: touch;
         max-width: 100%;
-    }
-
-    /* Button Group Icons - Ensure visibility */
-    .btn-group .btn i {
-        font-size: 14px !important;
-        display: inline-block !important;
-        vertical-align: middle !important;
-    }
-
-    .btn-group .btn {
-        min-width: 34px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0.25rem 0.5rem;
-    }
-
-    .btn-group .btn-sm i {
-        font-size: 12px !important;
-    }
-
-    /* Bootstrap Icons Fix */
-    .bi {
-        display: inline-block;
-        font-style: normal;
-        font-variant: normal;
-        text-transform: none;
-        line-height: 1;
-        vertical-align: -.125em;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
     }
 
     /* Ensure scrollbar is always visible on desktop */

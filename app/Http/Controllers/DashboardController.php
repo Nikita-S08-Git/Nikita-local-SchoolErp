@@ -134,38 +134,6 @@ class DashboardController extends Controller
         
         return view('dashboards.accountant', $data);
     }
-
-    public function accountantProfile()
-    {
-        return view('accountant.profile.index');
-    }
-
-    public function accountantChangePassword(Request $request)
-    {
-        $user = Auth::user();
-
-        $validated = $request->validate([
-            'current_password' => 'required',
-            'new_password' => 'required|min:8|confirmed',
-        ]);
-
-        // Verify current password
-        if (!Hash::check($validated['current_password'], $user->password)) {
-            return back()->withErrors([
-                'current_password' => 'The current password is incorrect.',
-            ])->withInput();
-        }
-
-        // Update password
-        $user->update([
-            'password' => Hash::make($validated['new_password']),
-            'temp_password' => null,
-        ]);
-
-        return redirect()->route('accountant.profile')
-            ->with('success', 'Password changed successfully! Please remember your new password.');
-    }
-
     public function hod_commerce()
 {
     $user = Auth::user();

@@ -39,22 +39,15 @@
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Phone *</label>
-                        <input type="text" name="phone" class="form-control" required pattern="[6-9]\d{9}" maxlength="10" 
-                               placeholder="Enter 10-digit mobile (start with 6-9)" 
-                               title="Mobile number must be 10 digits starting with 6-9">
+                        <input type="text" name="phone" class="form-control" required>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Emergency Contact</label>
-                        <input type="text" name="emergency_contact" class="form-control" pattern="[6-9]\d{9}" maxlength="10"
-                               placeholder="Enter 10-digit mobile (start with 6-9)"
-                               title="Mobile number must be 10 digits starting with 6-9">
+                        <input type="text" name="emergency_contact" class="form-control">
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Date of Birth *</label>
-                        <input type="date" name="date_of_birth" class="form-control" required 
-                               max="{{ date('Y-m-d', strtotime('-18 years')) }}" 
-                               min="{{ date('Y-m-d', strtotime('-60 years')) }}"
-                               title="Date of birth (must be between 18 and 60 years)">
+                        <input type="date" name="date_of_birth" class="form-control" required>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Gender *</label>

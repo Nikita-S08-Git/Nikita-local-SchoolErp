@@ -2,7 +2,10 @@
     $user = Auth::user();
     $userRole = $user->roles->first();
     $role = $userRole ? $userRole->name : 'student';
-
+    
+    // Debug: Show role (remove in production)
+    // dd($role);
+    
     // Role-based menu items
     $menuByRole = [
         'admin' => [
@@ -48,13 +51,12 @@
         ],
         'teacher' => [
             ['name' => 'Dashboard', 'route' => 'teacher.dashboard', 'icon' => 'speedometer2'],
-            ['name' => 'My Divisions', 'route' => 'teacher.divisions.index', 'icon' => 'people-fill'],
-            ['name' => 'Students', 'route' => 'teacher.students.index', 'icon' => 'user-graduate'],
-            ['name' => 'Attendance', 'route' => 'teacher.attendance.index', 'icon' => 'clipboard-check'],
-            ['name' => 'Results', 'route' => 'teacher.results.index', 'icon' => 'chart-bar'],
-
+            ['name' => 'Students', 'route' => 'teacher.students', 'icon' => 'people-fill'],
+            ['name' => 'Assignments', 'route' => 'teacher.assignments', 'icon' => 'clipboard-check'],
+            
             // Timetable & Attendance Section
             ['name' => 'Timetable', 'route' => 'academic.timetable.teacher', 'icon' => 'calendar-week'],
+            ['name' => 'Mark Attendance', 'route' => 'academic.attendance.create', 'icon' => 'clipboard-check'],
             ['name' => 'Holidays', 'route' => 'academic.holidays.index', 'icon' => 'calendar-event'],
         ],
         'student' => [
@@ -69,30 +71,36 @@
             ['name' => 'Holidays', 'route' => 'academic.holidays.index', 'icon' => 'calendar-event'],
         ],
         'accountant' => [
-            // Dashboard & Profile
-            ['name' => 'Dashboard', 'route' => 'dashboard.accountant', 'icon' => 'speedometer2'],
-            ['name' => 'Profile', 'route' => 'accountant.profile', 'icon' => 'person'],
+            ['name' => 'Dashboard', 'route' => 'accountant.dashboard', 'icon' => 'speedometer2'],
+            ['name' => 'Fee Collection', 'route' => 'accountant.fees', 'icon' => 'cash-stack'],
+            ['name' => 'Expenses', 'route' => 'accountant.expenses', 'icon' => 'receipt'],
+            ['name' => 'Reports', 'route' => 'accountant.reports', 'icon' => 'graph-up'],
             
-            // Fee Management Section
+            // View Only Section
+            ['name' => 'Holidays', 'route' => 'academic.holidays.index', 'icon' => 'calendar-event'],
+        ],
+        'accountant' => [
+            ['name' => 'Dashboard', 'route' => 'dashboard.accountant', 'icon' => 'speedometer2'],
             ['name' => 'Fee Structures', 'route' => 'fees.structures.index', 'icon' => 'list-columns'],
             ['name' => 'Fee Assignment', 'route' => 'fees.assignments.index', 'icon' => 'clipboard-plus'],
             ['name' => 'Fee Collection', 'route' => 'fees.payments.index', 'icon' => 'cash-stack'],
-            ['name' => 'Collect Payment', 'route' => 'fees.payments.create', 'icon' => 'plus-circle'],
             ['name' => 'Outstanding Fees', 'route' => 'fees.outstanding.index', 'icon' => 'exclamation-triangle'],
-            
-            // Scholarship Section
             ['name' => 'Scholarships', 'route' => 'fees.scholarships.index', 'icon' => 'award'],
-            ['name' => 'Applications', 'route' => 'fees.scholarship-applications.index', 'icon' => 'file-earmark-check'],
-            
-            // Reports Section
-            ['name' => 'Fee Reports', 'route' => 'fees.payments.index', 'icon' => 'graph-up'],
-            ['name' => 'Collection Report', 'route' => 'reports.attendance', 'icon' => 'receipt'],
+            ['name' => 'Scholarship Applications', 'route' => 'fees.scholarship-applications.index', 'icon' => 'file-earmark-check'],
+            ['name' => 'Fee Reports', 'route' => 'reports.attendance', 'icon' => 'graph-up'],
         ],
         'accounts_staff' => [
             ['name' => 'Dashboard', 'route' => 'dashboard.accounts_staff', 'icon' => 'speedometer2'],
             ['name' => 'Fee Collection', 'route' => 'fees.payments.index', 'icon' => 'cash-stack'],
             ['name' => 'Outstanding Fees', 'route' => 'fees.outstanding.index', 'icon' => 'exclamation-triangle'],
             ['name' => 'Reports', 'route' => 'reports.attendance', 'icon' => 'graph-up'],
+            ['name' => 'Dashboard', 'route' => 'accountant.dashboard', 'icon' => 'speedometer2'],
+            ['name' => 'Fee Collection', 'route' => 'accountant.fees', 'icon' => 'cash-stack'],
+            ['name' => 'Expenses', 'route' => 'accountant.expenses', 'icon' => 'receipt'],
+            ['name' => 'Reports', 'route' => 'accountant.reports', 'icon' => 'graph-up'],
+            
+            // View Only Section
+            ['name' => 'Holidays', 'route' => 'academic.holidays.index', 'icon' => 'calendar-event'],
         ],
         'office' => [
             ['name' => 'Dashboard', 'route' => 'dashboard.office', 'icon' => 'speedometer2'],
@@ -120,9 +128,14 @@
     if ($role === 'student' && $user->email === 'librarian@schoolerp.com') {
         $role = 'librarian';
     }
-
-    // Get menu items for the role
-    $menuItems = $menuByRole[$role] ?? $menuByRole['student'];
+    
+    $menuItems = $menuByRole[$role] ?? [];
+    
+    // Double check for librarian - if still empty, show librarian menu
+    if (empty($menuItems) && ($user->hasRole('librarian') || $user->email === 'librarian@schoolerp.com')) {
+        $menuItems = $menuByRole['librarian'];
+        $role = 'librarian';
+    }
 @endphp
 
 <!-- Desktop Sidebar -->
@@ -137,63 +150,11 @@
 
     <hr class="my-3 border-white opacity-50">
 
-    <!-- Main Navigation with Sections -->
-    @foreach($menuItems as $index => $item)
-        @php
-            // Define section breaks for all roles
-            $showSection = false;
-            $sectionName = '';
-            
-            if ($role === 'admin') {
-                if ($index === 0) { $showSection = true; $sectionName = 'MAIN'; }
-                elseif ($item['name'] === 'Departments') { $showSection = true; $sectionName = 'ACADEMIC'; }
-                elseif ($item['name'] === 'Timetable') { $showSection = true; $sectionName = 'SCHEDULE'; }
-                elseif ($item['name'] === 'Reports') { $showSection = true; $sectionName = 'REPORTS'; }
-            }
-            elseif ($role === 'principal') {
-                if ($index === 0) { $showSection = true; $sectionName = 'MAIN'; }
-                elseif ($item['name'] === 'Departments') { $showSection = true; $sectionName = 'ACADEMIC'; }
-                elseif ($item['name'] === 'Timetable') { $showSection = true; $sectionName = 'SCHEDULE'; }
-                elseif ($item['name'] === 'Reports') { $showSection = true; $sectionName = 'REPORTS'; }
-            }
-            elseif ($role === 'teacher') {
-                if ($index === 0) { $showSection = true; $sectionName = 'MAIN'; }
-                elseif ($item['name'] === 'Timetable') { $showSection = true; $sectionName = 'SCHEDULE'; }
-            }
-            elseif ($role === 'student') {
-                if ($index === 0) { $showSection = true; $sectionName = 'MAIN'; }
-                elseif ($item['name'] === 'My Timetable') { $showSection = true; $sectionName = 'MY SCHEDULE'; }
-            }
-            elseif ($role === 'accountant') {
-                if ($index === 0) { $showSection = true; $sectionName = 'MAIN'; }
-                elseif ($item['name'] === 'Fee Structures') { $showSection = true; $sectionName = 'FEE MANAGEMENT'; }
-                elseif ($item['name'] === 'Scholarships') { $showSection = true; $sectionName = 'SCHOLARSHIPS'; }
-                elseif ($item['name'] === 'Fee Reports') { $showSection = true; $sectionName = 'REPORTS'; }
-            }
-            elseif ($role === 'accounts_staff') {
-                if ($index === 0) { $showSection = true; $sectionName = 'MAIN'; }
-            }
-            elseif ($role === 'office') {
-                if ($index === 0) { $showSection = true; $sectionName = 'MAIN'; }
-                elseif ($item['name'] === 'Timetable') { $showSection = true; $sectionName = 'SCHEDULE'; }
-            }
-            elseif ($role === 'librarian') {
-                if ($index === 0) { $showSection = true; $sectionName = 'MAIN'; }
-            }
-        @endphp
-        
-        @if($showSection)
-            <div class="mb-2 mt-3">
-                <small class="text-muted text-uppercase fw-bold" style="font-size: 0.65rem; letter-spacing: 1.5px;">
-                    {{ $sectionName }}
-                </small>
-            </div>
-        @endif
-
-        <a href="{{ route($item['route']) }}"
-           class="d-flex align-items-center text-dark mb-2 text-decoration-none p-2 rounded {{ request()->routeIs($item['route']) ? 'bg-primary bg-opacity-10 fw-semibold' : '' }}" style="transition: all 0.2s;">
-            <i class="bi bi-{{ $item['icon'] }} me-2" style="width: 20px; text-align: center;"></i>
-            <span>{{ $item['name'] }}</span>
+    @foreach($menuItems as $item)
+        <a href="{{ route($item['route']) }}" 
+           class="d-flex align-items-center text-white mb-3 text-decoration-none p-2 rounded {{ request()->routeIs($item['route']) ? 'bg-white bg-opacity-20' : '' }}">
+            <i class="bi bi-{{ $item['icon'] }} me-2"></i>
+            {{ $item['name'] }}
         </a>
     @endforeach
 
@@ -210,40 +171,28 @@
 </div>
 
 <!-- Mobile Sidebar -->
-<div x-show="sidebarOpen"
+<div x-show="sidebarOpen" 
      x-transition:enter="transition ease-out duration-300"
      x-transition:enter-start="opacity-0 transform -translate-x-full"
      x-transition:enter-end="opacity-100 transform translate-x-0"
      x-transition:leave="transition ease-in duration-300"
      x-transition:leave-start="opacity-100 transform translate-x-0"
      x-transition:leave-end="opacity-0 transform -translate-x-full"
-     class="mobile-sidebar position-fixed top-0 start-0 bg-white p-3"
-     style="width: 250px; height: 100vh; z-index: 1050; border-right: 1px solid #e5e7eb;">
-
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h5 class="mb-0 text-dark fw-bold">Menu</h5>
-        <button class="btn btn-outline-secondary btn-sm" @click="sidebarOpen = false">
-            <i class="bi bi-x"></i>
-        </button>
-    </div>
+     class="mobile-sidebar position-fixed top-0 start-0 text-white p-3"
+     style="width: 250px; height: 100vh; z-index: 1050;">
+    
+    <button class="btn btn-light btn-sm mb-3" @click="sidebarOpen = false">
+        <i class="bi bi-x me-1"></i> Close
+    </button>
 
     @foreach($menuItems as $item)
-        <a href="{{ route($item['route']) }}"
-           class="d-flex align-items-center text-dark d-block mb-2 p-2 rounded {{ request()->routeIs($item['route']) ? 'bg-primary bg-opacity-10 fw-semibold' : '' }}"
+        <a href="{{ route($item['route']) }}" 
+           class="d-flex align-items-center text-white d-block mb-3 p-2 rounded {{ request()->routeIs($item['route']) ? 'bg-white bg-opacity-20' : '' }}"
            @click="sidebarOpen = false">
-            <i class="bi bi-{{ $item['icon'] }} me-2" style="width: 20px; text-align: center;"></i>
-            <span>{{ $item['name'] }}</span>
+            <i class="bi bi-{{ $item['icon'] }} me-2"></i>
+            {{ $item['name'] }}
         </a>
     @endforeach
-
-    <div class="mt-4 pt-3 border-top">
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
-            <button type="submit" class="btn btn-outline-danger w-100">
-                <i class="bi bi-box-arrow-right me-2"></i>Logout
-            </button>
-        </form>
-    </div>
 </div>
 
 <!-- Mobile Overlay -->
