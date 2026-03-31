@@ -8,57 +8,83 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <style>
         body {
-            background: linear-gradient(135deg, #007bff 0%, #1a1a1a 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #1a1a1a 100%);
             min-height: 100vh;
+            padding: 30px 0;
         }
         .application-card {
             backdrop-filter: blur(10px);
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.98);
             border: none;
-            border-radius: 20px;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
         }
         .form-control, .form-select {
-            border-radius: 10px;
-            padding: 12px 15px;
+            border-radius: 12px;
+            padding: 14px 16px;
             border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+        .form-control:hover, .form-select:hover {
+            border-color: #667eea;
         }
         .form-control:focus, .form-select:focus {
-            border-color: #007bff;
-            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+        }
+        .form-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .form-label i {
+            color: #667eea;
         }
         .btn-apply {
-            border-radius: 10px;
-            padding: 12px;
-            font-weight: 600;
-            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            border-radius: 12px;
+            padding: 14px 32px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border: none;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         .btn-apply:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.5);
         }
         .school-logo {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, #007bff 0%, #1a1a1a 100%);
+            width: 90px;
+            height: 90px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 20px;
+            margin: 0 auto 25px;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
         }
         .section-title {
-            color: #007bff;
-            font-weight: 600;
-            font-size: 1.1rem;
-            margin-top: 1.5rem;
-            margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid #007bff;
+            color: #667eea;
+            font-weight: 700;
+            font-size: 1.15rem;
+            margin-top: 2rem;
+            margin-bottom: 1.2rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 3px solid #667eea;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
         .required-field::after {
             content: " *";
-            color: red;
+            color: #dc3545;
         }
         /* Error styling */
         .form-control.error, .form-select.error {
@@ -89,19 +115,30 @@
             display: block;
         }
         .file-upload-wrapper {
-            border: 2px dashed #dee2e6;
-            border-radius: 10px;
-            padding: 20px;
+            border: 2px dashed #667eea;
+            border-radius: 15px;
+            padding: 30px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
         }
         .file-upload-wrapper:hover {
-            border-color: #007bff;
-            background: #f8f9fa;
+            border-color: #764ba2;
+            background: linear-gradient(135deg, #f0f4ff 0%, #e8eeff 100%);
+            transform: scale(1.02);
         }
         .file-upload-wrapper input[type="file"] {
             display: none;
+        }
+        .file-upload-icon {
+            font-size: 2.5rem;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        .file-upload-text {
+            color: #6c757d;
+            font-weight: 500;
         }
         /* Premium Success Display Styles */
         .success-display-container {
@@ -240,6 +277,10 @@
             background: #ffffff;
             font-family: 'Courier New', monospace;
             transition: all 0.3s;
+            letter-spacing: 3px;
+        }
+        .credential-input-display[type="text"] {
+            letter-spacing: normal;
         }
         .credential-input-display:focus {
             outline: none;
@@ -681,9 +722,9 @@
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container-fluid px-4">
         <div class="row justify-content-center py-4">
-            <div class="col-md-10 col-lg-8">
+            <div class="col-12 col-xl-10">
                 <div class="card application-card shadow-lg">
                     <div class="card-body p-5">
                         <div class="text-center mb-4">

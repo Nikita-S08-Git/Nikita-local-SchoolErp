@@ -115,37 +115,28 @@ class AdmissionController extends Controller
         $studentData['admission_date'] = date('Y-m-d');
         $studentData['student_status'] = 'active';
 
-        // Find unique admission number with retry logic (outside transaction first)
+        // Get all existing admission numbers for this year
+        $existingNumbers = \App\Models\User\Student::where('admission_number', 'like', $baseNumber . '%')
+            ->pluck('admission_number')
+            ->toArray();
+
+        // Start from 1 and find first available number
+        $nextNumber = 1;
         $admissionNumber = null;
-        $maxRetries = 10;
         
-        for ($retry = 0; $retry < $maxRetries; $retry++) {
-            // Get highest existing number for this year
-            $lastStudent = \App\Models\User\Student::where('admission_number', 'like', $baseNumber . '%')
-                ->orderBy('admission_number', 'desc')
-                ->first();
-
-            // Calculate next number
-            $nextNumber = 1;
-            if ($lastStudent) {
-                $lastNumPart = substr($lastStudent->admission_number, strlen($baseNumber));
-                if (is_numeric($lastNumPart)) {
-                    $nextNumber = (int)$lastNumPart + 1;
-                }
-            }
-
-            $candidateNumber = $baseNumber . str_pad($nextNumber + $retry, 5, '0', STR_PAD_LEFT);
-            
-            // Check if this number exists
-            if (!\App\Models\User\Student::where('admission_number', $candidateNumber)->exists()) {
-                $admissionNumber = $candidateNumber;
+        // Try up to 10000 numbers to find an unused one
+        while ($nextNumber <= 10000) {
+            $candidate = $baseNumber . str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
+            if (!in_array($candidate, $existingNumbers)) {
+                $admissionNumber = $candidate;
                 break;
             }
+            $nextNumber++;
         }
         
-        // Fallback: use timestamp with random suffix
+        // Ultimate fallback: use timestamp + random if somehow all 10000 are taken
         if (!$admissionNumber) {
-            $admissionNumber = $baseNumber . time() . rand(10, 99);
+            $admissionNumber = $baseNumber . date('YmdHis') . rand(100, 999);
         }
         
         $studentData['admission_number'] = $admissionNumber;
