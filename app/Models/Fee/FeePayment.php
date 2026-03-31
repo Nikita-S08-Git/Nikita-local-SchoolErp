@@ -5,6 +5,7 @@ namespace App\Models\Fee;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 class FeePayment extends Model
 {
@@ -26,7 +27,7 @@ class FeePayment extends Model
         return $this->belongsTo(StudentFee::class);
     }
 
-    public function student(): BelongsTo
+    public function student(): HasOneThrough
     {
         return $this->hasOneThrough(
             \App\Models\User\Student::class,
@@ -38,7 +39,7 @@ class FeePayment extends Model
         );
     }
 
-    public function feeStructure(): BelongsTo
+    public function feeStructure(): HasOneThrough
     {
         return $this->hasOneThrough(
             FeeStructure::class,

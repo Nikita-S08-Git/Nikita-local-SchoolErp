@@ -11,6 +11,7 @@ use App\Models\Academic\Program;
 use App\Models\Academic\Division;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class FeeManagementController extends Controller
 {
@@ -56,6 +57,10 @@ class FeeManagementController extends Controller
     {
         $programs = Program::where('is_active', true)->get();
         $divisions = Division::where('is_active', true)->get();
+        
+        // Debug: Log what we get from database
+        Log::info('Divisions from DB: ' . $divisions->toJson());
+        
         return view('admin.fees.structures.create', compact('programs', 'divisions'));
     }
 
@@ -149,5 +154,58 @@ class FeeManagementController extends Controller
             ->sum('amount');
 
         return view('admin.fees.reports', compact('totalCollected', 'thisMonth', 'today'));
+    }
+
+    /**
+     * Process fee payment
+     */
+    public function processPayment(Request $request)
+    {
+        $validated = $request->validate([
+            'fee_id' => 'required|exists:student_fees,id',
+            'amount' => 'required|numeric|min:0.01',
+            'payment_method' => 'required|in:cash,card,upi,net_banking,cheque,bank_transfer',
+            'transaction_id' => 'nullable|string|max:100',
+            'remarks' => 'nullable|string|max:500',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $fee = StudentFee::findOrFail($validated['fee_id']);
+            
+            // Create payment record
+            $payment = new FeePayment();
+            $payment->student_fee_id = $fee->id;
+            $payment->student_id = $fee->student_id;
+            $payment->amount = $validated['amount'];
+            $payment->payment_method = $validated['payment_method'];
+            $payment->transaction_id = $validated['transaction_id'] ?? null;
+            $payment->remarks = $validated['remarks'] ?? null;
+            $payment->payment_date = now();
+            $payment->status = 'success';
+            $payment->save();
+
+            // Update fee record
+            $fee->paid_amount += $validated['amount'];
+            
+            // Update status
+            if ($fee->paid_amount >= $fee->total_amount) {
+                $fee->status = 'paid';
+            } else {
+                $fee->status = 'partial';
+            }
+            $fee->save();
+
+            DB::commit();
+
+            return redirect()->back()
+                ->with('success', 'Payment of ₹' . number_format($validated['amount'], 2) . ' recorded successfully!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            return redirect()->back()
+                ->with('error', 'Payment failed: ' . $e->getMessage());
+        }
     }
 }

@@ -200,6 +200,7 @@ Route::middleware(['auth', 'role:super_admin|admin'])->prefix('admin')->name('ad
     Route::get('/fees/payments', [\App\Http\Controllers\Admin\FeeManagementController::class, 'payments'])->name('fees.payments');
     Route::get('/fees/outstanding', [\App\Http\Controllers\Admin\FeeManagementController::class, 'outstanding'])->name('fees.outstanding');
     Route::get('/fees/reports', [\App\Http\Controllers\Admin\FeeManagementController::class, 'reports'])->name('fees.reports');
+    Route::post('/fees/pay', [\App\Http\Controllers\Admin\FeeManagementController::class, 'processPayment'])->name('fees.pay');
 });
 
 // Academic Management
@@ -646,6 +647,7 @@ Route::middleware(['auth'])->prefix('library')->name('library.')->group(function
 
 // Staff Management
 Route::middleware(['auth'])->prefix('staff')->name('staff.')->group(function () {
+    Route::get('/dashboard', [StaffController::class, 'index'])->name('dashboard');
     Route::get('/', [StaffController::class, 'index'])->name('index');
     Route::get('/create', [StaffController::class, 'create'])->name('create');
     Route::post('/', [StaffController::class, 'store'])->name('store');

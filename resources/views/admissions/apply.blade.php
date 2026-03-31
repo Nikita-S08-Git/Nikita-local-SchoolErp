@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -242,6 +243,578 @@
             .btn-apply {
                 padding: 12px 30px;
                 font-size: 1rem;
+        }
+        /* ============================================
+           SUCCESS BOX STYLES - PREMIUM DESIGN
+           ============================================ */
+        .success-box {
+            background: #ffffff;
+            border-radius: 28px;
+            border: 3px solid #10b981;
+            box-shadow: 0 25px 80px rgba(16, 185, 129, 0.3);
+            overflow: hidden;
+            animation: slideInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .success-header {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            padding: 45px 50px;
+            display: flex;
+            align-items: center;
+            gap: 28px;
+            position: relative;
+            overflow: hidden;
+        }
+        .success-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+            animation: shimmer 4s infinite linear;
+        }
+        @keyframes shimmer {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(-30%, -30%) rotate(180deg); }
+            100% { transform: translate(0, 0) rotate(360deg); }
+        }
+        .success-animation {
+            position: relative;
+            z-index: 1;
+        }
+        .checkmark-circle {
+            width: 90px;
+            height: 90px;
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .checkmark {
+            width: 45px;
+            height: 45px;
+            background: #ffffff;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E") no-repeat center;
+            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E") no-repeat center;
+            animation: checkmarkPop 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) 0.4s both;
+        }
+        @keyframes checkmarkPop {
+            0% { transform: scale(0) rotate(-45deg); opacity: 0; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+        .success-text {
+            position: relative;
+            z-index: 1;
+            color: #ffffff;
+        }
+        .success-title {
+            font-size: 2rem;
+            font-weight: 800;
+            margin: 0 0 10px 0;
+            text-shadow: 0 2px 15px rgba(0,0,0,0.2);
+            letter-spacing: -0.5px;
+        }
+        .success-subtitle {
+            font-size: 1.05rem;
+            margin: 0;
+            opacity: 0.95;
+            font-weight: 400;
+        }
+        .success-body {
+            padding: 40px;
+            background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+        }
+        .important-message {
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            padding: 22px 28px;
+            border-radius: 18px;
+            border-left: 5px solid #10b981;
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            color: #065f46;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.1);
+            margin-bottom: 30px;
+        }
+        .important-message i {
+            font-size: 1.7rem;
+            flex-shrink: 0;
+            color: #10b981;
+        }
+        .important-message strong {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 1rem;
+        }
+        .important-message small {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+        /* Details Cards */
+        .details-card {
+            background: #ffffff;
+            border-radius: 22px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            margin-bottom: 24px;
+        }
+        .details-card:last-child {
+            margin-bottom: 0;
+        }
+        .details-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.12);
+            border-color: #10b981;
+        }
+        .card-header-custom {
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            padding: 24px 32px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            border-bottom: 2px solid #cbd5e1;
+        }
+        .header-icon {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
+            flex-shrink: 0;
+        }
+        .header-icon i {
+            font-size: 1.6rem;
+            color: #ffffff;
+        }
+        .header-text h4 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1e293b;
+            letter-spacing: -0.3px;
+        }
+        .header-text span {
+            font-size: 0.88rem;
+            color: #64748b;
+            display: block;
+            margin-top: 5px;
+            font-weight: 400;
+        }
+        .card-body-custom {
+            padding: 32px;
+        }
+        /* Info Grid */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        .info-item {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            padding: 22px 24px;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            transition: all 0.3s ease;
+        }
+        .info-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.15);
+            border-color: #10b981;
+        }
+        .info-item.highlight-item {
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            border-color: #10b981;
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.2);
+        }
+        .info-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+        .info-icon i {
+            font-size: 1.3rem;
+            color: #ffffff;
+        }
+        .info-content {
+            flex: 1;
+            min-width: 0;
+        }
+        .info-content label {
+            font-size: 0.78rem;
+            color: #64748b;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            display: block;
+            margin-bottom: 8px;
+        }
+        .info-content .value {
+            font-size: 1.08rem;
+            color: #1e293b;
+            font-weight: 600;
+            word-break: break-word;
+            display: block;
+            line-height: 1.4;
+        }
+        .info-content .value.highlight {
+            color: #10b981;
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        /* Credential Grid */
+        .credential-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+        }
+        .credential-item {
+            background: #f8fafc;
+            padding: 24px;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+        .credential-item:hover {
+            background: #ffffff;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+        .credential-label {
+            font-size: 0.88rem;
+            color: #64748b;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .input-action-group {
+            display: flex;
+            gap: 12px;
+        }
+        .credential-input {
+            flex: 1;
+            padding: 16px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 14px;
+            font-size: 1.05rem;
+            font-family: 'Courier New', monospace;
+            background: #ffffff;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        .credential-input:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 5px rgba(16, 185, 129, 0.12);
+        }
+        .btn-action {
+            padding: 16px 26px;
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            color: #10b981;
+            border: none;
+            border-radius: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.92rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        .btn-action:hover {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #ffffff;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.35);
+        }
+        .btn-action:active {
+            transform: translateY(-1px);
+        }
+        .btn-action.btn-secondary {
+            background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+            color: #ffffff;
+        }
+        .btn-action.btn-secondary:hover {
+            background: linear-gradient(135deg, #475569 0%, #334155 100%);
+        }
+        .btn-primary {
+            padding: 16px 32px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 14px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.45);
+            color: #ffffff;
+        }
+        /* Alert Boxes */
+        .alert-box {
+            padding: 24px 28px;
+            border-radius: 16px;
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            font-size: 0.92rem;
+            margin-top: 24px;
+            line-height: 1.6;
+        }
+        .alert-box i {
+            font-size: 1.6rem;
+            flex-shrink: 0;
+        }
+        .alert-warning {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            color: #92400e;
+            border: 1px solid #fcd34d;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.15);
+        }
+        .alert-info {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            color: #1e40af;
+            border: 1px solid #93c5fd;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.15);
+        }
+        .alert-info h5 {
+            margin: 0 0 16px 0;
+            font-size: 1.15rem;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+        .info-icon-large {
+            width: 56px;
+            height: 56px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        .info-icon-large i {
+            font-size: 2rem;
+        }
+        .steps-list {
+            margin: 0;
+            padding-left: 0;
+            list-style: none;
+        }
+        .steps-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            margin-bottom: 18px;
+            padding: 16px 18px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+        }
+        .steps-list li:hover {
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateX(8px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+        .steps-list li:last-child {
+            margin-bottom: 0;
+        }
+        .steps-list li i {
+            color: #10b981;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .steps-list li div {
+            flex: 1;
+        }
+        .steps-list li strong {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.95rem;
+            color: #1e293b;
+        }
+        .steps-list li span {
+            font-size: 0.87rem;
+            opacity: 0.85;
+            line-height: 1.5;
+        }
+        /* Login Section */
+        .login-section {
+            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+            padding: 28px;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+        }
+        .login-label {
+            font-size: 0.88rem;
+            color: #64748b;
+            font-weight: 700;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .url-display {
+            margin-bottom: 18px;
+        }
+        .url-input {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 14px;
+            font-size: 1.05rem;
+            background: #ffffff;
+            font-family: 'Courier New', monospace;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .url-input:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 5px rgba(16, 185, 129, 0.12);
+        }
+        .action-buttons {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+        /* Action Section */
+        .action-section {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-top: 35px;
+            padding-top: 35px;
+            border-top: 2px solid #e2e8f0;
+        }
+        .btn-print {
+            background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+            color: #ffffff;
+            box-shadow: 0 4px 15px rgba(100, 116, 139, 0.3);
+        }
+        .btn-print:hover {
+            background: linear-gradient(135deg, #475569 0%, #334155 100%);
+            box-shadow: 0 6px 20px rgba(100, 116, 139, 0.4);
+        }
+        /* Responsive */
+        @media (max-width: 768px) {
+            .success-header {
+                padding: 30px 25px;
+                flex-direction: column;
+                text-align: center;
+            }
+            .success-title {
+                font-size: 1.5rem;
+            }
+            .success-subtitle {
+                font-size: 0.95rem;
+            }
+            .success-body {
+                padding: 25px;
+            }
+            .info-grid {
+                grid-template-columns: 1fr;
+                gap: 14px;
+            }
+            .input-action-group,
+            .action-buttons {
+                flex-wrap: wrap;
+            }
+            .btn-action {
+                flex: 1;
+                min-width: 130px;
+                justify-content: center;
+                font-size: 0.88rem;
+                padding: 14px 20px;
+            }
+            .action-section {
+                flex-direction: column;
+            }
+            .action-section .btn-action {
+                width: 100%;
+                justify-content: center;
+            }
+            .card-header-custom {
+                padding: 20px 24px;
+            }
+            .card-body-custom {
+                padding: 24px;
+            }
+        }
+        /* Print Styles */
+        @media print {
+            .success-box {
+                border: 3px solid #10b981;
+                box-shadow: none;
+            }
+            .success-header {
+                background: #10b981 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .btn-action,
+            .btn-primary,
+            .action-section {
+                display: none !important;
+            }
+            .details-card {
+                break-inside: avoid;
+                page-break-inside: avoid;
+                border: 1px solid #cbd5e1;
+            }
+            .info-item {
+                break-inside: avoid;
             }
         }
     </style>
@@ -261,118 +834,256 @@
                         </div>
 
                         @if(session('success'))
-                        <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
-                            <div class="d-flex align-items-start">
-                                <i class="bi bi-check-circle-fill me-2 fs-4"></i>
-                                <div class="flex-grow-1">
-                                    <strong>Admission Submitted Successfully!</strong>
-                                    <p class="mb-2 mt-2">{{ session('success') }}</p>
-                                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#credentialsModal">
-                                        <i class="bi bi-key me-1"></i>View Login Credentials
-                                    </button>
+                        <!-- Success Details Box -->
+                        <div class="success-box mb-5">
+                            <!-- Success Header with Animation -->
+                            <div class="success-header">
+                                <div class="success-animation">
+                                    <div class="checkmark-circle">
+                                        <div class="checkmark"></div>
+                                    </div>
+                                </div>
+                                <div class="success-text">
+                                    <h3 class="success-title">🎉 Admission Submitted Successfully!</h3>
+                                    <p class="success-subtitle">Your application has been received and processed</p>
                                 </div>
                             </div>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
 
-                        <!-- Credentials Modal -->
-                        <div class="modal fade" id="credentialsModal" tabindex="-1" aria-labelledby="credentialsModalLabel" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered">
-                                <div class="modal-content">
-                                    <div class="modal-header bg-success text-white">
-                                        <h5 class="modal-title" id="credentialsModalLabel">
-                                            <i class="bi bi-check-circle me-2"></i>Admission Successful!
-                                        </h5>
-                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            <div class="success-body">
+                                <!-- Important Message -->
+                                <div class="important-message mb-4">
+                                    <i class="bi bi-info-circle-fill"></i>
+                                    <div>
+                                        <strong>Important:</strong> {{ session('success') }}
+                                        <br><small>Please save the information below for future reference.</small>
                                     </div>
-                                    <div class="modal-body">
-                                        <div class="text-center mb-4">
-                                            <div class="success-icon mb-3">
-                                                <i class="bi bi-mortarboard-fill text-success" style="font-size: 4rem;"></i>
-                                            </div>
-                                            <h4 class="fw-bold text-success">Welcome to Our College!</h4>
-                                            <p class="text-muted">Your admission has been successfully submitted.</p>
-                                        </div>
+                                </div>
 
-                                        <div class="card bg-light border-0 mb-3">
-                                            <div class="card-body">
-                                                <h6 class="fw-bold mb-3">
-                                                    <i class="bi bi-key text-primary me-2"></i>Login Credentials
-                                                </h6>
-                                                
-                                                <div class="mb-3">
-                                                    <label class="text-muted small">Student Email</label>
-                                                    <div class="input-group">
-                                                        <input type="text" class="form-control font-monospace" id="studentEmail" 
-                                                               value="{{ session('student_email') }}" readonly>
-                                                        <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('studentEmail')" title="Copy Email">
-                                                            <i class="bi bi-clipboard"></i>
+                                @if(session('student_details'))
+                                    @php $details = session('student_details'); @endphp
+
+                                    <!-- Student Information Card -->
+                                    <div class="details-card primary-card mb-4">
+                                        <div class="card-header-custom">
+                                            <div class="header-icon">
+                                                <i class="bi bi-person-badge-fill"></i>
+                                            </div>
+                                            <div class="header-text">
+                                                <h4>Student Information</h4>
+                                                <span>Your personal and admission details</span>
+                                            </div>
+                                        </div>
+                                        <div class="card-body-custom">
+                                            <div class="info-grid">
+                                                <div class="info-item">
+                                                    <div class="info-icon">
+                                                        <i class="bi bi-person"></i>
+                                                    </div>
+                                                    <div class="info-content">
+                                                        <label>Full Name</label>
+                                                        <span class="value">{{ $details['full_name'] ?? 'N/A' }}</span>
+                                                    </div>
+                                                </div>
+                                                <div class="info-item highlight-item">
+                                                    <div class="info-icon">
+                                                        <i class="bi bi-card-heading"></i>
+                                                    </div>
+                                                    <div class="info-content">
+                                                        <label>Admission Number</label>
+                                                        <span class="value highlight">{{ $details['admission_number'] ?? 'N/A' }}</span>
+                                                    </div>
+                                                </div>
+                                                <div class="info-item">
+                                                    <div class="info-icon">
+                                                        <i class="bi bi-envelope"></i>
+                                                    </div>
+                                                    <div class="info-content">
+                                                        <label>Email Address</label>
+                                                        <span class="value">{{ $details['email'] ?? 'N/A' }}</span>
+                                                    </div>
+                                                </div>
+                                                <div class="info-item">
+                                                    <div class="info-icon">
+                                                        <i class="bi bi-phone"></i>
+                                                    </div>
+                                                    <div class="info-content">
+                                                        <label>Mobile Number</label>
+                                                        <span class="value">{{ $details['mobile_number'] ?? 'N/A' }}</span>
+                                                    </div>
+                                                </div>
+                                                <div class="info-item">
+                                                    <div class="info-icon">
+                                                        <i class="bi bi-mortarboard"></i>
+                                                    </div>
+                                                    <div class="info-content">
+                                                        <label>Program</label>
+                                                        <span class="value">{{ $details['program'] ?? 'N/A' }}</span>
+                                                    </div>
+                                                </div>
+                                                <div class="info-item">
+                                                    <div class="info-icon">
+                                                        <i class="bi bi-people"></i>
+                                                    </div>
+                                                    <div class="info-content">
+                                                        <label>Division</label>
+                                                        <span class="value">{{ $details['division'] ?? 'N/A' }}</span>
+                                                    </div>
+                                                </div>
+                                                <div class="info-item">
+                                                    <div class="info-icon">
+                                                        <i class="bi bi-calendar-check"></i>
+                                                    </div>
+                                                    <div class="info-content">
+                                                        <label>Academic Year</label>
+                                                        <span class="value">{{ $details['academic_year'] ?? 'N/A' }}</span>
+                                                    </div>
+                                                </div>
+                                                <div class="info-item">
+                                                    <div class="info-icon">
+                                                        <i class="bi bi-calendar-event"></i>
+                                                    </div>
+                                                    <div class="info-content">
+                                                        <label>Admission Date</label>
+                                                        <span class="value">{{ $details['admission_date'] ?? 'N/A' }}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Login Credentials Card -->
+                                    <div class="details-card credentials-card mb-4">
+                                        <div class="card-header-custom">
+                                            <div class="header-icon">
+                                                <i class="bi bi-key-fill"></i>
+                                            </div>
+                                            <div class="header-text">
+                                                <h4>Login Credentials</h4>
+                                                <span>Save these credentials securely</span>
+                                            </div>
+                                        </div>
+                                        <div class="card-body-custom">
+                                            <div class="credential-grid">
+                                                <div class="credential-item">
+                                                    <label class="credential-label">
+                                                        <i class="bi bi-envelope"></i> Student Email
+                                                    </label>
+                                                    <div class="input-action-group">
+                                                        <input type="text" class="credential-input" id="studentEmail" value="{{ session('student_email') }}" readonly>
+                                                        <button class="btn-action" onclick="copyToClipboard('studentEmail')" title="Copy Email">
+                                                            <i class="bi bi-clipboard"></i> <span>Copy</span>
                                                         </button>
                                                     </div>
                                                 </div>
-
-                                                <div class="mb-3">
-                                                    <label class="text-muted small">Temporary Password</label>
-                                                    <div class="input-group">
-                                                        <input type="text" class="form-control font-monospace" id="tempPassword" 
-                                                               value="{{ session('temp_password') }}" readonly>
-                                                        <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('tempPassword')" title="Copy Password">
-                                                            <i class="bi bi-clipboard"></i>
+                                                <div class="credential-item">
+                                                    <label class="credential-label">
+                                                        <i class="bi bi-lock"></i> Temporary Password
+                                                    </label>
+                                                    <div class="input-action-group">
+                                                        <input type="password" class="credential-input" id="tempPassword" value="{{ session('temp_password') }}" readonly>
+                                                        <button class="btn-action" onclick="copyToClipboard('tempPassword')" title="Copy Password">
+                                                            <i class="bi bi-clipboard"></i> <span>Copy</span>
                                                         </button>
-                                                        <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility()" title="Show/Hide">
+                                                        <button class="btn-action" onclick="togglePasswordVisibility()" title="Show/Hide">
                                                             <i class="bi bi-eye" id="toggleEye"></i>
                                                         </button>
                                                     </div>
                                                 </div>
-
-                                                <div class="alert alert-warning mb-0">
-                                                    <i class="bi bi-exclamation-triangle me-1"></i>
-                                                    <strong>Important:</strong> Please save these credentials securely. You will need them to login.
+                                            </div>
+                                            <div class="alert-box alert-warning">
+                                                <i class="bi bi-exclamation-triangle-fill"></i>
+                                                <div>
+                                                    <strong>Security Notice:</strong> These credentials are temporary. Please change your password after your first login for security reasons.
                                                 </div>
                                             </div>
                                         </div>
+                                    </div>
 
-                                        <div class="card bg-primary bg-opacity-10 border-0 mb-3">
-                                            <div class="card-body">
-                                                <h6 class="fw-bold mb-2">
-                                                    <i class="bi bi-box-arrow-in-right text-primary me-2"></i>Student Login
-                                                </h6>
-                                                <div class="input-group">
-                                                    <input type="text" class="form-control" value="http://127.0.0.1:8000/student/login" readonly>
-                                                    <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('loginUrl')" title="Copy URL">
-                                                        <i class="bi bi-clipboard"></i>
+                                    <!-- Student Login Card -->
+                                    <div class="details-card login-card mb-4">
+                                        <div class="card-header-custom">
+                                            <div class="header-icon">
+                                                <i class="bi bi-box-arrow-in-right-fill"></i>
+                                            </div>
+                                            <div class="header-text">
+                                                <h4>Student Portal Login</h4>
+                                                <span>Access your student dashboard</span>
+                                            </div>
+                                        </div>
+                                        <div class="card-body-custom">
+                                            <div class="login-section">
+                                                <label class="login-label">
+                                                    <i class="bi bi-link-45deg"></i> Login URL
+                                                </label>
+                                                <div class="url-display">
+                                                    <input type="text" class="url-input" id="loginUrl" value="http://127.0.0.1:8000/student/login" readonly>
+                                                </div>
+                                                <div class="action-buttons">
+                                                    <button class="btn-action btn-secondary" onclick="copyToClipboard('loginUrl')">
+                                                        <i class="bi bi-clipboard"></i> Copy URL
                                                     </button>
-                                                    <a href="http://127.0.0.1:8000/student/login" target="_blank" class="btn btn-primary">
-                                                        <i class="bi bi-box-arrow-up-right me-1"></i>Open
+                                                    <a href="http://127.0.0.1:8000/student/login" target="_blank" class="btn-primary">
+                                                        <i class="bi bi-box-arrow-up-right"></i> Login to Portal
                                                     </a>
                                                 </div>
                                             </div>
                                         </div>
+                                    </div>
 
-                                        <div class="alert alert-info mb-0">
-                                            <i class="bi bi-info-circle me-1"></i>
-                                            <strong>Next Steps:</strong>
-                                            <ol class="mb-0 mt-2">
-                                                <li>Save your login credentials</li>
-                                                <li>Login to student portal</li>
-                                                <li>Change your password after first login</li>
-                                                <li>Complete your profile</li>
+                                    <!-- Next Steps Guide -->
+                                    <div class="alert-box alert-info">
+                                        <div class="info-icon-large">
+                                            <i class="bi bi-info-circle-fill"></i>
+                                        </div>
+                                        <div class="info-content">
+                                            <h5>Next Steps - Getting Started</h5>
+                                            <ol class="steps-list">
+                                                <li>
+                                                    <i class="bi bi-check-circle"></i>
+                                                    <div>
+                                                        <strong>Save your credentials</strong>
+                                                        <span>Store your login details in a secure location</span>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <i class="bi bi-check-circle"></i>
+                                                    <div>
+                                                        <strong>Login to student portal</strong>
+                                                        <span>Use the credentials above to access your dashboard</span>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <i class="bi bi-check-circle"></i>
+                                                    <div>
+                                                        <strong>Change your password</strong>
+                                                        <span>Update your temporary password for security</span>
+                                                    </div>
+                                                </li>
+                                                <li>
+                                                    <i class="bi bi-check-circle"></i>
+                                                    <div>
+                                                        <strong>Complete your profile</strong>
+                                                        <span>Add any additional information required</span>
+                                                    </div>
+                                                </li>
                                             </ol>
                                         </div>
                                     </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                                            <i class="bi bi-printer me-1"></i>Print
+
+                                    <!-- Action Buttons -->
+                                    <div class="action-section">
+                                        <button class="btn-action btn-print" onclick="window.print()">
+                                            <i class="bi bi-printer"></i> Print Details
                                         </button>
-                                        <button type="button" class="btn btn-success" data-bs-dismiss="modal">
-                                            <i class="bi bi-check-lg me-1"></i>I Have Saved Credentials
-                                        </button>
+                                        <a href="{{ route('admissions.apply.form') }}" class="btn-action btn-secondary">
+                                            <i class="bi bi-arrow-left"></i> Back to Form
+                                        </a>
                                     </div>
-                                </div>
+                                @endif
                             </div>
                         </div>
                         @endif
-                        
+
                         <form method="POST" action="{{ route('admissions.apply') }}" enctype="multipart/form-data">
                             @csrf
                             
@@ -1116,7 +1827,7 @@
         function togglePasswordVisibility() {
             const passwordField = document.getElementById('tempPassword');
             const eyeIcon = document.getElementById('toggleEye');
-            
+
             if (passwordField.type === 'password') {
                 passwordField.type = 'text';
                 eyeIcon.classList.remove('bi-eye');
@@ -1126,6 +1837,11 @@
                 eyeIcon.classList.remove('bi-eye-slash');
                 eyeIcon.classList.add('bi-eye');
             }
+        }
+
+        // Print Credentials
+        function printCredentials() {
+            window.print();
         }
 
         // Show Toast Notification
@@ -1151,69 +1867,68 @@
             return container;
         }
 
-        // Auto-show modal on success
-        document.addEventListener('DOMContentLoaded', function() {
-            const successAlert = document.querySelector('.alert-success');
-            if (successAlert) {
-                const credentialsModal = new bootstrap.Modal(document.getElementById('credentialsModal'));
-                setTimeout(() => {
-                    credentialsModal.show();
-                }, 500);
-            }
-        });
-
-        // Dynamic Division Loading based on Program Selection
+        // Dynamic Division Loading based on Program Selection (via API)
         const programSelect = document.getElementById('program_id');
         const divisionSelect = document.getElementById('division_id');
 
-        // Sample divisions data by program (in production, fetch via AJAX)
-        const divisionsByProgram = {
-            '1': [ // B.Com
-                { id: '1', name: 'A' },
-                { id: '2', name: 'B' },
-                { id: '3', name: 'C' }
-            ],
-            '2': [ // B.Sc
-                { id: '4', name: 'A' },
-                { id: '5', name: 'B' },
-                { id: '20', name: 'COM-2025-A' }
-            ],
-            '3': [ // BBA
-                { id: '6', name: 'A' },
-                { id: '7', name: 'B' }
-            ],
-            '4': [ // BA
-                { id: '8', name: 'A' },
-                { id: '9', name: 'B' }
-            ],
-            '5': [ // BCA
-                { id: '10', name: 'A' },
-                { id: '11', name: 'B' }
-            ]
-        };
-
         programSelect.addEventListener('change', function() {
             const programId = this.value;
-            
+            console.log('Program selected:', programId);
+
             // Clear division dropdown
             divisionSelect.innerHTML = '<option value="">Select Division</option>';
-            
-            if (programId && divisionsByProgram[programId]) {
+
+            if (programId) {
                 // Enable division dropdown
                 divisionSelect.disabled = false;
-                
-                // Populate divisions
-                divisionsByProgram[programId].forEach(function(division) {
-                    const option = document.createElement('option');
-                    option.value = division.id;
-                    option.textContent = division.name;
-                    
-                    // Preserve old selection
-                    if (division.id == '{{ old('division_id') }}') {
-                        option.selected = true;
+                divisionSelect.innerHTML = '<option value="">Loading divisions...</option>';
+
+                // Fetch divisions from API (public endpoint)
+                fetch(`/api/divisions/public?program_id=${programId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
                     }
+                })
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok: ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Received data:', data);
+                    divisionSelect.innerHTML = '<option value="">Select Division</option>';
                     
-                    divisionSelect.appendChild(option);
+                    if (data.success && data.data && data.data.length > 0) {
+                        data.data.forEach(function(division) {
+                            const option = document.createElement('option');
+                            option.value = division.id;
+                            option.textContent = division.division_name || division.name;
+
+                            // Preserve old selection
+                            if (division.id == '{{ old('division_id') }}') {
+                                option.selected = true;
+                            }
+
+                            divisionSelect.appendChild(option);
+                        });
+                        console.log('Loaded', data.data.length, 'divisions');
+                    } else {
+                        divisionSelect.innerHTML = '<option value="">No divisions available</option>';
+                        divisionSelect.disabled = true;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching divisions:', error);
+                    divisionSelect.innerHTML = '<option value="">Error loading divisions</option>';
+                    divisionSelect.disabled = true;
+                    
+                    // Show error in console for debugging
+                    console.error('Full error:', error);
                 });
             } else {
                 // Disable division dropdown if no program selected
