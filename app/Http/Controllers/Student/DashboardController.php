@@ -71,8 +71,8 @@ class DashboardController extends Controller
 
         // Get fee summary
         $totalFees = StudentFee::where('student_id', $student->id)->sum('total_amount');
-        $paidFees = StudentFee::where('student_id', $student->id)->sum('paid_amount');
-        $outstandingFees = $totalFees - $paidFees;
+        $totalPaid = StudentFee::where('student_id', $student->id)->sum('paid_amount');
+        $totalOutstanding = $totalFees - $totalPaid;
 
         return view('student.dashboard', compact(
             'student',
@@ -83,8 +83,8 @@ class DashboardController extends Controller
             'recentResults',
             'upcomingExams',
             'totalFees',
-            'paidFees',
-            'outstandingFees'
+            'totalPaid',
+            'totalOutstanding'
         ));
     }
 

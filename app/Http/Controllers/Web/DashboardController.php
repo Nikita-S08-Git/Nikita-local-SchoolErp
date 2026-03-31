@@ -42,13 +42,13 @@ class DashboardController extends Controller
         $totalPaid = $studentFees->sum('paid_amount');
         $totalPending = $totalFees - $totalPaid;
         
-        return view('student.dashboard', compact(
-    'student',
-    'attendancePercentage',
-    'totalFees',
-    'totalPaid',
-    'totalPending'
-));
+        return view('dashboard.student', compact(
+            'student',
+            'attendancePercentage',
+            'totalFees',
+            'totalPaid',
+            'totalPending'
+        ));
     }
 
     public function teacher()
