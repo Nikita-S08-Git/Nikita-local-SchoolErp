@@ -962,6 +962,12 @@
                                 </div>
                             </div>
 
+                            <!-- Print Only Footer -->
+                            <div class="print-info-footer">
+                                <p><strong>Print Date:</strong> {{ date('d-M-Y \a\t h:i A') }}</p>
+                                <p>Please keep this admission confirmation for your records.</p>
+                            </div>
+
                             <!-- Action Buttons -->
                             <div class="action-buttons-section">
                                 <a href="{{ session('login_credentials')['login_url'] ?? '#' }}" target="_blank" class="btn-action-primary">

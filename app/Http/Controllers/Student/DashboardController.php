@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\User\Student;
 use App\Models\Academic\Timetable;
 use App\Models\Academic\Attendance;
+use App\Models\Result\StudentMark;
+use App\Models\Result\Examination;
 use App\Models\StudentNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -49,12 +51,33 @@ class DashboardController extends Controller
         // Get upcoming classes (next 7 days)
         $upcomingClasses = $this->getUpcomingClasses($student);
 
+        // Get recent results/marks
+        $recentResults = StudentMark::where('student_id', $student->id)
+            ->with(['examination', 'subject'])
+            ->latest()
+            ->limit(5)
+            ->get();
+
+        // Get upcoming exams
+        $upcomingExams = Examination::where('exam_date', '>=', now())
+            ->whereHas('subjects', function($query) use ($student) {
+                $query->whereHas('divisions', function($q) use ($student) {
+                    $q->where('division_id', $student->division_id);
+                });
+            })
+            ->with(['subjects'])
+            ->orderBy('exam_date')
+            ->limit(5)
+            ->get();
+
         return view('student.dashboard', compact(
             'student',
             'todayClasses',
             'attendanceSummary',
             'notifications',
-            'upcomingClasses'
+            'upcomingClasses',
+            'recentResults',
+            'upcomingExams'
         ));
     }
 
