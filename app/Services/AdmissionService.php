@@ -20,6 +20,12 @@ class AdmissionService
     public function createStudentFromAdmission(array $data): Student
     {
         return DB::transaction(function () use ($data) {
+            // Check if user already exists with this email
+            $existingUser = User::where('email', $data['email'])->first();
+            if ($existingUser) {
+                throw new \Exception('A user with this email already exists. Please use a different email.');
+            }
+            
             // Generate random temporary password (8 characters)
             $tempPassword = bin2hex(random_bytes(4)); // 8 character random string
             

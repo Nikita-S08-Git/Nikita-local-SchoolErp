@@ -53,7 +53,8 @@ class AdmissionController extends Controller
 
     public function apply(Request $request)
     {
-        $validated = $request->validate([
+        // Custom validation for email uniqueness across both users and students tables
+        $request->validate([
             'first_name' => 'required|regex:/^[a-zA-Z\s]+$/|max:255',
             'middle_name' => 'nullable|regex:/^[a-zA-Z\s]+$/|max:255',
             'last_name' => 'required|regex:/^[a-zA-Z\s]+$/|max:255',
@@ -64,19 +65,30 @@ class AdmissionController extends Controller
             'category' => 'required|in:general,obc,sc,st,ews',
             'aadhar_number' => 'nullable|digits:12|unique:students,aadhar_number',
             'mobile_number' => 'required|regex:/^[6-9]\d{9}$/',
-            'email' => 'required|email|unique:students,email',
+            'email' => 'required|email',
             'current_address' => 'required|string|min:10|max:500',
             'permanent_address' => 'nullable|string|min:10|max:500',
             'program_id' => 'required|exists:standards,id',
-            'division_id' => 'nullable|exists:divisions,id', // Optional - admin can assign later
+            'division_id' => 'nullable|exists:divisions,id',
             'academic_session_id' => 'required|exists:academic_sessions,id',
             'academic_year' => 'required|in:FY,SY,TY',
-            // File validations
             'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'signature' => 'nullable|image|mimes:jpeg,png,jpg|max:1024',
             'twelfth_marksheet' => 'nullable|mimes:pdf,jpeg,png,jpg|max:5120',
             'cast_certificate' => 'nullable|mimes:pdf,jpeg,png,jpg|max:5120',
         ]);
+
+        // Additional custom validation for email uniqueness across both tables
+        $email = $request->email;
+        if (\App\Models\User::where('email', $email)->exists()) {
+            return back()->withErrors(['email' => 'This email is already registered in the system.'])->withInput();
+        }
+        if (\App\Models\User\Student::where('email', $email)->exists()) {
+            return back()->withErrors(['email' => 'This email is already registered as a student.'])->withInput();
+        }
+
+        // Get validated data
+        $validated = $request->validated();
 
         // If permanent address is empty, use current address
         if (empty($validated['permanent_address'])) {

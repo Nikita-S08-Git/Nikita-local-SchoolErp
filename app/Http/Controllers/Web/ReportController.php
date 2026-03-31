@@ -21,23 +21,25 @@ class ReportController extends Controller
     public function index(Request $request)
     {
         // Fee collection statistics
-        $todayCollection = FeePayment::whereDate('created_at', today())->sum('amount_paid');
-        $monthlyCollection = FeePayment::whereMonth('created_at', now()->month)->sum('amount_paid');
-        $totalOutstanding = StudentFee::where('outstanding_amount', '>', 0)->sum('outstanding_amount');
-        
+        $todayCollection = FeePayment::whereDate('created_at', today())->sum('amount');
+        $monthlyCollection = FeePayment::whereMonth('created_at', now()->month)->sum('amount');
+        $totalOutstanding = StudentFee::whereColumn('paid_amount', '<', 'total_amount')
+            ->selectRaw('SUM(total_amount - paid_amount) as total_outstanding')
+            ->value('total_outstanding') ?? 0;
+
         // Recent payments
-        $recentPayments = FeePayment::with(['student', 'studentFee'])
+        $recentPayments = FeePayment::with(['studentFee.student', 'studentFee.feeStructure'])
             ->orderBy('created_at', 'desc')
             ->limit(10)
             ->get();
-        
+
         // Outstanding fees
         $outstandingFees = StudentFee::with(['student'])
-            ->where('outstanding_amount', '>', 0)
-            ->orderBy('outstanding_amount', 'desc')
+            ->whereColumn('paid_amount', '<', 'total_amount')
+            ->orderByRaw('total_amount - paid_amount DESC')
             ->limit(10)
             ->get();
-        
+
         return view('reports.fee-index', compact(
             'todayCollection',
             'monthlyCollection',
