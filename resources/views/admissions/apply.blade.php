@@ -606,12 +606,77 @@
             }
         }
         @media print {
-            .action-buttons-section, .btn-copy-credential, .btn-toggle-password, .btn-copy-url {
+            body {
+                background: white;
+            }
+            .container, .row, .col-md-10, .col-lg-8 {
+                max-width: 100% !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            .card {
+                border: none !important;
+                box-shadow: none !important;
+            }
+            .card-body {
+                padding: 20px !important;
+            }
+            .application-card {
                 display: none !important;
             }
-            .credentials-main-card, .student-details-section {
-                break-inside: avoid;
+            .success-display-container {
+                display: block !important;
+                margin: 0 !important;
+                padding: 0 !important;
             }
+            .action-buttons-section, 
+            .btn-copy-credential, 
+            .btn-toggle-password, 
+            .btn-copy-url,
+            .login-action-section,
+            .quick-access-info,
+            .important-notice-box,
+            .btn-action-primary,
+            .btn-action-secondary,
+            .btn-action-outline {
+                display: none !important;
+            }
+            .credentials-main-card, 
+            .student-details-section {
+                break-inside: avoid;
+                page-break-inside: avoid;
+                margin-bottom: 20px !important;
+            }
+            .credentials-main-card {
+                border: 2px solid #10b981 !important;
+            }
+            .card-header-gradient {
+                background: #667eea !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .credential-item-large {
+                border: 1px solid #dee2e6 !important;
+            }
+            .success-header-card {
+                border: 2px solid #10b981 !important;
+                margin-bottom: 20px !important;
+            }
+            .print-only-header {
+                display: block !important;
+                text-align: center;
+                margin-bottom: 20px;
+                padding-bottom: 10px;
+                border-bottom: 2px solid #667eea;
+            }
+            .print-only-header h3 {
+                margin: 0;
+                color: #333;
+            }
+        }
+        .print-only-header {
+            display: none;
         }
     </style>
 </head>
@@ -630,6 +695,11 @@
                         </div>
                         
                         @if(session('success'))
+                        <!-- Print Only Header -->
+                        <div class="print-only-header">
+                            <h3>Admission Confirmation</h3>
+                        </div>
+                        
                         <!-- Premium Success Display with Login Credentials -->
                         <div class="success-display-container mb-5">
                             <!-- Success Header -->

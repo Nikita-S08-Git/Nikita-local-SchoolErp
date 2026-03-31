@@ -97,18 +97,31 @@
                                 <td>
                                     @if($teacher->temp_password)
                                         <div class="input-group input-group-sm" style="max-width: 200px;">
-                                            <input type="password" class="form-control font-monospace" value="{{ $teacher->temp_password }}" 
+                                            <input type="password" class="form-control font-monospace" value="{{ $teacher->temp_password }}"
                                                    id="teacher-password-{{ $teacher->id }}" readonly style="background-color: #f8f9fa; letter-spacing: 2px;">
-                                            <button class="btn btn-outline-success" type="button" 
+                                            <button class="btn btn-outline-success" type="button"
                                                     onclick="toggleTeacherPassword('teacher-password-{{ $teacher->id }}')" title="Show/Hide">
                                                 <i class="bi bi-eye" id="teacher-eye-{{ $teacher->id }}"></i>
                                             </button>
-                                            <button class="btn btn-outline-primary" type="button" 
+                                            <button class="btn btn-outline-primary" type="button"
                                                     onclick="copyTeacherPassword('teacher-password-{{ $teacher->id }}')" title="Copy">
                                                 <i class="bi bi-clipboard"></i>
                                             </button>
                                         </div>
-                                        <small class="text-muted">Generated: {{ $teacher->password_generated_at ? \Carbon\Carbon::parse($teacher->password_generated_at)->diffForHumans() : 'N/A' }}</small>
+                                        <small class="text-muted">
+                                            <i class="bi bi-clock"></i> 
+                                            Generated: {{ $teacher->password_generated_at ? \Carbon\Carbon::parse($teacher->password_generated_at)->diffForHumans() : 'N/A' }}
+                                        </small>
+                                        <small class="text-warning d-block">
+                                            <i class="bi bi-exclamation-triangle"></i> Temporary password - Teacher should change it
+                                        </small>
+                                    @elseif($teacher->password)
+                                        <span class="badge bg-success">
+                                            <i class="bi bi-check-circle"></i> Password Set by Admin
+                                        </span>
+                                        <small class="text-muted d-block mt-1">
+                                            <i class="bi bi-info-circle"></i> Password is set (hidden for security)
+                                        </small>
                                     @else
                                         <span class="badge bg-warning">No Password Set</span>
                                     @endif

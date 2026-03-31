@@ -87,17 +87,15 @@ class AdmissionController extends Controller
             return back()->withErrors(['email' => 'This email is already registered as a student.'])->withInput();
         }
 
-        // Get validated data
-        $validated = $request->validated();
+        // Use all input data since validation passed
+        $studentData = $request->all();
 
         // If permanent address is empty, use current address
-        if (empty($validated['permanent_address'])) {
-            $validated['permanent_address'] = $validated['current_address'];
+        if (empty($studentData['permanent_address'])) {
+            $studentData['permanent_address'] = $studentData['current_address'];
         }
 
         // Handle file uploads - save directly to students table
-        $studentData = $validated;
-        
         if ($request->hasFile('photo') && $request->file('photo')->isValid()) {
             $studentData['photo_path'] = $request->file('photo')->store('uploads/students/photos', 'public');
         }
