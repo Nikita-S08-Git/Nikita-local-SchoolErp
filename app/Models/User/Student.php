@@ -436,11 +436,12 @@ public function scholarships()
     }
 
     /**
-     * Get student email from user relationship
+     * Get student email from the email column (not from user relationship)
+     * Note: The students table has an email column that stores the student's contact email
      */
     public function getEmailAttribute(): ?string
     {
-        return $this->user?->email;
+        return $this->attributes['email'] ?? null;
     }
 }
 

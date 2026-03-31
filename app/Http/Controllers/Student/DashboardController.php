@@ -29,21 +29,6 @@ class DashboardController extends Controller
     {
         $student = Auth::guard('student')->user();
 
-        // Load necessary relationships with proper eager loading
-        $student->load([
-            'division.program',
-            'division.academicYear',
-            'program',
-            'academicSession'
-        ]);
-
-        // Get dashboard notifications
-        $notifications = \App\Models\Notification::active()
-            ->forAudience('students')
-            ->latest()
-            ->limit(5)
-            ->get();
-
         // Get today's timetable
         $today = strtolower(Carbon::now()->format('l'));
         $todayClasses = Timetable::where('division_id', $student->division_id)
@@ -56,7 +41,7 @@ class DashboardController extends Controller
         $attendanceSummary = $this->getAttendanceSummary($student);
 
         // Get recent notifications
-        $notifications = StudentNotification::where('student_id', $student->id)
+        $notifications = $student->notifications()
             ->latest()
             ->take(5)
             ->get();
@@ -64,41 +49,12 @@ class DashboardController extends Controller
         // Get upcoming classes (next 7 days)
         $upcomingClasses = $this->getUpcomingClasses($student);
 
-        // Get recent exam results
-        $recentResults = \App\Models\Result\StudentMark::where('student_id', $student->id)
-            ->with(['subject', 'examination'])
-            ->latest()
-            ->take(5)
-            ->get();
-
-        // Get fee information
-        $feeRecords = \App\Models\Fee\StudentFee::where('student_id', $student->id)->get();
-        $totalFees = $feeRecords->sum('total_amount');
-        $totalPaid = $feeRecords->sum('paid_amount');
-        $totalOutstanding = $totalFees - $totalPaid;
-
-        // Get upcoming exams
-        $upcomingExams = \App\Models\Result\Examination::where('start_date', '>=', now())
-            ->where('status', '!=', 'cancelled') // Use status field instead of is_active
-            ->orderBy('start_date')
-            ->take(3)
-            ->get();
-
-        // Get student profile
-        $studentProfile = $student->studentProfile;
-
         return view('student.dashboard', compact(
             'student',
-            'studentProfile',
             'todayClasses',
             'attendanceSummary',
             'notifications',
-            'upcomingClasses',
-            'recentResults',
-            'totalFees',
-            'totalPaid',
-            'totalOutstanding',
-            'upcomingExams'
+            'upcomingClasses'
         ));
     }
 
@@ -169,27 +125,36 @@ class DashboardController extends Controller
     public function updatePassword(Request $request)
     {
         $student = Auth::guard('student')->user();
+        
+        // Get the associated user for password verification
+        $user = $student->user;
+        
+        if (!$user) {
+            return back()->withErrors([
+                'current_password' => 'User account not found.',
+            ]);
+        }
 
         $validated = $request->validate([
             'current_password' => 'required',
-            'new_password' => 'required|min:8|confirmed',
+            'password' => 'required|min:8|confirmed',
         ]);
 
-        // Verify current password
-        if (!Hash::check($validated['current_password'], $student->password)) {
+        // Verify current password using the user model
+        if (!Hash::check($validated['current_password'], $user->password)) {
             return back()->withErrors([
                 'current_password' => 'The current password is incorrect.',
             ])->withInput();
         }
 
-        // Update password
-        $student->update([
-            'password' => Hash::make($validated['new_password']),
-            'temp_password' => null, // Clear temp password
+        // Update password on the user model
+        $user->update([
+            'password' => Hash::make($validated['password']),
+            'temp_password' => null, // Clear temp password after first change
         ]);
 
         return redirect()->route('student.profile')
-            ->with('success', 'Password changed successfully! Please remember your new password.');
+            ->with('success', 'Password changed successfully!');
     }
 
     /**
@@ -228,11 +193,12 @@ class DashboardController extends Controller
         $lateDays = $student->attendances()->where('status', 'late')->count();
         $overallPercentage = $totalLectures > 0 ? round(($presentDays / $totalLectures) * 100, 2) : 0;
 
-        // Recent attendance records with pagination
+        // Recent attendance records
         $recentAttendance = $student->attendances()
             ->with(['timetable.subject'])
             ->latest('date')
-            ->paginate(15);
+            ->take(10)
+            ->get();
 
         return view('student.attendance.index', compact(
             'attendanceBySubject',
@@ -349,11 +315,19 @@ class DashboardController extends Controller
      */
     public function fees()
     {
-        $student = Auth::guard('student')->user();
+        $user = Auth::guard('student')->user();
+        
+        // Get the associated student record via user_id
+        $student = \App\Models\User\Student::where('user_id', $user->id)->first();
+        
+        if (!$student) {
+            // Try getting by id directly (if student guard returns Student model)
+            $student = $user;
+        }
         
         // Get fee records for the student
         $feeRecords = \App\Models\Fee\StudentFee::where('student_id', $student->id)
-            ->with(['feeStructure'])
+            ->with(['feeStructure.feeHead'])
             ->orderBy('created_at', 'desc')
             ->get();
         
@@ -393,13 +367,13 @@ class DashboardController extends Controller
     public function library()
     {
         $student = Auth::guard('student')->user();
-
-        // Get issued books for the student with pagination
+        
+        // Get issued books for the student
         $issuedBooks = \App\Models\Library\BookIssue::where('student_id', $student->id)
             ->with(['book'])
             ->orderBy('issue_date', 'desc')
-            ->paginate(10);
-
+            ->get();
+        
         return view('student.library.index', compact('student', 'issuedBooks'));
     }
 

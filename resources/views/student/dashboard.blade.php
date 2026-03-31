@@ -95,9 +95,9 @@
                             <i class="bi bi-calendar-week"></i>
                         </div>
                     </div>
-                    <div class="mt-2">
+                    {{-- <div class="mt-2">
                         <small class="opacity-75"><i class="bi bi-arrow-up me-1"></i>Next class in 30 mins</small>
-                    </div>
+                    </div> --}}
                 </div>
             </div>
         </div>
