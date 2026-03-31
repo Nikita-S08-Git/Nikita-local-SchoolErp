@@ -122,15 +122,14 @@ class AdmissionController extends Controller
 
             // Ensure uniqueness with while loop
             $attemptedNumber = $nextNumber;
-            $maxAttempts = 10;
+            $maxAttempts = 100;
             $attempt = 0;
             
             while ($attempt < $maxAttempts) {
                 $candidateNumber = $baseNumber . str_pad($attemptedNumber, 5, '0', STR_PAD_LEFT);
                 
-                // Check if this number already exists
+                // Check if this number already exists in database (outside transaction or within)
                 $exists = \App\Models\User\Student::where('admission_number', $candidateNumber)
-                    ->lockForUpdate()
                     ->exists();
                 
                 if (!$exists) {
@@ -142,9 +141,18 @@ class AdmissionController extends Controller
                 $attempt++;
             }
             
-            // Fallback: use timestamp if all attempts fail
-            if ($attempt >= $maxAttempts) {
-                $studentData['admission_number'] = $baseNumber . time();
+            // Fallback: use timestamp with random suffix if all attempts fail
+            if ($attempt >= $maxAttempts || empty($studentData['admission_number'])) {
+                // Generate a guaranteed unique number using timestamp with random suffix
+                $studentData['admission_number'] = $baseNumber . time() . rand(10, 99);
+            }
+
+            // Final safety check - ensure admission_number is truly unique
+            $originalNumber = $studentData['admission_number'];
+            $counter = 1;
+            while (\App\Models\User\Student::where('admission_number', $studentData['admission_number'])->exists()) {
+                $studentData['admission_number'] = $originalNumber . '-' . $counter;
+                $counter++;
             }
 
             // Create student directly in the transaction

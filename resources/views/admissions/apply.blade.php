@@ -625,7 +625,7 @@
                                                 </label>
                                                 <div class="credential-input-wrapper">
                                                     <input type="text" class="credential-input-display" id="loginEmail" value="{{ $creds['username'] }}" readonly>
-                                                    <button class="btn-copy-credential" onclick="copyCredential('loginEmail')" title="Copy">
+                                                    <button class="btn-copy-credential" onclick="copyCredential('loginEmail', this)" title="Copy">
                                                         <i class="bi bi-clipboard"></i>
                                                     </button>
                                                 </div>
@@ -638,7 +638,7 @@
                                                 </label>
                                                 <div class="credential-input-wrapper">
                                                     <input type="password" class="credential-input-display" id="loginPassword" value="{{ $creds['password'] }}" readonly>
-                                                    <button class="btn-copy-credential" onclick="copyCredential('loginPassword')" title="Copy">
+                                                    <button class="btn-copy-credential" onclick="copyCredential('loginPassword', this)" title="Copy">
                                                         <i class="bi bi-clipboard"></i>
                                                     </button>
                                                     <button class="btn-toggle-password" onclick="togglePasswordDisplay()" title="Show/Hide">
@@ -667,7 +667,7 @@
                                                     <i class="bi bi-box-arrow-up-right"></i>
                                                     <span>Login to Student Portal</span>
                                                 </a>
-                                                <button class="btn-copy-url" onclick="copyCredential('loginUrl')">
+                                                <button class="btn-copy-url" onclick="copyCredential('loginUrl', this)">
                                                     <i class="bi bi-clipboard"></i> Copy Link
                                                 </button>
                                             </div>
@@ -1504,24 +1504,57 @@
         });
 
         // Copy credential to clipboard
-        function copyCredential(elementId) {
+        function copyCredential(elementId, buttonElement) {
             const element = document.getElementById(elementId);
+            if (!element) {
+                alert('Element not found!');
+                return;
+            }
+            
             element.select();
             element.setSelectionRange(0, 99999);
+            
             navigator.clipboard.writeText(element.value).then(() => {
                 // Show success feedback
-                const btn = event.target.closest('button');
-                const originalHTML = btn.innerHTML;
-                btn.innerHTML = '<i class="bi bi-check-circle-fill"></i> Copied!';
-                btn.style.background = '#10b981';
-                btn.style.color = '#ffffff';
-                setTimeout(() => {
-                    btn.innerHTML = originalHTML;
-                    btn.style.background = '';
-                    btn.style.color = '';
-                }, 2000);
+                if (buttonElement) {
+                    const btn = typeof buttonElement === 'string' ? document.querySelector(buttonElement) : buttonElement;
+                    if (btn) {
+                        const originalHTML = btn.innerHTML;
+                        const originalBg = btn.style.background;
+                        const originalColor = btn.style.color;
+                        
+                        btn.innerHTML = '<i class="bi bi-check-circle-fill"></i> Copied!';
+                        btn.style.background = '#10b981';
+                        btn.style.color = '#ffffff';
+                        
+                        setTimeout(() => {
+                            btn.innerHTML = originalHTML;
+                            btn.style.background = originalBg;
+                            btn.style.color = originalColor;
+                        }, 2000);
+                    }
+                }
             }).catch(err => {
-                alert('Failed to copy: ' + err);
+                // Fallback for older browsers
+                try {
+                    document.execCommand('copy');
+                    if (buttonElement) {
+                        const btn = typeof buttonElement === 'string' ? document.querySelector(buttonElement) : buttonElement;
+                        if (btn) {
+                            const originalHTML = btn.innerHTML;
+                            btn.innerHTML = '<i class="bi bi-check-circle-fill"></i> Copied!';
+                            btn.style.background = '#10b981';
+                            btn.style.color = '#ffffff';
+                            setTimeout(() => {
+                                btn.innerHTML = originalHTML;
+                                btn.style.background = '';
+                                btn.style.color = '';
+                            }, 2000);
+                        }
+                    }
+                } catch(err) {
+                    alert('Failed to copy: ' + err);
+                }
             });
         }
 
@@ -1532,12 +1565,16 @@
             
             if (passwordInput.type === 'password') {
                 passwordInput.type = 'text';
-                eyeIcon.classList.remove('bi-eye');
-                eyeIcon.classList.add('bi-eye-slash');
+                if (eyeIcon) {
+                    eyeIcon.classList.remove('bi-eye');
+                    eyeIcon.classList.add('bi-eye-slash');
+                }
             } else {
                 passwordInput.type = 'password';
-                eyeIcon.classList.remove('bi-eye-slash');
-                eyeIcon.classList.add('bi-eye');
+                if (eyeIcon) {
+                    eyeIcon.classList.remove('bi-eye-slash');
+                    eyeIcon.classList.add('bi-eye');
+                }
             }
         }
     </script>
