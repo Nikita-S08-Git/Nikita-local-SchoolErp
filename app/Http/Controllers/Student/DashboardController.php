@@ -58,12 +58,10 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
-        // Get upcoming exams
+        // Get upcoming exams - exams for student's program
         $upcomingExams = Examination::where('end_date', '>=', now())
             ->whereHas('subject', function($query) use ($student) {
-                $query->whereHas('divisions', function($q) use ($student) {
-                    $q->where('division_id', $student->division_id);
-                });
+                $query->where('program_id', $student->program_id);
             })
             ->with(['subject'])
             ->orderBy('start_date')
