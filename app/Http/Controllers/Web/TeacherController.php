@@ -96,20 +96,26 @@ class TeacherController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $teacher->id,
-            'password' => 'nullable|string|min:8|confirmed',
+            'password' => $request->filled('password') ? 'required|string|min:8|confirmed' : 'nullable',
             'department_id' => 'nullable|exists:departments,id',
             'phone' => 'nullable|string|max:15',
             'photo' => 'nullable|image|max:2048',
         ]);
 
-        $teacher->update([
+        $updateData = [
             'name' => $validated['name'],
             'email' => $validated['email'],
-        ]);
+        ];
 
+        // Update password only if provided
         if ($request->filled('password')) {
-            $teacher->update(['password' => Hash::make($validated['password'])]);
+            $updateData['password'] = Hash::make($validated['password']);
+            // Clear temp_password when user sets a new password
+            $updateData['temp_password'] = null;
+            $updateData['password_generated_at'] = null;
         }
+
+        $teacher->update($updateData);
 
         if ($request->hasFile('photo')) {
             $path = $request->file('photo')->store('teachers', 'public');

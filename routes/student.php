@@ -34,7 +34,7 @@ Route::middleware('auth:student')->prefix('student')->name('student.')->group(fu
     Route::get('/profile/edit', [DashboardController::class, 'editProfile'])->name('profile.edit');
     Route::put('/profile', [DashboardController::class, 'updateProfile'])->name('profile.update');
     Route::get('/profile/change-password', [DashboardController::class, 'changePassword'])->name('profile.change-password');
-    Route::post('/profile/change-password', [DashboardController::class, 'updatePassword']);
+    Route::post('/profile/change-password', [DashboardController::class, 'updatePassword'])->name('profile.update-password');
     
     // Timetable
     Route::get('/timetable', [DashboardController::class, 'timetable'])->name('timetable');

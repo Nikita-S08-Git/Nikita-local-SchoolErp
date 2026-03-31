@@ -37,7 +37,8 @@ class AcademicSessionController extends Controller
                 'required',
                 'string',
                 'max:255',
-                'unique:academic_sessions,session_name'
+                'unique:academic_sessions,session_name',
+                'regex:/^\d{4}-\d{4}$/'
             ],
             'start_date' => 'required|date',
             'end_date' => 'required|date|after:start_date',
@@ -45,6 +46,7 @@ class AcademicSessionController extends Controller
         ], [
             'session_name.required' => 'Session name is required.',
             'session_name.unique' => 'This session name already exists.',
+            'session_name.regex' => 'Session name must be in the format YYYY-YYYY (e.g., 2024-2025).',
             'start_date.required' => 'Start date is required.',
             'end_date.required' => 'End date is required.',
             'end_date.after' => 'End date must be after start date.',
@@ -83,6 +85,7 @@ class AcademicSessionController extends Controller
                 'required',
                 'string',
                 'max:255',
+                'regex:/^\d{4}-\d{4}$/',
                 Rule::unique('academic_sessions', 'session_name')->ignore($session->id)
             ],
             'start_date' => 'required|date',
@@ -91,6 +94,7 @@ class AcademicSessionController extends Controller
         ], [
             'session_name.required' => 'Session name is required.',
             'session_name.unique' => 'This session name already exists.',
+            'session_name.regex' => 'Session name must be in the format YYYY-YYYY (e.g., 2024-2025).',
             'start_date.required' => 'Start date is required.',
             'end_date.required' => 'End date is required.',
             'end_date.after' => 'End date must be after start date.',

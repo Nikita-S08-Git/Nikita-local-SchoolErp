@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Academic\Admission;
 use App\Services\AdmissionService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AdmissionController extends Controller
 {
@@ -98,16 +99,98 @@ class AdmissionController extends Controller
             $studentData['cast_certificate_path'] = $request->file('cast_certificate')->store('uploads/students/documents', 'public');
         }
 
-        // Add admission number and status
-        $studentData['admission_number'] = 'ADM' . date('Y') . str_pad(\App\Models\User\Student::count() + 1, 4, '0', STR_PAD_LEFT);
+        // Generate unique admission number and create student in same transaction
+        $year = date('Y');
+        $baseNumber = 'ADM' . $year;
         $studentData['admission_date'] = date('Y-m-d');
         $studentData['student_status'] = 'active';
 
-        // Create student directly
-        $student = $this->admissionService->createStudentFromAdmission($studentData);
+        // Create student inside transaction to maintain lock
+        $student = DB::transaction(function() use ($baseNumber, $studentData) {
+            // Get the last admission number for this year with lock
+            $lastStudent = \App\Models\User\Student::where('admission_number', 'like', $baseNumber . '%')
+                ->orderBy('admission_number', 'desc')
+                ->lockForUpdate()
+                ->first();
+
+            if ($lastStudent && strpos($lastStudent->admission_number, $baseNumber) === 0) {
+                $lastNumber = (int) substr($lastStudent->admission_number, strlen($baseNumber));
+                $nextNumber = $lastNumber + 1;
+            } else {
+                $nextNumber = 1;
+            }
+
+            // Ensure uniqueness with while loop
+            $attemptedNumber = $nextNumber;
+            $maxAttempts = 100;
+            $attempt = 0;
+            
+            while ($attempt < $maxAttempts) {
+                $candidateNumber = $baseNumber . str_pad($attemptedNumber, 5, '0', STR_PAD_LEFT);
+                
+                // Check if this number already exists in database (outside transaction or within)
+                $exists = \App\Models\User\Student::where('admission_number', $candidateNumber)
+                    ->exists();
+                
+                if (!$exists) {
+                    $studentData['admission_number'] = $candidateNumber;
+                    break;
+                }
+                
+                $attemptedNumber++;
+                $attempt++;
+            }
+            
+            // Fallback: use timestamp with random suffix if all attempts fail
+            if ($attempt >= $maxAttempts || empty($studentData['admission_number'])) {
+                // Generate a guaranteed unique number using timestamp with random suffix
+                $studentData['admission_number'] = $baseNumber . time() . rand(10, 99);
+            }
+
+            // Final safety check - ensure admission_number is truly unique
+            $originalNumber = $studentData['admission_number'];
+            $counter = 1;
+            while (\App\Models\User\Student::where('admission_number', $studentData['admission_number'])->exists()) {
+                $studentData['admission_number'] = $originalNumber . '-' . $counter;
+                $counter++;
+            }
+
+            // Create student directly in the transaction
+            return $this->admissionService->createStudentFromAdmission($studentData);
+        });
+
+        // Load relationships for program and division
+        $student->load(['program', 'division', 'user']);
+
+        // Get the temp password from the user record
+        $user = $student->user;
+        $tempPassword = $user->temp_password;
+
+        // Prepare student details for the display with login information
+        $studentDetails = [
+            'admission_number' => $student->admission_number,
+            'full_name' => $student->full_name,
+            'email' => $student->email,
+            'mobile_number' => $student->mobile_number,
+            'program' => $student->program ? $student->program->name : 'N/A',
+            'division' => $student->division ? $student->division->division_name : 'N/A',
+            'academic_year' => $student->academic_year,
+            'admission_date' => $student->admission_date->format('d M Y'),
+            'login_url' => url('/student/login'),
+            'dashboard_url' => url('/student/dashboard'),
+        ];
 
         return redirect()->route('admissions.apply.form')
-            ->with('success', 'Admission submitted successfully! Your Admission No. is: ' . $student->admission_number . '. Please save it for tracking.');
+            ->with('success', 'Admission submitted successfully! Your Admission No. is: ' . $student->admission_number . '. Please save it for tracking.')
+            ->with('student_email', $student->email)
+            ->with('temp_password', $tempPassword)
+            ->with('student_details', $studentDetails)
+            ->with('login_credentials', [
+                'username' => $student->email,
+                'password' => $tempPassword,
+                'login_url' => url('/student/login'),
+                'dashboard_url' => url('/student/dashboard'),
+            ]);
     }
 
     public function verify(Request $request, Admission $admission)

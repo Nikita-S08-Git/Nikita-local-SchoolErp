@@ -103,6 +103,473 @@
         .file-upload-wrapper input[type="file"] {
             display: none;
         }
+        /* Premium Success Display Styles */
+        .success-display-container {
+            animation: slideIn 0.6s ease-out;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .success-header-card {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border-radius: 20px;
+            padding: 35px;
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(16, 185, 129, 0.3);
+        }
+        .success-icon-wrapper {
+            flex-shrink: 0;
+        }
+        .checkmark-animation {
+            width: 80px;
+            height: 80px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .checkmark-svg {
+            width: 60px;
+            height: 60px;
+        }
+        .checkmark-circle-bg {
+            fill: rgba(255,255,255,0.3);
+        }
+        .checkmark {
+            fill: none;
+            stroke: #ffffff;
+            stroke-width: 6;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-dasharray: 100;
+            stroke-dashoffset: 100;
+            animation: drawCheck 0.8s 0.3s forwards cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        @keyframes drawCheck {
+            to { stroke-dashoffset: 0; }
+        }
+        .success-content {
+            flex: 1;
+            color: #ffffff;
+        }
+        .success-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin: 0 0 8px 0;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        .success-subtitle {
+            font-size: 1rem;
+            margin: 0;
+            opacity: 0.95;
+        }
+        .credentials-main-card {
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+            overflow: hidden;
+            border: 2px solid #10b981;
+        }
+        .card-header-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 25px 30px;
+            color: #ffffff;
+        }
+        .card-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin: 0 0 5px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .card-subtitle {
+            margin: 0;
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+        .card-body-custom {
+            padding: 30px;
+        }
+        .credentials-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        .credential-item-large {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px solid #dee2e6;
+        }
+        .credential-label {
+            font-weight: 700;
+            color: #495057;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .credential-input-wrapper {
+            display: flex;
+            gap: 8px;
+        }
+        .credential-input-display {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #ced4da;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            background: #ffffff;
+            font-family: 'Courier New', monospace;
+        }
+        .btn-copy-credential, .btn-toggle-password {
+            padding: 12px 18px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #ffffff;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        .btn-copy-credential:hover, .btn-toggle-password:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        .password-notice {
+            margin-top: 12px;
+            padding: 12px;
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-left: 4px solid #f59e0b;
+            border-radius: 8px;
+            color: #92400e;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        .login-action-section {
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+            padding: 25px;
+            border-radius: 15px;
+            border: 2px solid #dee2e6;
+            margin-bottom: 20px;
+        }
+        .login-url-label {
+            font-weight: 700;
+            color: #495057;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+        .login-url-box {
+            margin-bottom: 15px;
+        }
+        .login-url-input {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid #ced4da;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 500;
+            background: #ffffff;
+            font-family: 'Courier New', monospace;
+        }
+        .login-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .btn-login-primary {
+            flex: 1;
+            min-width: 200px;
+            padding: 16px 24px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+        .btn-login-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.45);
+            color: #ffffff;
+        }
+        .btn-copy-url {
+            padding: 16px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-copy-url:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        .quick-access-info {
+            margin-top: 20px;
+        }
+        .info-badge {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            border-left: 4px solid #3b82f6;
+            padding: 18px;
+            border-radius: 12px;
+            display: flex;
+            gap: 15px;
+            color: #1e40af;
+        }
+        .info-badge i {
+            font-size: 2rem;
+            flex-shrink: 0;
+        }
+        .info-badge strong {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 1rem;
+        }
+        .info-badge p {
+            margin: 0;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        .student-details-section {
+            background: #ffffff;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+        }
+        .details-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        .details-header i {
+            font-size: 1.8rem;
+            color: #10b981;
+        }
+        .details-header h3 {
+            margin: 0;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        .detail-item {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            gap: 12px;
+            transition: all 0.3s;
+        }
+        .detail-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.15);
+            border-color: #10b981;
+        }
+        .detail-item.highlight {
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            border-color: #10b981;
+        }
+        .detail-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .detail-icon i {
+            color: #ffffff;
+            font-size: 1.2rem;
+        }
+        .detail-content {
+            flex: 1;
+        }
+        .detail-content label {
+            font-size: 0.75rem;
+            color: #64748b;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: block;
+            margin-bottom: 6px;
+        }
+        .detail-content span {
+            font-size: 1.05rem;
+            color: #1e293b;
+            font-weight: 600;
+            display: block;
+        }
+        .detail-content .highlight-text {
+            color: #10b981;
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+        .important-notice-box {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            border-left: 5px solid #3b82f6;
+            padding: 25px;
+            border-radius: 15px;
+            display: flex;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        .notice-icon {
+            flex-shrink: 0;
+        }
+        .notice-icon i {
+            font-size: 2.5rem;
+            color: #1e40af;
+        }
+        .notice-content h4 {
+            margin: 0 0 12px 0;
+            color: #1e40af;
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+        .notice-list {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .notice-list li {
+            margin-bottom: 8px;
+            line-height: 1.6;
+            color: #1e40af;
+        }
+        .notice-list li strong {
+            color: #1e3a8a;
+        }
+        .action-buttons-section {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            padding-top: 25px;
+            border-top: 2px solid #e9ecef;
+        }
+        .btn-action-primary {
+            padding: 16px 32px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 14px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+        .btn-action-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.45);
+            color: #ffffff;
+        }
+        .btn-action-secondary {
+            padding: 16px 32px;
+            background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+            color: #ffffff;
+            border: none;
+            border-radius: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .btn-action-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(100, 116, 139, 0.4);
+        }
+        .btn-action-outline {
+            padding: 16px 32px;
+            background: transparent;
+            color: #64748b;
+            border: 2px solid #cbd5e1;
+            border-radius: 14px;
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+        .btn-action-outline:hover {
+            background: #f1f5f9;
+            border-color: #94a3b8;
+            color: #1e293b;
+        }
+        @media (max-width: 768px) {
+            .success-header-card {
+                flex-direction: column;
+                text-align: center;
+            }
+            .credentials-grid {
+                grid-template-columns: 1fr;
+            }
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+            .action-buttons-section {
+                flex-direction: column;
+            }
+            .action-buttons-section .btn-action-primary,
+            .action-buttons-section .btn-action-secondary,
+            .action-buttons-section .btn-action-outline {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+        @media print {
+            .action-buttons-section, .btn-copy-credential, .btn-toggle-password, .btn-copy-url {
+                display: none !important;
+            }
+            .credentials-main-card, .student-details-section {
+                break-inside: avoid;
+            }
+        }
     </style>
 </head>
 <body>
@@ -120,9 +587,189 @@
                         </div>
                         
                         @if(session('success'))
-                        <div class="alert alert-success alert-dismissible fade show mb-4">
-                            {{ session('success') }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        <!-- Premium Success Display with Login Credentials -->
+                        <div class="success-display-container mb-5">
+                            <!-- Success Header -->
+                            <div class="success-header-card">
+                                <div class="success-icon-wrapper">
+                                    <div class="checkmark-animation">
+                                        <svg viewBox="0 0 100 100" class="checkmark-svg">
+                                            <circle class="checkmark-circle-bg" cx="50" cy="50" r="45"/>
+                                            <path class="checkmark" d="M30 50 L45 65 L70 35"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="success-content">
+                                    <h2 class="success-title">🎉 Admission Submitted Successfully!</h2>
+                                    <p class="success-subtitle">Your application has been received and processed successfully</p>
+                                </div>
+                            </div>
+
+                            @if(session('login_credentials'))
+                                @php $creds = session('login_credentials'); @endphp
+                                
+                                <!-- Login Credentials Card - PROMINENT DISPLAY -->
+                                <div class="credentials-main-card">
+                                    <div class="card-header-gradient">
+                                        <h3 class="card-title">
+                                            <i class="bi bi-key-fill"></i> Your Login Credentials
+                                        </h3>
+                                        <p class="card-subtitle">Save these credentials to access your student portal</p>
+                                    </div>
+                                    <div class="card-body-custom">
+                                        <div class="credentials-grid">
+                                            <!-- Username/Email -->
+                                            <div class="credential-item-large">
+                                                <label class="credential-label">
+                                                    <i class="bi bi-person-circle"></i> Username / Email
+                                                </label>
+                                                <div class="credential-input-wrapper">
+                                                    <input type="text" class="credential-input-display" id="loginEmail" value="{{ $creds['username'] }}" readonly>
+                                                    <button class="btn-copy-credential" onclick="copyCredential('loginEmail', this)" title="Copy">
+                                                        <i class="bi bi-clipboard"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <!-- Password -->
+                                            <div class="credential-item-large">
+                                                <label class="credential-label">
+                                                    <i class="bi bi-lock-fill"></i> Temporary Password
+                                                </label>
+                                                <div class="credential-input-wrapper">
+                                                    <input type="password" class="credential-input-display" id="loginPassword" value="{{ $creds['password'] }}" readonly>
+                                                    <button class="btn-copy-credential" onclick="copyCredential('loginPassword', this)" title="Copy">
+                                                        <i class="bi bi-clipboard"></i>
+                                                    </button>
+                                                    <button class="btn-toggle-password" onclick="togglePasswordDisplay()" title="Show/Hide">
+                                                        <i class="bi bi-eye" id="passwordEyeIcon"></i>
+                                                    </button>
+                                                </div>
+                                                <div class="password-notice">
+                                                    <i class="bi bi-exclamation-triangle-fill"></i>
+                                                    <strong>Important:</strong> You must change this password after first login!
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Student Login Button - LARGE & PROMINENT -->
+                                        <div class="login-action-section">
+                                            <div class="login-url-display">
+                                                <label class="login-url-label">
+                                                    <i class="bi bi-box-arrow-in-right"></i> Student Login Portal
+                                                </label>
+                                                <div class="login-url-box">
+                                                    <input type="text" class="login-url-input" id="loginUrl" value="{{ $creds['login_url'] }}" readonly>
+                                                </div>
+                                            </div>
+                                            <div class="login-buttons">
+                                                <a href="{{ $creds['login_url'] }}" target="_blank" class="btn-login-primary">
+                                                    <i class="bi bi-box-arrow-up-right"></i>
+                                                    <span>Login to Student Portal</span>
+                                                </a>
+                                                <button class="btn-copy-url" onclick="copyCredential('loginUrl', this)">
+                                                    <i class="bi bi-clipboard"></i> Copy Link
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <!-- Quick Access Info -->
+                                        <div class="quick-access-info">
+                                            <div class="info-badge">
+                                                <i class="bi bi-lightning-charge-fill"></i>
+                                                <div>
+                                                    <strong>First Time Login?</strong>
+                                                    <p>Use the credentials above to login. You will be prompted to change your password.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+
+                            <!-- Student Details Section -->
+                            @if(session('student_details'))
+                                @php $details = session('student_details'); @endphp
+                                <div class="student-details-section">
+                                    <div class="details-header">
+                                        <i class="bi bi-person-badge-fill"></i>
+                                        <h3>Student Information</h3>
+                                    </div>
+                                    <div class="details-grid">
+                                        <div class="detail-item">
+                                            <div class="detail-icon"><i class="bi bi-person"></i></div>
+                                            <div class="detail-content">
+                                                <label>Full Name</label>
+                                                <span>{{ $details['full_name'] }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="detail-item highlight">
+                                            <div class="detail-icon"><i class="bi bi-card-heading"></i></div>
+                                            <div class="detail-content">
+                                                <label>Admission Number</label>
+                                                <span class="highlight-text">{{ $details['admission_number'] }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="detail-item">
+                                            <div class="detail-icon"><i class="bi bi-envelope"></i></div>
+                                            <div class="detail-content">
+                                                <label>Email</label>
+                                                <span>{{ $details['email'] }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="detail-item">
+                                            <div class="detail-icon"><i class="bi bi-phone"></i></div>
+                                            <div class="detail-content">
+                                                <label>Mobile</label>
+                                                <span>{{ $details['mobile_number'] }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="detail-item">
+                                            <div class="detail-icon"><i class="bi bi-mortarboard"></i></div>
+                                            <div class="detail-content">
+                                                <label>Program</label>
+                                                <span>{{ $details['program'] }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="detail-item">
+                                            <div class="detail-icon"><i class="bi bi-people"></i></div>
+                                            <div class="detail-content">
+                                                <label>Division</label>
+                                                <span>{{ $details['division'] }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+
+                            <!-- Important Notice -->
+                            <div class="important-notice-box">
+                                <div class="notice-icon">
+                                    <i class="bi bi-info-circle-fill"></i>
+                                </div>
+                                <div class="notice-content">
+                                    <h4>Important Next Steps</h4>
+                                    <ul class="notice-list">
+                                        <li><strong>Save Your Credentials:</strong> Store your login details in a secure location</li>
+                                        <li><strong>Login Immediately:</strong> Access your student portal and change your password</li>
+                                        <li><strong>Complete Profile:</strong> Update any missing information in your profile</li>
+                                        <li><strong>Check Email:</strong> Look for confirmation emails from the institution</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="action-buttons-section">
+                                <a href="{{ session('login_credentials')['login_url'] ?? '#' }}" target="_blank" class="btn-action-primary">
+                                    <i class="bi bi-box-arrow-up-right"></i> Login to Portal
+                                </a>
+                                <button onclick="window.print()" class="btn-action-secondary">
+                                    <i class="bi bi-printer"></i> Print Details
+                                </button>
+                                <a href="{{ route('admissions.apply.form') }}" class="btn-action-outline">
+                                    <i class="bi bi-arrow-left"></i> Back to Form
+                                </a>
+                            </div>
                         </div>
                         @endif
                         
@@ -855,6 +1502,81 @@
                 }
             }
         });
+
+        // Copy credential to clipboard
+        function copyCredential(elementId, buttonElement) {
+            const element = document.getElementById(elementId);
+            if (!element) {
+                alert('Element not found!');
+                return;
+            }
+            
+            element.select();
+            element.setSelectionRange(0, 99999);
+            
+            navigator.clipboard.writeText(element.value).then(() => {
+                // Show success feedback
+                if (buttonElement) {
+                    const btn = typeof buttonElement === 'string' ? document.querySelector(buttonElement) : buttonElement;
+                    if (btn) {
+                        const originalHTML = btn.innerHTML;
+                        const originalBg = btn.style.background;
+                        const originalColor = btn.style.color;
+                        
+                        btn.innerHTML = '<i class="bi bi-check-circle-fill"></i> Copied!';
+                        btn.style.background = '#10b981';
+                        btn.style.color = '#ffffff';
+                        
+                        setTimeout(() => {
+                            btn.innerHTML = originalHTML;
+                            btn.style.background = originalBg;
+                            btn.style.color = originalColor;
+                        }, 2000);
+                    }
+                }
+            }).catch(err => {
+                // Fallback for older browsers
+                try {
+                    document.execCommand('copy');
+                    if (buttonElement) {
+                        const btn = typeof buttonElement === 'string' ? document.querySelector(buttonElement) : buttonElement;
+                        if (btn) {
+                            const originalHTML = btn.innerHTML;
+                            btn.innerHTML = '<i class="bi bi-check-circle-fill"></i> Copied!';
+                            btn.style.background = '#10b981';
+                            btn.style.color = '#ffffff';
+                            setTimeout(() => {
+                                btn.innerHTML = originalHTML;
+                                btn.style.background = '';
+                                btn.style.color = '';
+                            }, 2000);
+                        }
+                    }
+                } catch(err) {
+                    alert('Failed to copy: ' + err);
+                }
+            });
+        }
+
+        // Toggle password display
+        function togglePasswordDisplay() {
+            const passwordInput = document.getElementById('loginPassword');
+            const eyeIcon = document.getElementById('passwordEyeIcon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                if (eyeIcon) {
+                    eyeIcon.classList.remove('bi-eye');
+                    eyeIcon.classList.add('bi-eye-slash');
+                }
+            } else {
+                passwordInput.type = 'password';
+                if (eyeIcon) {
+                    eyeIcon.classList.remove('bi-eye-slash');
+                    eyeIcon.classList.add('bi-eye');
+                }
+            }
+        }
     </script>
 </body>
 </html>

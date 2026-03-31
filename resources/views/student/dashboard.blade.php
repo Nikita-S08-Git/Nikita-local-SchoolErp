@@ -394,17 +394,24 @@
         </div>
     </div>
 
-    <div class="col-6 col-md-3">
-        <div class="stat-card">
-            <div class="stat-card-top">
-                <div class="stat-icon pink"><i class="bi bi-clipboard-pulse"></i></div>
-                @if($attendanceSummary['percentage'] >= 75)
-                    <span class="stat-trend good"><i class="bi bi-arrow-up me-1"></i>Good</span>
-                @elseif($attendanceSummary['percentage'] >= 65)
-                    <span class="stat-trend warn"><i class="bi bi-dash me-1"></i>Average</span>
-                @else
-                    <span class="stat-trend bad"><i class="bi bi-arrow-down me-1"></i>Low</span>
-                @endif
+    <!-- Statistics Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card stats-card h-100 border-0" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="mb-1 opacity-75">Today's Classes</p>
+                            <h2 class="mb-0 fw-bold">{{ $todayClasses->count() }}</h2>
+                        </div>
+                        <div style="width: 60px; height: 60px; background: rgba(255,255,255,0.2); border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem;">
+                            <i class="bi bi-calendar-week"></i>
+                        </div>
+                    </div>
+                    {{-- <div class="mt-2">
+                        <small class="opacity-75"><i class="bi bi-arrow-up me-1"></i>Next class in 30 mins</small>
+                    </div> --}}
+                </div>
             </div>
             <div>
                 <div class="stat-value">{{ $attendanceSummary['percentage'] }}<small style="font-size:1rem;font-weight:600;">%</small></div>

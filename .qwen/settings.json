@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(php *)",
+      "Bash(git commit *)"
+    ]
+  },
+  "$version": 3
+}
