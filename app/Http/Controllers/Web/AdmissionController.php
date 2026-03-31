@@ -158,7 +158,7 @@ class AdmissionController extends Controller
         $user = $student->user;
         $tempPassword = $user->temp_password;
 
-        // Prepare student details for the modal
+        // Prepare student details for the display with login information
         $studentDetails = [
             'admission_number' => $student->admission_number,
             'full_name' => $student->full_name,
@@ -168,13 +168,21 @@ class AdmissionController extends Controller
             'division' => $student->division ? $student->division->division_name : 'N/A',
             'academic_year' => $student->academic_year,
             'admission_date' => $student->admission_date->format('d M Y'),
+            'login_url' => url('/student/login'),
+            'dashboard_url' => url('/student/dashboard'),
         ];
 
         return redirect()->route('admissions.apply.form')
             ->with('success', 'Admission submitted successfully! Your Admission No. is: ' . $student->admission_number . '. Please save it for tracking.')
             ->with('student_email', $student->email)
             ->with('temp_password', $tempPassword)
-            ->with('student_details', $studentDetails);
+            ->with('student_details', $studentDetails)
+            ->with('login_credentials', [
+                'username' => $student->email,
+                'password' => $tempPassword,
+                'login_url' => url('/student/login'),
+                'dashboard_url' => url('/student/dashboard'),
+            ]);
     }
 
     public function verify(Request $request, Admission $admission)
