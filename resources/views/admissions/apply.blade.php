@@ -179,7 +179,6 @@
             border-radius: 20px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.1);
             margin-bottom: 25px;
-            overflow: hidden;
             border: 2px solid #10b981;
         }
         .card-header-gradient {

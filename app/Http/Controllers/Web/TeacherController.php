@@ -113,6 +113,7 @@ class TeacherController extends Controller
             'email' => 'required|email|unique:users,email,' . $teacher->id,
             'password' => $request->filled('password') ? 'required|string|min:8|confirmed' : 'nullable',
             'department_id' => 'nullable|exists:departments,id',
+            'division_id' => 'nullable|exists:divisions,id',
             'phone' => 'nullable|string|max:15',
             'photo' => 'nullable|image|max:2048',
         ]);
@@ -131,6 +132,28 @@ class TeacherController extends Controller
         }
 
         $teacher->update($updateData);
+
+        // Handle division assignment via teacher_assignments table
+        if ($request->filled('division_id')) {
+            // Remove existing division assignments
+            \App\Models\TeacherAssignment::where('teacher_id', $teacher->id)
+                ->where('assignment_type', 'division')
+                ->delete();
+            
+            // Create new division assignment
+            \App\Models\TeacherAssignment::create([
+                'teacher_id' => $teacher->id,
+                'division_id' => $validated['division_id'],
+                'assignment_type' => 'division',
+                'is_primary' => true,
+                'is_active' => true,
+            ]);
+        } else {
+            // Remove all division assignments if no division selected
+            \App\Models\TeacherAssignment::where('teacher_id', $teacher->id)
+                ->where('assignment_type', 'division')
+                ->delete();
+        }
 
         if ($request->hasFile('photo')) {
             $path = $request->file('photo')->store('teachers', 'public');

@@ -99,19 +99,20 @@ class AdmissionController extends Controller
             $studentData['cast_certificate_path'] = $request->file('cast_certificate')->store('uploads/students/documents', 'public');
         }
 
-        // Generate unique admission number and create student in same transaction
+        // Generate unique admission number
         $year = date('Y');
         $baseNumber = 'ADM' . $year;
         $studentData['admission_date'] = date('Y-m-d');
         $studentData['student_status'] = 'active';
 
-        // Create student inside transaction to maintain lock
-        $student = DB::transaction(function() use ($baseNumber, $studentData) {
-            // Get the last admission number for this year with lock
-            $lastStudent = \App\Models\User\Student::select('admission_number')
-                ->where('admission_number', 'like', $baseNumber . '%')
+        // Find unique admission number with retry logic (outside transaction first)
+        $admissionNumber = null;
+        $maxRetries = 10;
+        
+        for ($retry = 0; $retry < $maxRetries; $retry++) {
+            // Get highest existing number for this year
+            $lastStudent = \App\Models\User\Student::where('admission_number', 'like', $baseNumber . '%')
                 ->orderBy('admission_number', 'desc')
-                ->lockForUpdate()
                 ->first();
 
             // Calculate next number
@@ -123,12 +124,24 @@ class AdmissionController extends Controller
                 }
             }
 
-            // Format admission number
-            $studentData['admission_number'] = $baseNumber . str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
+            $candidateNumber = $baseNumber . str_pad($nextNumber + $retry, 5, '0', STR_PAD_LEFT);
+            
+            // Check if this number exists
+            if (!\App\Models\User\Student::where('admission_number', $candidateNumber)->exists()) {
+                $admissionNumber = $candidateNumber;
+                break;
+            }
+        }
+        
+        // Fallback: use timestamp with random suffix
+        if (!$admissionNumber) {
+            $admissionNumber = $baseNumber . time() . rand(10, 99);
+        }
+        
+        $studentData['admission_number'] = $admissionNumber;
 
-            // Create student directly in the transaction (lock is still held)
-            return $this->admissionService->createStudentFromAdmission($studentData);
-        });
+        // Create student
+        $student = $this->admissionService->createStudentFromAdmission($studentData);
 
         // Load relationships for program and division
         $student->load(['program', 'division', 'user']);
