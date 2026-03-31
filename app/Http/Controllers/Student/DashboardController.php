@@ -397,13 +397,13 @@ class DashboardController extends Controller
     public function library()
     {
         $student = Auth::guard('student')->user();
-        
+
         // Get issued books for the student
         $issuedBooks = \App\Models\Library\BookIssue::where('student_id', $student->id)
             ->with(['book'])
             ->orderBy('issue_date', 'desc')
-            ->get();
-        
+            ->paginate(10);
+
         return view('student.library.index', compact('student', 'issuedBooks'));
     }
 
