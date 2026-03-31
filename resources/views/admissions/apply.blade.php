@@ -229,16 +229,60 @@
         .credential-input-wrapper {
             display: flex;
             gap: 8px;
+            align-items: flex-start;
         }
         .credential-input-display {
             flex: 1;
-            padding: 12px 15px;
+            padding: 14px 16px;
             border: 2px solid #ced4da;
-            border-radius: 10px;
-            font-size: 1rem;
+            border-radius: 12px;
+            font-size: 1.05rem;
             font-weight: 600;
             background: #ffffff;
             font-family: 'Courier New', monospace;
+            transition: all 0.3s;
+        }
+        .credential-input-display:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15);
+        }
+        .action-buttons-group {
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+        .btn-action-icon {
+            padding: 14px 18px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #ffffff;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+        .btn-action-icon:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        .btn-action-icon.toggle {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+        .btn-action-icon.toggle:hover {
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+        }
+        .btn-action-icon i {
+            font-size: 1.1rem;
+        }
+        .btn-action-icon .btn-text {
+            font-size: 0.85rem;
+            font-weight: 600;
         }
         .btn-copy-credential, .btn-toggle-password {
             padding: 12px 18px;
@@ -638,16 +682,23 @@
                                                 </label>
                                                 <div class="credential-input-wrapper">
                                                     <input type="password" class="credential-input-display" id="loginPassword" value="{{ $creds['password'] }}" readonly>
-                                                    <button class="btn-copy-credential" onclick="copyCredential('loginPassword', this)" title="Copy">
-                                                        <i class="bi bi-clipboard"></i>
-                                                    </button>
-                                                    <button class="btn-toggle-password" onclick="togglePasswordDisplay()" title="Show/Hide">
-                                                        <i class="bi bi-eye" id="passwordEyeIcon"></i>
-                                                    </button>
+                                                    <div class="action-buttons-group">
+                                                        <button class="btn-action-icon" onclick="copyCredential('loginPassword', this)" title="Copy Password">
+                                                            <i class="bi bi-clipboard"></i>
+                                                            <span class="btn-text">Copy</span>
+                                                        </button>
+                                                        <button class="btn-action-icon toggle" onclick="togglePasswordDisplay()" title="Show/Hide Password">
+                                                            <i class="bi bi-eye" id="passwordEyeIcon"></i>
+                                                            <span class="btn-text">Show</span>
+                                                        </button>
+                                                    </div>
                                                 </div>
                                                 <div class="password-notice">
                                                     <i class="bi bi-exclamation-triangle-fill"></i>
-                                                    <strong>Important:</strong> You must change this password after first login!
+                                                    <div>
+                                                        <strong>Important:</strong> You must change this password after first login!
+                                                        <br><small>This is a temporary password for security reasons.</small>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -1566,18 +1617,27 @@
         function togglePasswordDisplay() {
             const passwordInput = document.getElementById('loginPassword');
             const eyeIcon = document.getElementById('passwordEyeIcon');
-
+            const toggleButton = eyeIcon.closest('.btn-action-icon');
+            
             if (passwordInput.type === 'password') {
                 passwordInput.type = 'text';
                 if (eyeIcon) {
                     eyeIcon.classList.remove('bi-eye');
                     eyeIcon.classList.add('bi-eye-slash');
                 }
+                if (toggleButton) {
+                    const btnText = toggleButton.querySelector('.btn-text');
+                    if (btnText) btnText.textContent = 'Hide';
+                }
             } else {
                 passwordInput.type = 'password';
                 if (eyeIcon) {
                     eyeIcon.classList.remove('bi-eye-slash');
                     eyeIcon.classList.add('bi-eye');
+                }
+                if (toggleButton) {
+                    const btnText = toggleButton.querySelector('.btn-text');
+                    if (btnText) btnText.textContent = 'Show';
                 }
             }
         }
