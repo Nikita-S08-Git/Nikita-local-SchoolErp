@@ -8,6 +8,7 @@ use App\Models\Academic\Timetable;
 use App\Models\Academic\Attendance;
 use App\Models\Result\StudentMark;
 use App\Models\Result\Examination;
+use App\Models\Fee\StudentFee;
 use App\Models\StudentNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -68,6 +69,11 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
+        // Get fee summary
+        $totalFees = StudentFee::where('student_id', $student->id)->sum('total_amount');
+        $paidFees = StudentFee::where('student_id', $student->id)->sum('paid_amount');
+        $outstandingFees = $totalFees - $paidFees;
+
         return view('student.dashboard', compact(
             'student',
             'todayClasses',
@@ -75,7 +81,10 @@ class DashboardController extends Controller
             'notifications',
             'upcomingClasses',
             'recentResults',
-            'upcomingExams'
+            'upcomingExams',
+            'totalFees',
+            'paidFees',
+            'outstandingFees'
         ));
     }
 

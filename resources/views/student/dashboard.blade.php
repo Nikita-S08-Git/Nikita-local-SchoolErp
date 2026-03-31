@@ -373,7 +373,7 @@
                             <div class="text-center p-3 bg-light rounded-3">
                                 <i class="bi bi-piggy-bank text-primary" style="font-size: 2.5rem;"></i>
                                 <h6 class="mt-2 mb-1 text-muted">Total Fees</h6>
-                                <h3 class="mb-0 fw-bold text-primary">₹{{ number_format($totalFees, 2) }}</h3>
+<h3 class="mb-0 fw-bold text-primary">₹{{ number_format($totalFees, 2) }}</h3>
                             </div>
                         </div>
                         <div class="col-md-4">
