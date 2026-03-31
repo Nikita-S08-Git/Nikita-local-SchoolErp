@@ -29,9 +29,8 @@
 
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
-            overflow: hidden;
             background: #0a0f1e;
         }
 
@@ -39,7 +38,7 @@
         .left-panel {
             position: relative;
             width: 55%;
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -195,14 +194,13 @@
         /* ─── RIGHT PANEL ────────────────────────────────────── */
         .right-panel {
             width: 45%;
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             padding: 24px 40px;
             background: #f8faff;
-            overflow: hidden;
             position: relative;
         }
 

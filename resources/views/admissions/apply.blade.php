@@ -650,7 +650,7 @@
             body {
                 background: white;
             }
-            .container, .row, .col-md-10, .col-lg-8 {
+            .container, .row, .col-md-10, .col-lg-8, .col-12, .col-xl-10 {
                 max-width: 100% !important;
                 width: 100% !important;
                 margin: 0 !important;
@@ -675,13 +675,37 @@
             .btn-copy-credential, 
             .btn-toggle-password, 
             .btn-copy-url,
-            .login-action-section,
             .quick-access-info,
             .important-notice-box,
             .btn-action-primary,
             .btn-action-secondary,
-            .btn-action-outline {
+            .btn-action-outline,
+            .login-buttons {
                 display: none !important;
+            }
+            /* Show login URL in print but hide copy button */
+            .login-action-section {
+                display: block !important;
+                margin-bottom: 20px !important;
+                padding: 15px !important;
+                border: 2px dashed #667eea !important;
+                border-radius: 10px !important;
+                background: #f8f9ff !important;
+            }
+            .login-url-display {
+                display: block !important;
+            }
+            .login-url-display label {
+                font-weight: bold !important;
+                color: #333 !important;
+            }
+            .login-url-box {
+                margin-top: 10px !important;
+            }
+            .login-url-input {
+                border: 1px solid #667eea !important;
+                padding: 10px !important;
+                font-size: 14px !important;
             }
             .credentials-main-card, 
             .student-details-section {
@@ -708,15 +732,33 @@
                 display: block !important;
                 text-align: center;
                 margin-bottom: 20px;
-                padding-bottom: 10px;
-                border-bottom: 2px solid #667eea;
+                padding-bottom: 15px;
+                border-bottom: 3px solid #667eea;
             }
-            .print-only-header h3 {
-                margin: 0;
+            .print-only-header h2 {
+                margin: 0 0 10px 0;
                 color: #333;
+                font-size: 24px;
+            }
+            .print-only-header p {
+                margin: 0;
+                color: #666;
+                font-size: 14px;
+            }
+            .print-info-footer {
+                display: block !important;
+                margin-top: 30px;
+                padding-top: 15px;
+                border-top: 2px solid #dee2e6;
+                text-align: center;
+                font-size: 12px;
+                color: #666;
             }
         }
         .print-only-header {
+            display: none;
+        }
+        .print-info-footer {
             display: none;
         }
     </style>
@@ -738,7 +780,8 @@
                         @if(session('success'))
                         <!-- Print Only Header -->
                         <div class="print-only-header">
-                            <h3>Admission Confirmation</h3>
+                            <h2>🎓 Admission Confirmation</h2>
+                            <p>Your admission has been successfully processed</p>
                         </div>
                         
                         <!-- Premium Success Display with Login Credentials -->
