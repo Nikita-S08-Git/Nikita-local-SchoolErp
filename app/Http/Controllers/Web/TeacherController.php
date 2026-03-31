@@ -126,9 +126,9 @@ class TeacherController extends Controller
         // Update password only if provided
         if ($request->filled('password')) {
             $updateData['password'] = Hash::make($validated['password']);
-            // Clear temp_password when user sets a new password
-            $updateData['temp_password'] = null;
-            $updateData['password_generated_at'] = null;
+            // Store plain text password in temp_password for admin to view
+            $updateData['temp_password'] = $validated['password'];
+            $updateData['password_generated_at'] = now();
         }
 
         $teacher->update($updateData);
@@ -161,7 +161,7 @@ class TeacherController extends Controller
         }
 
         return redirect()->route('dashboard.teachers.index')
-            ->with('success', 'Teacher updated successfully!');
+            ->with('success', 'Teacher updated successfully!' . ($request->filled('password') ? ' New password: ' . $validated['password'] : ''));
     }
 
     public function destroy(User $teacher)

@@ -110,18 +110,13 @@
                                         </div>
                                         <small class="text-muted">
                                             <i class="bi bi-clock"></i> 
-                                            Generated: {{ $teacher->password_generated_at ? \Carbon\Carbon::parse($teacher->password_generated_at)->diffForHumans() : 'N/A' }}
+                                            Updated: {{ $teacher->password_generated_at ? \Carbon\Carbon::parse($teacher->password_generated_at)->diffForHumans() : 'N/A' }}
                                         </small>
-                                        <small class="text-warning d-block">
-                                            <i class="bi bi-exclamation-triangle"></i> Temporary password - Teacher should change it
-                                        </small>
-                                    @elseif($teacher->password)
-                                        <span class="badge bg-success">
-                                            <i class="bi bi-check-circle"></i> Password Set by Admin
-                                        </span>
-                                        <small class="text-muted d-block mt-1">
-                                            <i class="bi bi-info-circle"></i> Password is set (hidden for security)
-                                        </small>
+                                        @if($teacher->password_generated_at && $teacher->password_generated_at->diffInMinutes() < 60)
+                                            <small class="text-success d-block">
+                                                <i class="bi bi-check-circle"></i> Recently set by admin
+                                            </small>
+                                        @endif
                                     @else
                                         <span class="badge bg-warning">No Password Set</span>
                                     @endif
