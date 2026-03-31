@@ -45,10 +45,10 @@ class AdmissionController extends Controller
     public function showApplyForm()
     {
         $programs = \App\Models\Academic\Program::where('is_active', true)->get();
-        $divisions = \App\Models\Academic\Division::where('is_active', true)->get();
         $sessions = \App\Models\Academic\AcademicSession::where('is_active', true)->get();
-        
-        return view('admissions.apply', compact('programs', 'divisions', 'sessions'));
+
+        // Divisions will be loaded dynamically via API based on selected program
+        return view('admissions.apply', compact('programs', 'sessions'));
     }
 
     public function apply(Request $request)
@@ -68,7 +68,7 @@ class AdmissionController extends Controller
             'current_address' => 'required|string|min:10|max:500',
             'permanent_address' => 'nullable|string|min:10|max:500',
             'program_id' => 'required|exists:standards,id',
-            'division_id' => 'required|exists:divisions,id',
+            'division_id' => 'nullable|exists:divisions,id', // Optional - admin can assign later
             'academic_session_id' => 'required|exists:academic_sessions,id',
             'academic_year' => 'required|in:FY,SY,TY',
             // File validations

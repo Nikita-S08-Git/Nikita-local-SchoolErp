@@ -998,35 +998,39 @@
                             <div class="section-title">
                                 <i class="bi bi-book me-2"></i>Academic Information
                             </div>
-                            
+
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label for="program_id" class="form-label fw-semibold required-field">
                                         <i class="bi bi-mortarboard me-2"></i>Program / Course
                                     </label>
-                                    <select class="form-select @error('program_id') is-invalid @endif" 
-                                            id="program_id" name="program_id" required>
+                                    <select class="form-select @error('program_id') is-invalid @endif"
+                                            id="program_id" name="program_id" required 
+                                            onchange="loadDivisions(this.value)">
                                         <option value="">Select Program</option>
                                         @foreach($programs ?? [] as $program)
                                             <option value="{{ $program->id }}" {{ old('program_id') == $program->id ? 'selected' : '' }}>{{ $program->name }}</option>
                                         @endforeach
                                     </select>
+                                    <div class="form-text">
+                                        <i class="bi bi-info-circle"></i> Select your desired program. Division will be assigned by admin later.
+                                    </div>
                                     @error('program_id')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
-                                
+
                                 <div class="col-md-6 mb-3">
-                                    <label for="division_id" class="form-label fw-semibold required-field">
-                                        <i class="bi bi-people me-2"></i>Division / Class
+                                    <label for="division_id" class="form-label fw-semibold">
+                                        <i class="bi bi-people me-2"></i>Division / Class <span class="text-muted">(Optional - To be assigned by admin)</span>
                                     </label>
-                                    <select class="form-select @error('division_id') is-invalid @endif" 
-                                            id="division_id" name="division_id" required>
-                                        <option value="">Select Division</option>
-                                        @foreach($divisions ?? [] as $division)
-                                            <option value="{{ $division->id }}" {{ old('division_id') == $division->id ? 'selected' : '' }}>{{ $division->division_name }}</option>
-                                        @endforeach
+                                    <select class="form-select @error('division_id') is-invalid @endif"
+                                            id="division_id" name="division_id">
+                                        <option value="">Select Division (Optional)</option>
                                     </select>
+                                    <div class="form-text">
+                                        <i class="bi bi-info-circle"></i> If you know your division, select it. Otherwise, admin will assign it later.
+                                    </div>
                                     @error('division_id')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -1562,7 +1566,7 @@
         function togglePasswordDisplay() {
             const passwordInput = document.getElementById('loginPassword');
             const eyeIcon = document.getElementById('passwordEyeIcon');
-            
+
             if (passwordInput.type === 'password') {
                 passwordInput.type = 'text';
                 if (eyeIcon) {
@@ -1577,6 +1581,73 @@
                 }
             }
         }
+
+        // Load divisions dynamically based on selected program
+        function loadDivisions(programId) {
+            const divisionSelect = document.getElementById('division_id');
+            
+            // Clear existing options
+            divisionSelect.innerHTML = '<option value="">Select Division (Optional)</option>';
+            
+            if (!programId) {
+                divisionSelect.disabled = true;
+                return;
+            }
+            
+            // Show loading state
+            divisionSelect.disabled = true;
+            divisionSelect.innerHTML = '<option value="">Loading divisions...</option>';
+            
+            // Fetch divisions from API
+            fetch(`/api/divisions/public?program_id=${programId}`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                divisionSelect.disabled = false;
+                
+                if (data.data && data.data.length > 0) {
+                    // Add divisions to dropdown
+                    data.data.forEach(division => {
+                        const option = document.createElement('option');
+                        option.value = division.id;
+                        option.textContent = division.division_name || division.name;
+                        divisionSelect.appendChild(option);
+                    });
+                    
+                    // Restore old selection if exists
+                    const oldDivision = '{{ old('division_id') }}';
+                    if (oldDivision) {
+                        divisionSelect.value = oldDivision;
+                    }
+                } else {
+                    divisionSelect.innerHTML = '<option value="">No divisions available for this program</option>';
+                }
+            })
+            .catch(error => {
+                console.error('Error loading divisions:', error);
+                divisionSelect.disabled = false;
+                divisionSelect.innerHTML = '<option value="">Error loading divisions</option>';
+            });
+        }
+
+        // Load divisions on page load if program was selected
+        document.addEventListener('DOMContentLoaded', function() {
+            const programSelect = document.getElementById('program_id');
+            if (programSelect && programSelect.value) {
+                loadDivisions(programSelect.value);
+            }
+        });
     </script>
 </body>
 </html>
