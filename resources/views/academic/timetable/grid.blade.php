@@ -7,14 +7,14 @@
     <!-- Flash Messages -->
     @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show" role="alert">
-        <i class="bi bi-check-circle me-2"></i>{{ session('success') }}
+        <i class="fa fa-circle-check me-2"></i>{{ session('success') }}
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
     @endif
     
     @if(session('error'))
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <i class="bi bi-exclamation-circle me-2"></i>{{ session('error') }}
+        <i class="fa fa-circle-exclamation me-2"></i>{{ session('error') }}
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
     @endif
@@ -29,11 +29,11 @@
                 </div>
                 <div class="d-flex gap-2">
                     <a href="{{ route('academic.timetable.table') }}" class="btn btn-outline-primary">
-                        <i class="bi bi-list"></i> Table View
+                        <i class="fa fa-list"></i> Table View
                     </a>
                     @role('admin|principal')
                     <a href="{{ route('academic.timetable.create') }}" class="btn btn-success">
-                        <i class="bi bi-plus-circle"></i> Add Class
+                        <i class="fa fa-plus-circle"></i> Add Class
                     </a>
                     @endrole
                 </div>
@@ -187,7 +187,7 @@
                                 <td>
                                     @if($timetable->date)
                                         <div class="d-flex align-items-center">
-                                            <i class="bi bi-calendar-event text-primary me-1"></i>
+                                            <i class="fa fa-calendar-day text-primary me-1"></i>
                                             <span>{{ \Carbon\Carbon::parse($timetable->date)->format('d M Y') }}</span>
                                         </div>
                                     @else
@@ -225,13 +225,13 @@
                                 </td>
                                 <td>
                                     <div class="d-flex align-items-center">
-                                        <i class="bi bi-clock me-1 text-muted"></i>
+                                        <i class="fa fa-clock me-1 text-muted"></i>
                                         {{ \Carbon\Carbon::parse($timetable->start_time)->format('H:i') }}
                                     </div>
                                 </td>
                                 <td>
                                     <div class="d-flex align-items-center">
-                                        <i class="bi bi-clock me-1 text-muted"></i>
+                                        <i class="fa fa-clock me-1 text-muted"></i>
                                         {{ \Carbon\Carbon::parse($timetable->end_time)->format('H:i') }}
                                     </div>
                                 </td>
@@ -280,12 +280,12 @@
                             <tr>
                                 <td colspan="9" class="text-center py-4">
                                     <div class="d-flex flex-column align-items-center">
-                                        <i class="bi bi-calendar-x text-muted" style="font-size: 3rem;"></i>
+                                        <i class="fa fa-calendar-xmark text-muted" style="font-size: 3rem;"></i>
                                         <h5 class="mt-3 text-muted">No Timetable Entries Found</h5>
                                         <p class="text-muted mb-3">No timetable entries match your current filters.</p>
                                         @role('admin|principal')
                                         <a href="{{ route('academic.timetable.create') }}" class="btn btn-primary">
-                                            <i class="bi bi-plus-circle me-2"></i>Add First Class
+                                            <i class="fa fa-plus-circle me-2"></i>Add First Class
                                         </a>
                                         @endrole
                                     </div>
@@ -321,27 +321,27 @@
         <div class="modal-content">
             <div class="modal-header bg-danger text-white">
                 <h5 class="modal-title" id="deleteModalLabel">
-                    <i class="bi bi-exclamation-triangle me-2"></i>Confirm Delete
+                    <i class="fa fa-exclamation-triangle me-2"></i>Confirm Delete
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <p>Are you sure you want to delete this timetable entry?</p>
                 <div class="alert alert-warning mb-0">
-                    <i class="bi bi-info-circle me-2"></i>
+                    <i class="fa fa-info-circle me-2"></i>
                     <strong id="deleteItemName"></strong>
                 </div>
                 <p class="text-muted small mt-2 mb-0">This action cannot be undone.</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    <i class="bi bi-x-lg me-1"></i>Cancel
+                    <i class="fa fa-xmark me-1"></i>Cancel
                 </button>
                 <form id="deleteForm" method="POST" class="d-inline">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="btn btn-danger">
-                        <i class="bi bi-trash me-1"></i>Delete
+                        <i class="fa fa-trash me-1"></i>Delete
                     </button>
                 </form>
             </div>

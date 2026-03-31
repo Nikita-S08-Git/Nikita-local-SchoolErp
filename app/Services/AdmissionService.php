@@ -311,6 +311,31 @@ class AdmissionService
                 $admission->division->division_name ?? null
             );
 
+            // Copy document paths from admission
+            $photoPath = null;
+            $signaturePath = null;
+            $marksheetPath = null;
+            $castCertPath = null;
+            
+            // Get documents from admission
+            $documents = $admission->documents()->get();
+            foreach ($documents as $doc) {
+                switch ($doc->document_type) {
+                    case 'photo':
+                        $photoPath = $doc->file_path;
+                        break;
+                    case 'signature':
+                        $signaturePath = $doc->file_path;
+                        break;
+                    case 'twelfth_marksheet':
+                        $marksheetPath = $doc->file_path;
+                        break;
+                    case 'cast_certificate':
+                        $castCertPath = $doc->file_path;
+                        break;
+                }
+            }
+
             // Create student record
             $student = \App\Models\User\Student::create([
                 'user_id' => $user->id,
@@ -334,7 +359,11 @@ class AdmissionService
                 'division_id' => $admission->division_id,
                 'academic_session_id' => $admission->academic_session_id,
                 'student_status' => 'active',
-                'admission_date' => now()
+                'admission_date' => now(),
+                'photo_path' => $photoPath,
+                'signature_path' => $signaturePath,
+                'marksheet_path' => $marksheetPath,
+                'cast_certificate_path' => $castCertPath,
             ]);
 
             // Update admission status

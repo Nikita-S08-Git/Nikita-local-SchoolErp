@@ -195,6 +195,7 @@
                                         @endif
                                     </a>
                                 </th>
+                                <th>Fees</th>
                                 <th class="text-end" style="width: 120px;">Actions</th>
                             </tr>
                         </thead>
@@ -274,6 +275,26 @@
                                         {{ ucfirst($student->student_status) }}
                                     </span>
                                 </td>
+                                <td>
+                                    @php
+                                        $totalPaid = $student->fees->sum('paid_amount');
+                                        $totalOutstanding = $student->fees->sum('outstanding_amount');
+                                        $hasFees = $student->fees->count() > 0;
+                                    @endphp
+                                    @if($hasFees)
+                                        <div class="small">
+                                            <span class="text-success">Paid: ₹{{ number_format($totalPaid, 0) }}</span><br>
+                                            <span class="text-danger">Due: ₹{{ number_format($totalOutstanding, 0) }}</span>
+                                        </div>
+                                        @if($totalOutstanding > 0)
+                                            <span class="badge bg-warning">Pending</span>
+                                        @else
+                                            <span class="badge bg-success">Settled</span>
+                                        @endif
+                                    @else
+                                        <span class="text-muted">No Fees</span>
+                                    @endif
+                                </td>
                                 <td class="text-end">
                                     <div class="d-flex gap-1 justify-content-end">
                                         <a href="{{ route('dashboard.students.show', $student) }}" 
@@ -298,7 +319,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="text-center py-5">
+                                <td colspan="9" class="text-center py-5">
                                     <div class="text-muted">
                                         <i class="bi bi-people fs-1 mb-3 d-block"></i>
                                         <h5>No students found</h5>

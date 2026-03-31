@@ -41,41 +41,8 @@ Route::middleware('guest:student')->group(function () {
 // ============================================
 // STUDENT AUTHENTICATED ROUTES
 // ============================================
-Route::middleware('auth:student')->prefix('student')->name('student.')->group(function () {
-    // Logout
-    Route::post('/logout', [StudentAuthController::class, 'logout'])->name('logout');
-    
-    // Dashboard
-    Route::get('/dashboard', [StudentDashboardController::class, 'index'])->name('dashboard');
-    
-    // Profile
-    Route::get('/profile', [StudentDashboardController::class, 'profile'])->name('profile');
-    Route::get('/profile/edit', [StudentDashboardController::class, 'editProfile'])->name('profile.edit');
-    Route::put('/profile', [StudentDashboardController::class, 'updateProfile'])->name('profile.update');
-    Route::get('/profile/change-password', [StudentDashboardController::class, 'changePassword'])->name('profile.change-password');
-    Route::post('/profile/change-password', [StudentDashboardController::class, 'updatePassword'])->name('profile.update-password');
-    
-    // Timetable
-    Route::get('/timetable', [StudentDashboardController::class, 'timetable'])->name('timetable');
-    
-    // Attendance
-    Route::get('/attendance', [StudentDashboardController::class, 'attendance'])->name('attendance');
-    
-    // Fees
-    Route::get('/fees', [StudentDashboardController::class, 'fees'])->name('fees');
-    Route::get('/fees/payment/{studentFee}', [StudentDashboardController::class, 'feesPayment'])->name('fees.payment');
-    
-    // Results
-    Route::get('/results', [StudentDashboardController::class, 'results'])->name('results');
-    
-    // Library
-    Route::get('/library', [StudentDashboardController::class, 'library'])->name('library');
-
-    // Notifications
-    Route::get('/notifications', [StudentDashboardController::class, 'notifications'])->name('notifications');
-    Route::post('/notifications/{id}/read', [StudentDashboardController::class, 'markNotificationAsRead'])->name('notifications.read');
-    Route::post('/notifications/read-all', [StudentDashboardController::class, 'markAllNotificationsAsRead'])->name('notifications.read-all');
-});
+// Note: Student authenticated routes are now in routes/student.php
+// to avoid route name conflicts and maintain consistency
 
 // Librarian Routes
 Route::middleware(['auth', 'role:librarian'])->prefix('librarian')->name('librarian.')->group(function () {
@@ -342,6 +309,26 @@ Route::middleware(['auth', 'role:admin|principal'])->prefix('academic')->name('a
 
 // Fee Management Routes
 Route::middleware(['auth', 'role:admin|principal|office|teacher|accountant'])->prefix('fees')->name('fees.')->group(function () {
+    // Fee Heads
+    Route::resource('fee-heads', \App\Http\Controllers\Web\FeeHeadController::class)
+        ->names('fee-heads');
+    
+    // Custom route for getting active fee heads (AJAX)
+    Route::get('fee-heads/active', [\App\Http\Controllers\Web\FeeHeadController::class, 'getActive'])
+        ->name('fee-heads.active');
+    
+    // Custom route for storing fee head via AJAX
+    Route::post('fee-heads/ajax', [\App\Http\Controllers\Web\FeeHeadController::class, 'storeAjax'])
+        ->name('fee-heads.store.ajax');
+    
+    // Custom route for updating fee head via AJAX
+    Route::match(['put', 'post'], 'fee-heads/{feeHead}/ajax', [\App\Http\Controllers\Web\FeeHeadController::class, 'updateAjax'])
+        ->name('fee-heads.update.ajax.post');
+    
+    // Custom route for deleting fee head via AJAX
+    Route::delete('fee-heads/{feeHead}/ajax', [\App\Http\Controllers\Web\FeeHeadController::class, 'destroyAjax'])
+        ->name('fee-heads.destroy.ajax.post');
+
     // Fee Structures
     Route::resource('structures', \App\Http\Controllers\Web\FeeStructureController::class)
         ->names('structures');
@@ -659,4 +646,7 @@ Route::middleware(['auth'])->prefix('staff')->name('staff.')->group(function () 
 
 // Teacher Dashboard Routes
 require __DIR__ . '/teacher.php';
+
+// Student Dashboard Routes
+require __DIR__ . '/student.php';
 

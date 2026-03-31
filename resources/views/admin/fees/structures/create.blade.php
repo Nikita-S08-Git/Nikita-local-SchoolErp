@@ -44,9 +44,20 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="fee_head" class="form-label">Fee Head <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="fee_head" name="fee_head" 
-                                   placeholder="e.g., Tuition Fee, Lab Fee" required>
+                            <label for="fee_head_id" class="form-label">Fee Head <span class="text-danger">*</span></label>
+                            <select class="form-select" id="fee_head_id" name="fee_head_id" required>
+                                <option value="">Select Fee Head</option>
+                                @forelse($feeHeads as $feeHead)
+                                <option value="{{ $feeHead->id }}">{{ $feeHead->name }}</option>
+                                @empty
+                                <option value="">No fee heads available</option>
+                                @endforelse
+                            </select>
+                            <div class="mt-2">
+                                <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addFeeHeadModal">
+                                    <i class="bi bi-plus-circle"></i> Add New Fee Head
+                                </button>
+                            </div>
                         </div>
 
                         <div class="mb-3">
@@ -96,4 +107,105 @@
         </div>
     </div>
 </div>
+
+<!-- Add Fee Head Modal -->
+<div class="modal fade" id="addFeeHeadModal" tabindex="-1" aria-labelledby="addFeeHeadModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addFeeHeadModalLabel">Add New Fee Head</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="addFeeHeadForm">
+                @csrf
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="fee_head_name" class="form-label">Fee Head Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="fee_head_name" name="name" 
+                               placeholder="e.g., Tuition Fee, Lab Fee" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="fee_head_code" class="form-label">Code <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="fee_head_code" name="code" 
+                               placeholder="e.g., TF, LF" required maxlength="10">
+                    </div>
+                    <div class="mb-3">
+                        <label for="fee_head_description" class="form-label">Description</label>
+                        <textarea class="form-control" id="fee_head_description" name="description" 
+                                  rows="2" placeholder="Optional description"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="is_refundable" name="is_refundable" value="1">
+                            <label class="form-check-label" for="is_refundable">
+                                Is Refundable
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Fee Head</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@push('scripts')
+<script>
+document.getElementById('addFeeHeadForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Adding...';
+    
+    fetch('{{ route('admin.fees.fee-heads.store') }}', {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Accept': 'application/json'
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Add new option to the select
+            const select = document.getElementById('fee_head_id');
+            const option = document.createElement('option');
+            option.value = data.feeHead.id;
+            option.textContent = data.feeHead.name;
+            select.appendChild(option);
+            
+            // Select the new option
+            select.value = data.feeHead.id;
+            
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('addFeeHeadModal'));
+            modal.hide();
+            
+            // Reset form
+            this.reset();
+            
+            // Show success message
+            alert('Fee Head added successfully!');
+        } else {
+            alert('Error: ' + (data.message || 'Something went wrong'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while adding the fee head.');
+    })
+    .finally(() => {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+    });
+});
+</script>
+@endpush
 @endsection

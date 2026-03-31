@@ -27,6 +27,26 @@
             ['name' => 'Attendance', 'route' => 'academic.attendance.index', 'icon' => 'clipboard-check'],
             ['name' => 'Holidays', 'route' => 'academic.holidays.index', 'icon' => 'calendar-event'],
             
+            // Fee Management
+            ['name' => 'Fee Structures', 'route' => 'fees.structures.index', 'icon' => 'list-columns'],
+            ['name' => 'Fee Assignment', 'route' => 'fees.assignments.index', 'icon' => 'clipboard-plus'],
+            ['name' => 'Fee Collection', 'route' => 'fees.payments.index', 'icon' => 'cash-stack'],
+            ['name' => 'Outstanding Fees', 'route' => 'fees.outstanding.index', 'icon' => 'exclamation-triangle'],
+            
+            ['name' => 'Reports', 'route' => 'reports.index', 'icon' => 'graph-up'],
+        ],
+        'office' => [
+            ['name' => 'Dashboard', 'route' => 'dashboard.office', 'icon' => 'speedometer2'],
+            ['name' => 'Users', 'route' => 'admin.users', 'icon' => 'people'],
+            ['name' => 'Admissions', 'route' => 'admissions.index', 'icon' => 'person-plus-fill'],
+            ['name' => 'Students', 'route' => 'dashboard.students.index', 'icon' => 'people-fill'],
+            
+            // Fee Management
+            ['name' => 'Fee Structures', 'route' => 'fees.structures.index', 'icon' => 'list-columns'],
+            ['name' => 'Fee Assignment', 'route' => 'fees.assignments.index', 'icon' => 'clipboard-plus'],
+            ['name' => 'Fee Collection', 'route' => 'fees.payments.index', 'icon' => 'cash-stack'],
+            ['name' => 'Outstanding Fees', 'route' => 'fees.outstanding.index', 'icon' => 'exclamation-triangle'],
+            
             ['name' => 'Reports', 'route' => 'reports.index', 'icon' => 'graph-up'],
         ],
         'principal' => [

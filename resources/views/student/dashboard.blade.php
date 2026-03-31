@@ -56,8 +56,6 @@
         gap: 8px;
     }
 
-    .welcome-text p .sep { color: #3a3f55; }
-
     .welcome-pill {
         display: inline-flex;
         align-items: center;
@@ -70,10 +68,7 @@
         color: #d0d5e8;
     }
 
-    .time-widget {
-        text-align: right;
-        flex-shrink: 0;
-    }
+    .time-widget { text-align: right; flex-shrink: 0; }
 
     .time-widget .time-val {
         font-family: 'DM Mono', monospace;
@@ -127,10 +122,10 @@
         flex-shrink: 0;
     }
 
-    .stat-icon.purple  { background: rgba(108,99,255,0.12); color: #6c63ff; }
-    .stat-icon.pink    { background: rgba(236,72,153,0.12); color: #ec4899; }
-    .stat-icon.teal    { background: rgba(34,211,160,0.12); color: #22d3a0; }
-    .stat-icon.amber   { background: rgba(251,191,36,0.12); color: #fbbf24; }
+    .stat-icon.purple { background: rgba(108,99,255,0.12); color: #6c63ff; }
+    .stat-icon.pink   { background: rgba(236,72,153,0.12);  color: #ec4899; }
+    .stat-icon.teal   { background: rgba(34,211,160,0.12);  color: #22d3a0; }
+    .stat-icon.amber  { background: rgba(251,191,36,0.12);  color: #fbbf24; }
 
     .stat-trend {
         font-size: 0.72rem;
@@ -139,10 +134,10 @@
         border-radius: 20px;
     }
 
-    .stat-trend.good  { background: rgba(34,197,94,0.1); color: #22c55e; }
-    .stat-trend.warn  { background: rgba(251,191,36,0.12); color: #d97706; }
-    .stat-trend.bad   { background: rgba(239,68,68,0.1); color: #ef4444; }
-    .stat-trend.info  { background: rgba(99,102,241,0.1); color: #6366f1; }
+    .stat-trend.good { background: rgba(34,197,94,0.1);  color: #22c55e; }
+    .stat-trend.warn { background: rgba(251,191,36,0.12); color: #d97706; }
+    .stat-trend.bad  { background: rgba(239,68,68,0.1);   color: #ef4444; }
+    .stat-trend.info { background: rgba(99,102,241,0.1);  color: #6366f1; }
 
     .stat-value {
         font-size: 2rem;
@@ -172,14 +167,7 @@
         transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
     }
 
-    /* ── SECTION HEADER ── */
-    .section-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 16px;
-    }
-
+    /* ── SECTION TITLE ── */
     .section-title {
         font-size: 1rem;
         font-weight: 700;
@@ -210,10 +198,7 @@
     .view-all-link:hover { gap: 8px; color: var(--accent); }
 
     /* ── SCHEDULE TABLE ── */
-    .schedule-card {
-        border-radius: 16px;
-        overflow: hidden;
-    }
+    .schedule-card { border-radius: 16px; overflow: hidden; }
 
     .period-row td:first-child {
         font-family: 'DM Mono', monospace;
@@ -312,28 +297,14 @@
     .quick-action-btn:hover .qa-icon { transform: scale(1.1); }
 
     .qa-purple { background: rgba(108,99,255,0.1); color: #6c63ff; }
-    .qa-green  { background: rgba(34,197,94,0.1); color: #22c55e; }
-    .qa-sky    { background: rgba(14,165,233,0.1); color: #0ea5e9; }
-    .qa-amber  { background: rgba(251,191,36,0.1); color: #f59e0b; }
-    .qa-red    { background: rgba(239,68,68,0.1); color: #ef4444; }
+    .qa-green  { background: rgba(34,197,94,0.1);  color: #22c55e; }
+    .qa-sky    { background: rgba(14,165,233,0.1);  color: #0ea5e9; }
+    .qa-amber  { background: rgba(251,191,36,0.1);  color: #f59e0b; }
+    .qa-red    { background: rgba(239,68,68,0.1);   color: #ef4444; }
     .qa-slate  { background: rgba(100,116,139,0.1); color: #64748b; }
 
-    @media (max-width: 991px) {
-        .quick-action-grid { grid-template-columns: repeat(3, 1fr); }
-    }
-
-    @media (max-width: 576px) {
-        .welcome-banner { flex-direction: column; align-items: flex-start; }
-        .time-widget { text-align: left; }
-        .quick-action-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
-        .stat-value { font-size: 1.6rem; }
-    }
-
     /* ── EMPTY STATE ── */
-    .empty-state {
-        text-align: center;
-        padding: 40px 20px;
-    }
+    .empty-state { text-align: center; padding: 40px 20px; }
 
     .empty-state-icon {
         width: 64px; height: 64px;
@@ -345,15 +316,19 @@
         margin: 0 auto 16px;
     }
 
-    .empty-state p {
-        font-size: 0.875rem;
-        color: var(--text-muted);
-        margin: 0;
+    .empty-state p     { font-size: 0.875rem; color: var(--text-muted); margin: 0; }
+    .empty-state small { color: #b0b8cc; font-size: 0.78rem; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 991px) {
+        .quick-action-grid { grid-template-columns: repeat(3, 1fr); }
     }
 
-    .empty-state small {
-        color: #b0b8cc;
-        font-size: 0.78rem;
+    @media (max-width: 576px) {
+        .welcome-banner { flex-direction: column; align-items: flex-start; }
+        .time-widget { text-align: left; }
+        .quick-action-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .stat-value { font-size: 1.6rem; }
     }
 </style>
 @endpush
@@ -378,6 +353,7 @@
 
 <!-- Stat Cards -->
 <div class="row g-3 mb-4">
+    <!-- Classes Today -->
     <div class="col-6 col-md-3">
         <div class="stat-card">
             <div class="stat-card-top">
@@ -394,24 +370,18 @@
         </div>
     </div>
 
-    <!-- Statistics Cards -->
-    <div class="row g-4 mb-4">
-        <div class="col-md-3">
-            <div class="card stats-card h-100 border-0" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <p class="mb-1 opacity-75">Today's Classes</p>
-                            <h2 class="mb-0 fw-bold">{{ $todayClasses->count() }}</h2>
-                        </div>
-                        <div style="width: 60px; height: 60px; background: rgba(255,255,255,0.2); border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem;">
-                            <i class="bi bi-calendar-week"></i>
-                        </div>
-                    </div>
-                    {{-- <div class="mt-2">
-                        <small class="opacity-75"><i class="bi bi-arrow-up me-1"></i>Next class in 30 mins</small>
-                    </div> --}}
-                </div>
+    <!-- Attendance % -->
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="stat-card-top">
+                <div class="stat-icon pink"><i class="bi bi-clipboard-pulse"></i></div>
+                @if($attendanceSummary['percentage'] >= 75)
+                    <span class="stat-trend good"><i class="bi bi-arrow-up me-1"></i>Good</span>
+                @elseif($attendanceSummary['percentage'] >= 65)
+                    <span class="stat-trend warn"><i class="bi bi-dash me-1"></i>Average</span>
+                @else
+                    <span class="stat-trend bad"><i class="bi bi-arrow-down me-1"></i>Low</span>
+                @endif
             </div>
             <div>
                 <div class="stat-value">{{ $attendanceSummary['percentage'] }}<small style="font-size:1rem;font-weight:600;">%</small></div>
@@ -423,6 +393,7 @@
         </div>
     </div>
 
+    <!-- Days Present -->
     <div class="col-6 col-md-3">
         <div class="stat-card">
             <div class="stat-card-top">
@@ -439,6 +410,7 @@
         </div>
     </div>
 
+    <!-- Unread Notifications -->
     <div class="col-6 col-md-3">
         <div class="stat-card">
             <div class="stat-card-top">
@@ -493,7 +465,7 @@
                                     <tr class="period-row">
                                         <td>{{ substr($class->start_time, 0, 5) }}–{{ substr($class->end_time, 0, 5) }}</td>
                                         <td>
-                                            <div style="font-weight:600; font-size: 0.875rem;">{{ $class->subject->name ?? 'N/A' }}</div>
+                                            <div style="font-weight:600; font-size:0.875rem;">{{ $class->subject->name ?? 'N/A' }}</div>
                                             @if($class->subject->code ?? false)
                                                 <span class="subject-chip">{{ $class->subject->code }}</span>
                                             @endif
@@ -520,7 +492,7 @@
         </div>
     </div>
 
-    <!-- Notifications -->
+    <!-- Notifications Panel -->
     <div class="col-12 col-lg-5">
         <div class="card h-100">
             <div class="card-header">
@@ -530,7 +502,7 @@
                     </span>
                     Notifications
                     @if($student->unreadNotificationsCount() > 0)
-                        <span style="font-size:0.7rem; background: rgba(239,68,68,0.1); color:#ef4444; padding:2px 8px; border-radius:20px; font-weight:700;">
+                        <span style="font-size:0.7rem; background:rgba(239,68,68,0.1); color:#ef4444; padding:2px 8px; border-radius:20px; font-weight:700;">
                             {{ $student->unreadNotificationsCount() }} new
                         </span>
                     @endif
@@ -539,7 +511,7 @@
                     All <i class="bi bi-arrow-right"></i>
                 </a>
             </div>
-            <div class="card-body py-2 px-20px" style="padding: 8px 20px;">
+            <div class="card-body" style="padding: 8px 20px;">
                 @if($notifications->count() > 0)
                     @foreach($notifications as $notification)
                         <div class="notif-item">
@@ -549,11 +521,12 @@
                                 <div class="notif-time">{{ $notification->created_at->diffForHumans() }}</div>
                             </div>
                             @if(!$notification->is_read)
-                                <span style="font-size:0.65rem; background: rgba(108,99,255,0.1); color:#6c63ff; padding:2px 8px; border-radius:20px; font-weight:700; flex-shrink:0; align-self:center;">New</span>
+                                <span style="font-size:0.65rem; background:rgba(108,99,255,0.1); color:#6c63ff; padding:2px 8px; border-radius:20px; font-weight:700; flex-shrink:0; align-self:center;">New</span>
                             @endif
                         </div>
                     @endforeach
-                    <a href="{{ route('student.notifications') }}" class="btn w-100 mt-3" style="background: rgba(108,99,255,0.08); color: #6c63ff; border: 1px solid rgba(108,99,255,0.2); border-radius: 10px; font-size:0.82rem; font-weight:600; padding:9px;">
+                    <a href="{{ route('student.notifications') }}" class="btn w-100 mt-3"
+                       style="background:rgba(108,99,255,0.08); color:#6c63ff; border:1px solid rgba(108,99,255,0.2); border-radius:10px; font-size:0.82rem; font-weight:600; padding:9px;">
                         View All Notifications
                     </a>
                 @else
