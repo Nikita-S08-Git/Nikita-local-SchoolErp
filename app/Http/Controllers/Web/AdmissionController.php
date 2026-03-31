@@ -108,54 +108,25 @@ class AdmissionController extends Controller
         // Create student inside transaction to maintain lock
         $student = DB::transaction(function() use ($baseNumber, $studentData) {
             // Get the last admission number for this year with lock
-            $lastStudent = \App\Models\User\Student::where('admission_number', 'like', $baseNumber . '%')
+            $lastStudent = \App\Models\User\Student::select('admission_number')
+                ->where('admission_number', 'like', $baseNumber . '%')
                 ->orderBy('admission_number', 'desc')
                 ->lockForUpdate()
                 ->first();
 
-            if ($lastStudent && strpos($lastStudent->admission_number, $baseNumber) === 0) {
-                $lastNumber = (int) substr($lastStudent->admission_number, strlen($baseNumber));
-                $nextNumber = $lastNumber + 1;
-            } else {
-                $nextNumber = 1;
-            }
-
-            // Ensure uniqueness with while loop
-            $attemptedNumber = $nextNumber;
-            $maxAttempts = 100;
-            $attempt = 0;
-            
-            while ($attempt < $maxAttempts) {
-                $candidateNumber = $baseNumber . str_pad($attemptedNumber, 5, '0', STR_PAD_LEFT);
-                
-                // Check if this number already exists in database (outside transaction or within)
-                $exists = \App\Models\User\Student::where('admission_number', $candidateNumber)
-                    ->exists();
-                
-                if (!$exists) {
-                    $studentData['admission_number'] = $candidateNumber;
-                    break;
+            // Calculate next number
+            $nextNumber = 1;
+            if ($lastStudent) {
+                $lastNumPart = substr($lastStudent->admission_number, strlen($baseNumber));
+                if (is_numeric($lastNumPart)) {
+                    $nextNumber = (int)$lastNumPart + 1;
                 }
-                
-                $attemptedNumber++;
-                $attempt++;
-            }
-            
-            // Fallback: use timestamp with random suffix if all attempts fail
-            if ($attempt >= $maxAttempts || empty($studentData['admission_number'])) {
-                // Generate a guaranteed unique number using timestamp with random suffix
-                $studentData['admission_number'] = $baseNumber . time() . rand(10, 99);
             }
 
-            // Final safety check - ensure admission_number is truly unique
-            $originalNumber = $studentData['admission_number'];
-            $counter = 1;
-            while (\App\Models\User\Student::where('admission_number', $studentData['admission_number'])->exists()) {
-                $studentData['admission_number'] = $originalNumber . '-' . $counter;
-                $counter++;
-            }
+            // Format admission number
+            $studentData['admission_number'] = $baseNumber . str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
 
-            // Create student directly in the transaction
+            // Create student directly in the transaction (lock is still held)
             return $this->admissionService->createStudentFromAdmission($studentData);
         });
 
