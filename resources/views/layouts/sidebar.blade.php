@@ -91,15 +91,6 @@
             ['name' => 'Holidays', 'route' => 'academic.holidays.index', 'icon' => 'calendar-event'],
         ],
         'accountant' => [
-            ['name' => 'Dashboard', 'route' => 'accountant.dashboard', 'icon' => 'speedometer2'],
-            ['name' => 'Fee Collection', 'route' => 'accountant.fees', 'icon' => 'cash-stack'],
-            ['name' => 'Expenses', 'route' => 'accountant.expenses', 'icon' => 'receipt'],
-            ['name' => 'Reports', 'route' => 'accountant.reports', 'icon' => 'graph-up'],
-            
-            // View Only Section
-            ['name' => 'Holidays', 'route' => 'academic.holidays.index', 'icon' => 'calendar-event'],
-        ],
-        'accountant' => [
             ['name' => 'Dashboard', 'route' => 'dashboard.accountant', 'icon' => 'speedometer2'],
             ['name' => 'Fee Structures', 'route' => 'fees.structures.index', 'icon' => 'list-columns'],
             ['name' => 'Fee Assignment', 'route' => 'fees.assignments.index', 'icon' => 'clipboard-plus'],
@@ -108,16 +99,15 @@
             ['name' => 'Scholarships', 'route' => 'fees.scholarships.index', 'icon' => 'award'],
             ['name' => 'Scholarship Applications', 'route' => 'fees.scholarship-applications.index', 'icon' => 'file-earmark-check'],
             ['name' => 'Fee Reports', 'route' => 'reports.attendance', 'icon' => 'graph-up'],
+            
+            // View Only Section
+            ['name' => 'Holidays', 'route' => 'academic.holidays.index', 'icon' => 'calendar-event'],
         ],
         'accounts_staff' => [
             ['name' => 'Dashboard', 'route' => 'dashboard.accounts_staff', 'icon' => 'speedometer2'],
             ['name' => 'Fee Collection', 'route' => 'fees.payments.index', 'icon' => 'cash-stack'],
             ['name' => 'Outstanding Fees', 'route' => 'fees.outstanding.index', 'icon' => 'exclamation-triangle'],
             ['name' => 'Reports', 'route' => 'reports.attendance', 'icon' => 'graph-up'],
-            ['name' => 'Dashboard', 'route' => 'accountant.dashboard', 'icon' => 'speedometer2'],
-            ['name' => 'Fee Collection', 'route' => 'accountant.fees', 'icon' => 'cash-stack'],
-            ['name' => 'Expenses', 'route' => 'accountant.expenses', 'icon' => 'receipt'],
-            ['name' => 'Reports', 'route' => 'accountant.reports', 'icon' => 'graph-up'],
             
             // View Only Section
             ['name' => 'Holidays', 'route' => 'academic.holidays.index', 'icon' => 'calendar-event'],
@@ -138,7 +128,6 @@
             ['name' => 'Issue Book', 'route' => 'library.issues.create', 'icon' => 'plus-circle'],
             ['name' => 'Return Books', 'route' => 'library.issues.index', 'icon' => 'arrow-return-left'],
             ['name' => 'Students', 'route' => 'library.students', 'icon' => 'people'],
-            
             // View Only Section
             ['name' => 'Holidays', 'route' => 'academic.holidays.index', 'icon' => 'calendar-event'],
         ],

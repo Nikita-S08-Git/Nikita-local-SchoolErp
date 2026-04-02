@@ -204,9 +204,11 @@ use Illuminate\Support\Facades\Auth;
                                         <i class="bi bi-inbox fs-1 d-block mb-2"></i>
                                         No holidays configured
                                     </div>
+                                    @if($canManageHolidays)
                                     <a href="{{ route('academic.holidays.create') }}" class="btn btn-primary mt-2">
                                         <i class="bi bi-plus-circle"></i> Add First Holiday
                                     </a>
+                                    @endif
                                 </td>
                             </tr>
                         @endforelse
