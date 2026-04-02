@@ -187,10 +187,45 @@
                     </table>
                 </div>
                 
-                @if($students instanceof \Illuminate\Pagination\LengthAwarePaginator)
+                @if($students instanceof \Illuminate\Pagination\LengthAwarePaginator && $students->total() > 0)
                     <div class="mt-4">
                         <nav aria-label="Page navigation">
-                            {{ $students->links('pagination::bootstrap-5') }}
+                            <ul class="pagination justify-content-center">
+                                {{-- Previous Page Link --}}
+                                @if ($students->onFirstPage())
+                                    <li class="page-item disabled">
+                                        <span class="page-link"><i class="bi bi-chevron-left"></i> Previous</span>
+                                    </li>
+                                @else
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ $students->previousPageUrl() }}" rel="prev"><i class="bi bi-chevron-left"></i> Previous</a>
+                                    </li>
+                                @endif
+
+                                {{-- Simple page number links --}}
+                                @for ($i = 1; $i <= $students->lastPage(); $i++)
+                                    @if ($i == 1 || $i == $students->lastPage() || abs($i - $students->currentPage()) <= 1)
+                                        @if ($i == $students->currentPage())
+                                            <li class="page-item active"><span class="page-link">{{ $i }}</span></li>
+                                        @else
+                                            <li class="page-item"><a class="page-link" href="{{ $students->url($i) }}">{{ $i }}</a></li>
+                                        @endif
+                                    @elseif ($i == $students->currentPage() - 2 || $i == $students->currentPage() + 2)
+                                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                                    @endif
+                                @endfor
+
+                                {{-- Next Page Link --}}
+                                @if ($students->hasMorePages())
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ $students->nextPageUrl() }}" rel="next">Next <i class="bi bi-chevron-right"></i></a>
+                                    </li>
+                                @else
+                                    <li class="page-item disabled">
+                                        <span class="page-link">Next <i class="bi bi-chevron-right"></i></span>
+                                    </li>
+                                @endif
+                            </ul>
                         </nav>
                         <div class="text-center mt-2">
                             <small class="text-muted">

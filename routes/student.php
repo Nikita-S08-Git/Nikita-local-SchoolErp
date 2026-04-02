@@ -12,13 +12,8 @@ use Illuminate\Support\Facades\Route;
 | These routes are for the student dashboard and are protected by
 | the student auth middleware.
 |
+| Note: Guest routes (login) are in routes/web.php to avoid duplication
 */
-
-// Guest routes (login)
-Route::middleware('guest:student')->group(function () {
-    Route::get('/student/login', [AuthController::class, 'showLogin'])->name('student.login');
-    Route::post('/student/login', [AuthController::class, 'login']);
-});
 
 // Authenticated student routes
 Route::middleware('auth:student')->prefix('student')->name('student.')->group(function () {
@@ -43,8 +38,9 @@ Route::middleware('auth:student')->prefix('student')->name('student.')->group(fu
     Route::get('/attendance', [DashboardController::class, 'attendance'])->name('attendance');
     
     // Fees
-    Route::get('/fees', [DashboardController::class, 'fees'])->name('fees.index');
+    Route::get('/fees', [DashboardController::class, 'fees'])->name('fees');
     Route::get('/fees/payment/{studentFee}', [DashboardController::class, 'feesPayment'])->name('fees.payment');
+    Route::post('/fees/process-payment', [DashboardController::class, 'processPayment'])->name('fees.process-payment');
     
     // Results
     Route::get('/results', [DashboardController::class, 'results'])->name('results');

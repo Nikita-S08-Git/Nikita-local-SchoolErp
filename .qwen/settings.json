@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(php *)",
-      "Bash(git commit *)"
+      "Bash(git commit *)",
+      "Bash(dir *)",
+      "Bash(findstr *)"
     ]
   },
   "$version": 3

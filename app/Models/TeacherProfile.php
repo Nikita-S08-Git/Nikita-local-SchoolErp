@@ -41,8 +41,6 @@ class TeacherProfile extends Model
         'emergency_contact_phone',
         'linkedin_url',
         'research_gate_url',
-        'notification_email',
-        'notification_sms',
         'is_active',
     ];
 
@@ -54,8 +52,6 @@ class TeacherProfile extends Model
         'has_medical_conditions' => 'boolean',
         'is_active' => 'boolean',
         'certificates' => 'array',
-        'notification_email' => 'boolean',
-        'notification_sms' => 'boolean',
     ];
 
     /**

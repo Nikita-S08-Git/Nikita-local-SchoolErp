@@ -63,7 +63,7 @@ class AdmissionController extends Controller
             'blood_group' => 'nullable|in:A+,A-,B+,B-,O+,O-,AB+,AB-',
             'religion' => 'nullable|string|max:50',
             'category' => 'required|in:general,obc,sc,st,ews',
-            'aadhar_number' => 'nullable|digits:12|unique:students,aadhar_number',
+            'aadhar_number' => 'nullable|digits:12',
             'mobile_number' => 'required|regex:/^[6-9]\d{9}$/',
             'email' => 'required|email',
             'current_address' => 'required|string|min:10|max:500',

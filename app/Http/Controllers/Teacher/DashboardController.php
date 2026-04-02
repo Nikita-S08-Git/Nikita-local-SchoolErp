@@ -162,56 +162,31 @@ class DashboardController extends Controller
 
         $validated = $request->validate([
             'employee_id' => 'nullable|string|max:50|unique:teacher_profiles,employee_id,' . $teacher->id . ',user_id',
-            'phone' => 'nullable|string|max:15|regex:/^[0-9+\-\s()]+$/',
-            'alternate_phone' => 'nullable|string|max:15|regex:/^[0-9+\-\s()]+$/',
+            'phone' => 'nullable|string|max:15',
+            'alternate_phone' => 'nullable|string|max:15',
             'blood_group' => 'nullable|in:A+,A-,B+,B-,AB+,AB-,O+,O-',
-            'date_of_birth' => 'nullable|date|before:today',
+            'date_of_birth' => 'nullable|date',
             'gender' => 'nullable|in:male,female,other',
             'marital_status' => 'nullable|in:single,married,divorced,widowed',
-            'current_address' => 'nullable|string|max:1000',
-            'permanent_address' => 'nullable|string|max:1000',
+            'current_address' => 'nullable|string',
+            'permanent_address' => 'nullable|string',
             'city' => 'nullable|string|max:100',
             'state' => 'nullable|string|max:100',
-            'pincode' => 'nullable|string|max:10|regex:/^[0-9a-zA-Z\s-]+$/',
+            'pincode' => 'nullable|string|max:10',
             'qualification' => 'nullable|string|max:255',
             'specialization' => 'nullable|string|max:255',
-            'experience_years' => 'nullable|integer|min:0|max:600',
-            'joining_date' => 'nullable|date|before_or_equal:today',
+            'experience_years' => 'nullable|integer|min:0',
+            'joining_date' => 'nullable|date',
             'designation' => 'nullable|string|max:100',
             'emergency_contact_name' => 'nullable|string|max:100',
             'emergency_contact_relation' => 'nullable|string|max:50',
-            'emergency_contact_phone' => 'nullable|string|max:15|regex:/^[0-9+\-\s()]+$/',
+            'emergency_contact_phone' => 'nullable|string|max:15',
             'linkedin_url' => 'nullable|url|max:255',
-            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ], [
-            'phone.regex' => 'Please enter a valid phone number.',
-            'alternate_phone.regex' => 'Please enter a valid alternate phone number.',
-            'emergency_contact_phone.regex' => 'Please enter a valid emergency contact phone number.',
-            'date_of_birth.before' => 'Date of birth must be in the past.',
-            'joining_date.before_or_equal' => 'Joining date cannot be in the future.',
-            'experience_years.max' => 'Experience years cannot exceed 600 months (50 years).',
-            'pincode.regex' => 'Please enter a valid pincode.',
-            'photo.mimes' => 'Profile photo must be a JPEG, PNG, JPG, or GIF file.',
-            'photo.max' => 'Profile photo size must not exceed 2MB.',
+            'photo' => 'nullable|image|max:2048',
         ]);
 
         $teacherProfile = TeacherProfile::firstOrNew(['user_id' => $teacher->id]);
-        
-        // Fill only the validated attributes that exist in the model
-        $fillableFields = [
-            'employee_id', 'phone', 'alternate_phone', 'blood_group', 'date_of_birth',
-            'gender', 'marital_status', 'current_address', 'permanent_address',
-            'city', 'state', 'pincode', 'qualification', 'specialization',
-            'experience_years', 'joining_date', 'designation',
-            'emergency_contact_name', 'emergency_contact_relation', 'emergency_contact_phone',
-            'linkedin_url'
-        ];
-
-        foreach ($fillableFields as $field) {
-            if (isset($validated[$field])) {
-                $teacherProfile->$field = $validated[$field];
-            }
-        }
+        $teacherProfile->fill($validated);
 
         // Handle photo upload
         if ($request->hasFile('photo')) {
@@ -233,7 +208,7 @@ class DashboardController extends Controller
     /**
      * Display assigned divisions
      */
-    public function divisions(Request $request)
+    public function divisions()
     {
         $teacher = Auth::user();
 
@@ -248,24 +223,17 @@ class DashboardController extends Controller
             return $assignment->is_primary == 1;
         })->pluck('division_id');
 
-        // Get per page from request, default to 9
-        $perPage = $request->input('per_page', 9);
-        $perPage = in_array($perPage, [6, 9, 12, 15, 25]) ? (int) $perPage : 9;
-
-        // Paginate divisions instead of getting all
         $divisions = Division::whereIn('id', $divisionIds)
             ->where('is_active', true)
             ->with(['academicYear'])
             ->withCount(['students as student_count' => function ($query) {
                 $query->where('student_status', 'active');
             }])
-            ->paginate($perPage)
-            ->withQueryString();
-
-        // Add is_class_teacher flag to each division
-        foreach ($divisions as $division) {
-            $division->is_class_teacher = $classTeacherDivisions->contains($division->id);
-        }
+            ->get()
+            ->map(function($division) use ($classTeacherDivisions) {
+                $division->is_class_teacher = $classTeacherDivisions->contains($division->id);
+                return $division;
+            });
 
         // Check if today is a holiday
         $today = now()->format('Y-m-d');
@@ -279,7 +247,7 @@ class DashboardController extends Controller
                 ->first();
         }
 
-        return view('teacher.divisions.index', compact('teacher', 'divisions', 'todayHoliday', 'perPage'));
+        return view('teacher.divisions.index', compact('teacher', 'divisions', 'todayHoliday'));
     }
 
     /**
@@ -317,18 +285,15 @@ class DashboardController extends Controller
             ->limit(10)
             ->get();
 
-        // Get student marks/results with pagination
+        // Get student marks/results
         $marks = StudentMark::where('student_id', $student->id)
             ->with(['subject', 'examination'])
-            ->orderBy('examination_id', 'desc')
-            ->paginate(10);
+            ->orderBy('examination_id')
+            ->get();
 
-        // Calculate overall percentage from marks (use all marks, not just paginated)
-        $totalMarksData = StudentMark::where('student_id', $student->id)
-            ->selectRaw('SUM(marks_obtained) as total_obtained, SUM(max_marks) as total_max')
-            ->first();
-        $totalMarksObtained = $totalMarksData->total_obtained ?? 0;
-        $totalMaxMarks = $totalMarksData->total_max ?? 0;
+        // Calculate overall percentage from marks
+        $totalMarksObtained = $marks->sum('marks_obtained');
+        $totalMaxMarks = $marks->sum('max_marks');
         $overallPercentage = $totalMaxMarks > 0 ? ($totalMarksObtained / $totalMaxMarks) * 100 : 0;
 
         // Check if current user is admin or principal (can see full details)
@@ -469,7 +434,7 @@ class DashboardController extends Controller
     public function divisionStudents(Request $request, $divisionId)
     {
         $teacher = Auth::user();
-
+        
         // Verify teacher has access to this division
         $hasAccess = DB::table('teacher_assignments')
             ->where('teacher_id', $teacher->id)
@@ -482,7 +447,7 @@ class DashboardController extends Controller
         }
 
         $division = Division::with(['program', 'session'])->findOrFail($divisionId);
-
+        
         // Check if today is a holiday
         $today = now()->format('Y-m-d');
         $academicYearId = AcademicYear::getCurrentAcademicYearId();
@@ -494,11 +459,11 @@ class DashboardController extends Controller
                 ->where('end_date', '>=', $today)
                 ->first();
         }
-
+        
         $query = Student::where('division_id', $divisionId)
             ->where('student_status', 'active')
             ->with(['user']);
-
+        
         if ($request->filled('search')) {
             $query->where(function($q) use ($request) {
                 $q->where('first_name', 'like', '%' . $request->search . '%')
@@ -506,83 +471,11 @@ class DashboardController extends Controller
                   ->orWhere('roll_number', 'like', '%' . $request->search . '%');
             });
         }
-
+        
         $perPage = $request->input('per_page', 15);
         $perPage = in_array($perPage, [10, 15, 25, 50]) ? (int) $perPage : 15;
         $students = $query->orderBy('roll_number')->paginate($perPage)->appends($request->query());
-
-        return view('teacher.divisions.students', compact('students', 'division', 'todayHoliday'));
-    }
-
-    /**
-     * Display teacher settings page
-     */
-    public function settings()
-    {
-        $teacher = Auth::user();
-        $teacherProfile = $teacher->teacherProfile ?? new TeacherProfile(['user_id' => $teacher->id]);
-
-        return view('teacher.settings.index', compact('teacher', 'teacherProfile'));
-    }
-
-    /**
-     * Update teacher settings
-     */
-    public function updateSettings(Request $request)
-    {
-        $teacher = Auth::user();
-
-        $validated = $request->validate([
-            'email' => 'nullable|email|max:255|unique:users,email,' . $teacher->id,
-            'phone' => 'nullable|string|max:15|regex:/^[0-9+\-\s()]+$/',
-            'alternate_phone' => 'nullable|string|max:15|regex:/^[0-9+\-\s()]+$/',
-            'current_address' => 'nullable|string|max:1000',
-            'permanent_address' => 'nullable|string|max:1000',
-            'city' => 'nullable|string|max:100',
-            'state' => 'nullable|string|max:100',
-            'pincode' => 'nullable|string|max:10|regex:/^[0-9a-zA-Z\s-]+$/',
-            'linkedin_url' => 'nullable|url|max:255',
-            'notification_email' => 'boolean',
-            'notification_sms' => 'boolean',
-        ], [
-            'email.email' => 'Please enter a valid email address.',
-            'email.unique' => 'This email address is already in use.',
-            'phone.regex' => 'Please enter a valid phone number.',
-            'alternate_phone.regex' => 'Please enter a valid alternate phone number.',
-            'pincode.regex' => 'Please enter a valid pincode.',
-            'linkedin_url.url' => 'Please enter a valid LinkedIn URL.',
-            'notification_email.boolean' => 'Invalid notification preference.',
-            'notification_sms.boolean' => 'Invalid notification preference.',
-        ]);
-
-        // Update user email only if provided and different
-        if ($request->filled('email') && $teacher->email !== $validated['email']) {
-            $teacher->email = $validated['email'];
-            $teacher->save();
-        }
-
-        // Update teacher profile settings
-        $teacherProfile = TeacherProfile::firstOrNew(['user_id' => $teacher->id]);
         
-        // Update only the fields that are present in the request
-        $updateFields = [
-            'phone', 'alternate_phone', 'current_address', 'permanent_address',
-            'city', 'state', 'pincode', 'linkedin_url'
-        ];
-
-        foreach ($updateFields as $field) {
-            if ($request->has($field)) {
-                $teacherProfile->$field = $validated[$field];
-            }
-        }
-
-        // Handle notification preferences (checkboxes)
-        $teacherProfile->notification_email = $request->has('notification_email');
-        $teacherProfile->notification_sms = $request->has('notification_sms');
-
-        $teacherProfile->save();
-
-        return redirect()->route('teacher.settings')
-            ->with('success', 'Settings updated successfully!');
+        return view('teacher.divisions.students', compact('students', 'division', 'todayHoliday'));
     }
 }

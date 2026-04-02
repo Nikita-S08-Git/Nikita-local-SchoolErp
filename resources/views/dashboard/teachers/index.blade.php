@@ -122,24 +122,9 @@
                                     @endif
                                 </td>
                                 <td>
-                                    @if($teacher->assignedDivisionsList && $teacher->assignedDivisionsList->count() > 0)
-                                        @foreach($teacher->assignedDivisionsList as $assignment)
-                                            @php
-                                                $div = $assignment['division'];
-                                                $isPrimary = $assignment['is_primary'];
-                                            @endphp
-                                            @if($div)
-                                                <span class="badge bg-{{ $isPrimary ? 'primary' : 'success' }} mb-1">
-                                                    {{ $div->division_name }}
-                                                    @if($isPrimary)
-                                                        <i class="bi bi-star-fill ms-1"></i>
-                                                    @endif
-                                                </span>
-                                                @if($loop->first)
-                                                    <br><small class="text-muted">{{ $div->academicYear->session_name ?? $div->academicYear->name ?? '' }}</small>
-                                                @endif
-                                            @endif
-                                        @endforeach
+                                    @if($teacher->assignedDivision)
+                                        <span class="badge bg-success">{{ $teacher->assignedDivision->division_name }}</span>
+                                        <br><small class="text-muted">{{ $teacher->assignedDivision->academicYear->session_name ?? '' }}</small>
                                     @else
                                         <span class="text-muted">Not assigned</span>
                                     @endif

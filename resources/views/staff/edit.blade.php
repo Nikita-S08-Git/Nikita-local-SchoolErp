@@ -15,16 +15,6 @@
                 @method('PUT')
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label class="form-label">Employee ID</label>
-                        <input type="text" name="employee_id" class="form-control" value="{{ $staff->employee_id }}" readonly disabled>
-                        <small class="text-muted">Cannot be changed</small>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Email</label>
-                        <input type="email" name="email" class="form-control" value="{{ $staff->user->email }}" readonly disabled>
-                        <small class="text-muted">Cannot be changed</small>
-                    </div>
-                    <div class="col-md-6 mb-3">
                         <label class="form-label">First Name *</label>
                         <input type="text" name="first_name" class="form-control" value="{{ $staff->first_name }}" required>
                     </div>
@@ -89,15 +79,10 @@
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Employment Type *</label>
                         <select name="employment_type" class="form-select" required>
-                            <option value="">Select Type</option>
                             <option value="permanent" {{ $staff->employment_type == 'permanent' ? 'selected' : '' }}>Permanent</option>
                             <option value="contract" {{ $staff->employment_type == 'contract' ? 'selected' : '' }}>Contract</option>
                             <option value="part_time" {{ $staff->employment_type == 'part_time' ? 'selected' : '' }}>Part Time</option>
                         </select>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Joining Date *</label>
-                        <input type="date" name="joining_date" class="form-control" value="{{ $staff->joining_date }}" required>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Status *</label>

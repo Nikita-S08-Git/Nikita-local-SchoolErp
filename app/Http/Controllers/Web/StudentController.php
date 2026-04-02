@@ -22,7 +22,7 @@ class StudentController extends Controller
         $perPage = $request->input('per_page', 20);
         $perPage = in_array($perPage, [10, 15, 20, 25, 50]) ? (int) $perPage : 20;
 
-        $query = Student::with(['program', 'division', 'academicSession', 'user']);
+        $query = Student::with(['program', 'division', 'academicSession', 'user', 'fees']);
 
         if ($request->filled('program_id')) {
             $query->where('program_id', $request->program_id);
@@ -60,8 +60,20 @@ class StudentController extends Controller
 
     public function show(Student $student)
     {
+        // Load student with related data including fees
         $student->load(['program', 'division', 'academicSession', 'guardians']);
-        return view('dashboard.students.show', compact('student'));
+        
+        // Load fee details
+        $feeRecords = \App\Models\Fee\StudentFee::where('student_id', $student->id)
+            ->with(['feeStructure.feeHead', 'payments'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+        
+        $totalFees = $feeRecords->sum('final_amount');
+        $totalPaid = $feeRecords->sum('paid_amount');
+        $totalOutstanding = $feeRecords->sum('outstanding_amount');
+        
+        return view('dashboard.students.show', compact('student', 'feeRecords', 'totalFees', 'totalPaid', 'totalOutstanding'));
     }
 
     public function create()
@@ -83,7 +95,7 @@ class StudentController extends Controller
             'blood_group'          => ['nullable','regex:/^(A|B|AB|O)[+-]$/'],
             'religion'             => 'nullable|string|max:50',
             'category'             => 'required|in:general,obc,sc,st,vjnt,nt,ews',
-            'aadhar_number'        => 'nullable|digits:12|unique:students,aadhar_number',
+            'aadhar_number'        => 'nullable|digits:12',
             'mobile_number'        => 'required|regex:/^[6-9]\d{9}$/',
             'email'                => 'required|email|max:255|unique:students,email',
             'current_address'      => 'required|string|min:10|max:500',

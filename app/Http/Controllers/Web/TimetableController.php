@@ -11,7 +11,6 @@ use App\Models\Academic\Subject;
 use App\Models\Academic\TimeSlot;
 use App\Models\Academic\AcademicYear;
 use App\Models\Academic\Room;
-use App\Models\Holiday;
 use App\Models\User;
 use App\Services\HolidayService;
 use Illuminate\Http\Request;
@@ -1568,15 +1567,8 @@ class TimetableController extends Controller
     public function teacherTimetable()
     {
         $teacher = Auth::user();
-
-        $today = strtolower(date('l'));
-        $todayDate = now()->format('Y-m-d');
         
-        // Check if today is a holiday
-        $todayHoliday = Holiday::whereDate('start_date', '<=', $todayDate)
-            ->whereDate('end_date', '>=', $todayDate)
-            ->first();
-
+        $today = strtolower(date('l'));
         $todayClasses = Timetable::where('teacher_id', $teacher->id)
             ->where('day_of_week', $today)
             ->with(['division', 'subject', 'room'])
@@ -1589,7 +1581,7 @@ class TimetableController extends Controller
             ->get()
             ->groupBy('day_of_week');
 
-        return view('academic.timetable.teacher', compact('todayClasses', 'weekClasses', 'today', 'todayHoliday'))->with('days', $this->days);
+        return view('academic.timetable.teacher', compact('todayClasses', 'weekClasses', 'today'))->with('days', $this->days);
     }
 
     /**

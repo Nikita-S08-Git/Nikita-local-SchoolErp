@@ -32,26 +32,15 @@
                         </select>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label class="form-label">Subject *</label>
-                        <select name="subject_id" class="form-select @error('subject_id') is-invalid @enderror" required>
-                            <option value="">-- Select Subject (Required) --</option>
-                            @if($subjects->count() > 0)
-                                @foreach($subjects as $subject)
-                                    <option value="{{ $subject->id }}" {{ old('subject_id') == $subject->id ? 'selected' : '' }}>
-                                        {{ $subject->name }} ({{ $subject->code }}) - {{ $subject->program->name ?? 'No Program' }}
-                                    </option>
-                                @endforeach
-                            @else
-                                <option disabled>No subjects available</option>
-                            @endif
+                        <label class="form-label">Subject</label>
+                        <select name="subject_id" class="form-select">
+                            <option value="">-- Select Subject (Optional) --</option>
+                            @foreach($subjects as $subject)
+                                <option value="{{ $subject->id }}">
+                                    {{ $subject->name }} ({{ $subject->code }}) - {{ $subject->program->name ?? 'No Program' }}
+                                </option>
+                            @endforeach
                         </select>
-                        @error('subject_id')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                        <div class="form-text">
-                            <i class="bi bi-info-circle me-1"></i>
-                            Each exam must have a subject. If you need multiple subjects, create separate exams.
-                        </div>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Academic Year *</label>

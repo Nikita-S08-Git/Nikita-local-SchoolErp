@@ -28,23 +28,8 @@ class TeacherController extends Controller
         $sortDir = in_array($sortDir, ['asc', 'desc']) ? $sortDir : 'desc';
 
         $teachers = User::role('teacher')
-            ->with(['teacherProfile'])
             ->orderBy($sortBy, $sortDir)
             ->paginate($perPage)->appends($request->query());
-
-        // Load assigned divisions for each teacher
-        foreach ($teachers as $teacher) {
-            $teacher->assignedDivisionsList = \App\Models\TeacherAssignment::where('teacher_id', $teacher->id)
-                ->where('assignment_type', 'division')
-                ->with('division.academicYear')
-                ->get()
-                ->map(function($assignment) {
-                    return [
-                        'division' => $assignment->division,
-                        'is_primary' => $assignment->is_primary,
-                    ];
-                });
-        }
 
         return view('dashboard.teachers.index', compact('teachers', 'sortBy', 'sortDir', 'perPage'));
     }
@@ -173,15 +158,11 @@ class TeacherController extends Controller
                 ->with('error', 'Teacher is assigned to timetable. Please remove assignments first.');
         }
 
-        // Check for division assignments using teacher_assignments table
-        $hasDivisionAssignment = \App\Models\TeacherAssignment::where('teacher_id', $teacher->id)
-            ->where('assignment_type', 'division')
-            ->exists();
-
-        if ($hasDivisionAssignment) {
+        // Check for class teacher assignment
+        if ($teacher->assignedDivision()->exists()) {
             return redirect()
                 ->route('dashboard.teachers.index')
-                ->with('error', 'Teacher is assigned to divisions. Please remove division assignments first.');
+                ->with('error', 'Teacher is assigned as class teacher. Please reassign the class first.');
         }
 
         $teacher->delete();
