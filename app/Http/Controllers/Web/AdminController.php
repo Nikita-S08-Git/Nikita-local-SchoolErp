@@ -25,6 +25,7 @@ class AdminController extends Controller
         // Get search parameters
         $studentSearch = $request->get('student_search', '');
         $teacherSearch = $request->get('teacher_search', '');
+        $staffSearch = $request->get('staff_search', '');
         $divisionFilter = $request->get('division_filter', '');
 
         // Get all divisions for filter dropdown
@@ -56,8 +57,29 @@ class AdminController extends Controller
 
         $students = $studentsQuery->paginate(20)->appends($request->query());
 
-        // Get all teachers (users with teacher role)
+        // Get all staff users (admin, principal, accountant, librarian, office staff, etc.)
+        $staffRoles = ['admin', 'principal', 'accountant', 'librarian', 'office', 'staff', 'accounts_staff', 'admission_officer', 'hod_commerce', 'hod_science', 'hod_management', 'hod_arts', 'class_teacher', 'subject_teacher'];
+        
+        $staffQuery = User::whereHas('roles', function($q) use ($staffRoles) {
+                $q->whereIn('name', $staffRoles);
+            })
+            ->with('roles');
+
+        // Apply staff search
+        if ($staffSearch) {
+            $staffQuery->where(function($q) use ($staffSearch) {
+                $q->where('name', 'like', "%{$staffSearch}%")
+                  ->orWhere('email', 'like', "%{$staffSearch}%");
+            });
+        }
+
+        $staff = $staffQuery->paginate(20)->appends($request->query());
+
+        // Get teacher role users separately
         $teachersQuery = User::role('teacher')
+            ->whereDoesntHave('roles', function($q) use ($staffRoles) {
+                $q->whereIn('name', $staffRoles);
+            })
             ->with('roles');
 
         // Apply teacher search
@@ -70,7 +92,7 @@ class AdminController extends Controller
 
         $teachers = $teachersQuery->paginate(20)->appends($request->query());
 
-        return view('admin.credentials', compact('students', 'teachers', 'divisions', 'studentSearch', 'teacherSearch', 'divisionFilter'));
+        return view('admin.credentials', compact('students', 'teachers', 'staff', 'divisions', 'studentSearch', 'teacherSearch', 'staffSearch', 'divisionFilter'));
     }
 
     /**

@@ -133,7 +133,28 @@ class DashboardController extends Controller
 
     public function accountant()
     {
-        return view('dashboard.accountant');
+        // Fetch recent fee payments for the accountant dashboard
+        $recentPayments = \App\Models\Fee\FeePayment::with(['student', 'student.division', 'student.program'])
+            ->where('status', 'completed')
+            ->orderBy('payment_date', 'desc')
+            ->limit(10)
+            ->get();
+
+        // Calculate statistics
+        $todayCollection = \App\Models\Fee\FeePayment::where('status', 'completed')
+            ->whereDate('payment_date', today())
+            ->sum('amount');
+        
+        $todayCount = \App\Models\Fee\FeePayment::where('status', 'completed')
+            ->whereDate('payment_date', today())
+            ->count();
+
+        $monthlyReceipts = \App\Models\Fee\FeePayment::where('status', 'completed')
+            ->whereMonth('payment_date', now()->month)
+            ->whereYear('payment_date', now()->year)
+            ->count();
+
+        return view('dashboard.accountant', compact('recentPayments', 'todayCollection', 'todayCount', 'monthlyReceipts'));
     }
 
     

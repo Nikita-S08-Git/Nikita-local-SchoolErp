@@ -309,6 +309,11 @@
         Students
         <span class="tab-count">{{ $students->total() }}</span>
     </button>
+    <button class="tab-btn" data-tab="staff" onclick="switchTab('staff', this)">
+        <i class="fas fa-users"></i>
+        Staff
+        <span class="tab-count">{{ $staff->total() }}</span>
+    </button>
     <button class="tab-btn" data-tab="teachers" onclick="switchTab('teachers', this)">
         <i class="fas fa-chalkboard-user"></i>
         Teachers
@@ -492,6 +497,200 @@
 {{-- ══════════════════════════════
      TEACHERS TAB
 ══════════════════════════════ --}}
+{{-- STAFF TAB (Principal, Admin, Accountant, Librarian, etc.) --}}
+<div class="tab-pane" id="pane-staff">
+
+    {{-- Filter --}}
+    <div class="filter-card">
+        <form method="GET" action="{{ route('admin.credentials.index') }}">
+            <input type="hidden" name="tab" value="staff">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-5">
+                    <label class="form-label">Search Staff</label>
+                    <div class="input-group">
+                        <span class="input-group-text" style="background:var(--ink-50); border-color:#d1d5db; color:var(--ink-500);">
+                            <i class="fas fa-search" style="font-size:12px;"></i>
+                        </span>
+                        <input type="text" name="staff_search" class="form-control"
+                               placeholder="Name or Email…"
+                               value="{{ $staffSearch }}">
+                    </div>
+                </div>
+                <div class="col-md-auto">
+                    <div style="display:flex; gap:6px;">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-filter me-1"></i> Filter
+                        </button>
+                        <a href="{{ route('admin.credentials.index', ['tab' => 'staff']) }}" class="btn btn-outline" title="Clear">
+                            <i class="fas fa-xmark"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-auto ms-auto">
+                    <button type="button" class="btn btn-outline" onclick="exportTable('staff')">
+                        <i class="fas fa-download me-1"></i> Export CSV
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    @if($staffSearch)
+    <div class="results-strip">
+        <i class="fas fa-circle-info"></i>
+        Showing <strong>{{ $staff->count() }}</strong> of <strong>{{ $staff->total() }}</strong> staff members
+        matching "<strong>{{ $staffSearch }}</strong>"
+    </div>
+    @endif
+
+    {{-- Table --}}
+    <div class="data-card">
+        <div class="data-card-header">
+            <p class="data-card-title"><i class="fas fa-table-list"></i> Staff Credentials</p>
+        </div>
+        <div style="overflow-x:auto;">
+            <table class="cred-table">
+                <thead>
+                    <tr>
+                        <th style="width:44px; padding-left:20px;">#</th>
+                        <th>Staff Member</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Password</th>
+                        <th>Generated On</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($staff as $index => $member)
+                    <tr>
+                        <td style="padding-left:20px; color:var(--ink-300); font-size:12px;">{{ $staff->firstItem() + $index }}</td>
+                        <td>
+                            <div class="user-chip">
+                                @php
+                                    $roleName = $member->roles->first()->name ?? 'staff';
+                                    $bgColor = match($roleName) {
+                                        'admin' => '#fef2f2',
+                                        'principal' => '#fefce8',
+                                        'accountant' => '#f0fdf4',
+                                        'librarian' => '#f0f9ff',
+                                        'office' => '#f5f3ff',
+                                        default => '#fafafa'
+                                    };
+                                    $textColor = match($roleName) {
+                                        'admin' => '#dc2626',
+                                        'principal' => '#ca8a04',
+                                        'accountant' => '#16a34a',
+                                        'librarian' => '#0369a1',
+                                        'office' => '#7c3aed',
+                                        default => '#52525b'
+                                    };
+                                @endphp
+                                <div class="u-avatar" style="background:{{ $bgColor }}; color:{{ $textColor }};">
+                                    {{ strtoupper(substr($member->name, 0, 1)) }}
+                                </div>
+                                <div>
+                                    <p class="u-name">{{ $member->name }}</p>
+                                    <p class="u-email">{{ $member->email }}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="tag tag-teal" style="max-width:200px; overflow:hidden; text-overflow:ellipsis; display:inline-block;">
+                                {{ $member->email }}
+                            </span>
+                        </td>
+                        <td>
+                            @if($member->roles->count() > 0)
+                                @php
+                                    $displayRole = match($member->roles->first()->name) {
+                                        'admin' => 'Administrator',
+                                        'principal' => 'Principal',
+                                        'accountant' => 'Accountant',
+                                        'librarian' => 'Librarian',
+                                        'office' => 'Office Staff',
+                                        'accounts_staff' => 'Accounts Staff',
+                                        'admission_officer' => 'Admission Officer',
+                                        'hod_commerce' => 'HOD Commerce',
+                                        'hod_science' => 'HOD Science',
+                                        'hod_management' => 'HOD Management',
+                                        'hod_arts' => 'HOD Arts',
+                                        'class_teacher' => 'Class Teacher',
+                                        'subject_teacher' => 'Subject Teacher',
+                                        'staff' => 'Staff',
+                                        'lab_instructor' => 'Lab Instructor',
+                                        default => $member->roles->first()->name
+                                    };
+                                @endphp
+                                <span class="tag tag-amber">{{ $displayRole }}</span>
+                            @else
+                                <span class="tag tag-gray">No Role</span>
+                            @endif
+                        </td>
+                        <td>
+                            <div>
+                                <div class="pw-group">
+                                    <input type="password" value="{{ $member->temp_password ?? 'Not Set' }}"
+                                           id="spw-{{ $member->id }}" readonly>
+                                    <button class="pw-btn" type="button"
+                                            onclick="togglePw('spw-{{ $member->id }}', 'seye-{{ $member->id }}')"
+                                            title="Show / Hide">
+                                        <i class="fas fa-eye" id="seye-{{ $member->id }}"></i>
+                                    </button>
+                                </div>
+                                <p class="pw-sub">
+                                    {{ $member->password_generated_at ? $member->password_generated_at->diffForHumans() : '—' }}
+                                </p>
+                            </div>
+                        </td>
+                        <td style="font-size:12.5px; color:var(--ink-500); white-space:nowrap;">
+                            {{ $member->password_generated_at ? $member->password_generated_at->format('d M Y') : '—' }}
+                        </td>
+                        <td>
+                            <div class="act-btns">
+                                <button class="btn btn-outline btn-sm"
+                                        onclick="copyPw('spw-{{ $member->id }}')"
+                                        title="Copy password">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                                <button class="btn btn-outline btn-sm"
+                                        onclick="viewPwModal('{{ $member->name }}','{{ $member->email }}','{{ $member->temp_password ?? 'Not Set' }}','{{ $displayRole ?? 'Staff' }}')"
+                                        title="View details">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-outline btn-sm"
+                                        onclick="resetPassword('staff', {{ $member->id }})"
+                                        title="Reset password">
+                                    <i class="fas fa-arrows-rotate"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="7">
+                            <div class="empty-state">
+                                <i class="fas fa-inbox"></i>
+                                <h5>No staff found</h5>
+                                @if($staffSearch)
+                                <p>Try adjusting your search criteria</p>
+                                <a href="{{ route('admin.credentials.index', ['tab' => 'staff']) }}" class="btn btn-outline btn-sm">Clear Filters</a>
+                                @endif
+                            </div>
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+        @if($staff->hasPages())
+        <div class="card-footer-bar">
+            {{ $staff->appends(['staff_search' => $staffSearch])->links() }}
+        </div>
+        @endif
+    </div>
+</div>
+
 <div class="tab-pane" id="pane-teachers">
 
     {{-- Filter --}}
@@ -718,6 +917,9 @@ document.addEventListener('DOMContentLoaded', function () {
     if (tab === 'teachers') {
         const btn = document.querySelector('[data-tab="teachers"]');
         if (btn) switchTab('teachers', btn);
+    } else if (tab === 'staff') {
+        const btn = document.querySelector('[data-tab="staff"]');
+        if (btn) switchTab('staff', btn);
     }
 });
 

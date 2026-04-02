@@ -117,45 +117,50 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                @forelse($recentPayments as $payment)
                                 <tr>
-                                    <td>{{ today()->format('d M Y') }}</td>
-                                    <td>John Doe</td>
-                                    <td>ADM2024001</td>
-                                    <td>₹5,000</td>
-                                    <td><span class="badge bg-success">Cash</span></td>
-                                    <td><span class="badge bg-success">Paid</span></td>
+                                    <td>{{ $payment->payment_date->format('d M Y') }}</td>
+                                    <td>{{ $payment->student->first_name ?? 'N/A' }} {{ $payment->student->last_name ?? '' }}</td>
+                                    <td>{{ $payment->student->admission_number ?? 'N/A' }}</td>
+                                    <td>₹{{ number_format($payment->amount, 2) }}</td>
                                     <td>
-                                        <a href="#" class="btn btn-sm btn-outline-primary">
-                                            <i class="bi bi-download"></i>
-                                        </a>
+                                        @if($payment->payment_mode == 'cash')
+                                            <span class="badge bg-success">Cash</span>
+                                        @elseif($payment->payment_mode == 'online')
+                                            <span class="badge bg-info">Online</span>
+                                        @elseif($payment->payment_mode == 'bank_transfer')
+                                            <span class="badge bg-primary">Bank Transfer</span>
+                                        @else
+                                            <span class="badge bg-secondary">{{ ucfirst($payment->payment_mode) }}</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if($payment->status == 'completed')
+                                            <span class="badge bg-success">Paid</span>
+                                        @elseif($payment->status == 'pending')
+                                            <span class="badge bg-warning">Pending</span>
+                                        @else
+                                            <span class="badge bg-danger">Failed</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if($payment->status == 'completed')
+                                            <a href="{{ route('fees.payments.download', $payment->id) }}" class="btn btn-sm btn-outline-primary" title="Download Receipt">
+                                                <i class="bi bi-download"></i>
+                                            </a>
+                                        @else
+                                            <span class="text-muted">—</span>
+                                        @endif
                                     </td>
                                 </tr>
+                                @empty
                                 <tr>
-                                    <td>{{ today()->format('d M Y') }}</td>
-                                    <td>Jane Smith</td>
-                                    <td>ADM2024002</td>
-                                    <td>₹8,000</td>
-                                    <td><span class="badge bg-info">Online</span></td>
-                                    <td><span class="badge bg-success">Paid</span></td>
-                                    <td>
-                                        <a href="#" class="btn btn-sm btn-outline-primary">
-                                            <i class="bi bi-download"></i>
-                                        </a>
+                                    <td colspan="7" class="text-center text-muted py-4">
+                                        <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                                        No recent payments found
                                     </td>
                                 </tr>
-                                <tr>
-                                    <td>{{ today()->format('d M Y') }}</td>
-                                    <td>Mike Johnson</td>
-                                    <td>ADM2024003</td>
-                                    <td>₹3,500</td>
-                                    <td><span class="badge bg-success">Cash</span></td>
-                                    <td><span class="badge bg-success">Paid</span></td>
-                                    <td>
-                                        <a href="#" class="btn btn-sm btn-outline-primary">
-                                            <i class="bi bi-download"></i>
-                                        </a>
-                                    </td>
-                                </tr>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>
