@@ -65,7 +65,7 @@ Route::middleware(['auth', 'role:librarian'])->prefix('librarian')->name('librar
 
 Route::prefix('dashboard/principal')
     ->name('principal.')
-    ->middleware(['auth'])
+    ->middleware(['auth', 'role:principal|admin'])
     ->group(function () {
 
         Route::get('/', [PrincipalDashboardController::class, 'index'])
@@ -97,13 +97,7 @@ Route::prefix('dashboard/principal')
 
 // In routes/web.php, inside Route::middleware(['auth', 'admin'])->group(function () { ... });
 
-Route::prefix('attendance')->name('attendance.')->group(function () {
-    Route::get('/', [App\Http\Controllers\Web\AttendanceController::class, 'index'])->name('index');
-    Route::post('/create', [App\Http\Controllers\Web\AttendanceController::class, 'create'])->name('create');
-    Route::post('/', [App\Http\Controllers\Web\AttendanceController::class, 'store'])->name('store');
-    Route::get('/report', [App\Http\Controllers\Web\AttendanceController::class, 'report'])->name('report');
-});
-
+// Attendance routes removed - duplicates exist in academic prefix group with proper auth
 
 Route::middleware(['auth', 'role:admin|principal'])->group(function () {
     // Web-specific route names with 'web.' prefix
@@ -374,51 +368,7 @@ Route::middleware(['auth'])->group(function () {
     // Teacher Management
     Route::resource('dashboard/teachers', \App\Http\Controllers\Web\TeacherController::class)
         ->names('dashboard.teachers');
-    
-    // Test storage route
-    Route::get('/test-storage', function() {
-        $students = \App\Models\User\Student::with(['program', 'division'])->limit(5)->get();
-        return view('test-storage', compact('students'));
-    });
-    
-    // Test route to add holiday for today
-    Route::get('/test-add-holiday', function() {
-        $today = now()->format('Y-m-d');
-        
-        // Get current academic year using the proper method
-        $academicYearId = \App\Models\Academic\AcademicYear::getCurrentAcademicYearId();
-        
-        if (!$academicYearId) {
-            // Create academic year if none exists
-            $academicYear = \App\Models\Academic\AcademicYear::create([
-                'name' => '2025-2026',
-                'start_date' => '2025-06-01',
-                'end_date' => '2026-05-31',
-                'is_active' => true,
-            ]);
-            $academicYearId = $academicYear->id;
-        }
-        
-        // Delete any existing holiday for today
-        \App\Models\Holiday::where('start_date', '<=', $today)
-            ->where('end_date', '>=', $today)
-            ->delete();
-        
-        // Create holiday for today
-        $holiday = \App\Models\Holiday::create([
-            'title' => 'Test Holiday - School Closed Today!',
-            'description' => 'This is a test holiday added via test route',
-            'start_date' => $today,
-            'end_date' => $today,
-            'type' => 'school_holiday',
-            'is_recurring' => false,
-            'academic_year_id' => $academicYearId,
-            'is_active' => true,
-        ]);
-        
-        return redirect()->route('teacher.divisions.index')->with('success', 'Holiday added for today: ' . $holiday->title);
-    });
-    
+
     // Bulk action route - inside auth middleware (must be before wildcard route)
     Route::post('/dashboard/students/bulk-action', [StudentController::class, 'bulkAction'])->name('dashboard.students.bulkAction');
     Route::delete('/dashboard/students/bulk-action', [StudentController::class, 'bulkAction']);

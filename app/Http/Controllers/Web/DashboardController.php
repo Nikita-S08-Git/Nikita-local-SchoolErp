@@ -154,7 +154,10 @@ class DashboardController extends Controller
             ->whereYear('payment_date', now()->year)
             ->count();
 
-        return view('dashboard.accountant', compact('recentPayments', 'todayCollection', 'todayCount', 'monthlyReceipts'));
+        // Get pending scholarship applications count
+        $pendingScholarships = \App\Models\Fee\ScholarshipApplication::where('status', 'pending')->count();
+
+        return view('dashboard.accountant', compact('recentPayments', 'todayCollection', 'todayCount', 'monthlyReceipts', 'pendingScholarships'));
     }
 
     

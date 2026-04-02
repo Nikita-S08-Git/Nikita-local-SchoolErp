@@ -19,8 +19,8 @@
                 <div class="card-body text-center">
                     <i class="bi bi-cash-stack fa-3x mb-3"></i>
                     <h5>Fee Collection (Today)</h5>
-                    <h3>₹45,000</h3>
-                    <p class="mb-0"><small>15 payments received</small></p>
+                    <h3>₹{{ number_format($todayCollection ?? 0, 2) }}</h3>
+                    <p class="mb-0"><small>{{ $todayCount ?? 0 }} payments received</small></p>
                 </div>
             </div>
         </div>
@@ -41,7 +41,7 @@
                 <div class="card-body text-center">
                     <i class="bi bi-receipt fa-3x mb-3"></i>
                     <h5>Receipts Generated</h5>
-                    <h3>150</h3>
+                    <h3>{{ $monthlyReceipts ?? 0 }}</h3>
                     <p class="mb-0"><small>This month</small></p>
                 </div>
             </div>
@@ -52,12 +52,32 @@
                 <div class="card-body text-center">
                     <i class="bi bi-award fa-3x mb-3"></i>
                     <h5>Scholarships</h5>
-                    <h3>25</h3>
-                    <p class="mb-0"><small>12 pending approval</small></p>
+                    <h3>{{ $pendingScholarships ?? 0 }}</h3>
+                    <p class="mb-0"><small>pending approval</small></p>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Pending Scholarship Applications -->
+    @if(($pendingScholarships ?? 0) > 0)
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-warning">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 text-warning"><i class="bi bi-file-earmark-check me-2"></i>Pending Scholarship Applications</h5>
+                    <a href="{{ route('fees.scholarship-applications.index') }}" class="btn btn-sm btn-warning">View All</a>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">There are <strong>{{ $pendingScholarships }}</strong> scholarship applications waiting for approval.</p>
+                    <a href="{{ route('fees.scholarship-applications.index') }}" class="btn btn-outline-warning">
+                        <i class="bi bi-check-circle me-1"></i>Review Applications
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
 
     <!-- Quick Actions -->
     <div class="row mb-4">
@@ -169,13 +189,21 @@
         </div>
     </div>
 
-    <!-- Pending Scholarship Applications -->
-    <div class="row">
+    <!-- Pending Scholarship Applications (Dynamic) -->
+    @php
+        $pendingApps = \App\Models\Fee\ScholarshipApplication::with(['student', 'scholarship'])
+            ->where('status', 'pending')
+            ->limit(5)
+            ->get();
+    @endphp
+    
+    @if($pendingApps->count() > 0)
+    <div class="row mb-4">
         <div class="col-12">
-            <div class="card">
+            <div class="card border-warning">
                 <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="bi bi-file-earmark-check me-2"></i>Pending Scholarship Applications</h5>
-                    <a href="{{ route('fees.scholarship-applications.index') }}" class="btn btn-sm btn-primary">View All</a>
+                    <h5 class="mb-0 text-warning"><i class="bi bi-file-earmark-check me-2"></i>Pending Scholarship Applications</h5>
+                    <a href="{{ route('fees.scholarship-applications.index') }}" class="btn btn-sm btn-warning">View All</a>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -191,36 +219,35 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                @foreach($pendingApps as $app)
                                 <tr>
-                                    <td>Student A</td>
-                                    <td>Merit Scholarship</td>
-                                    <td>₹10,000</td>
-                                    <td>2 days ago</td>
+                                    <td>
+                                        <strong>{{ $app->student->first_name ?? 'N/A' }} {{ $app->student->last_name ?? '' }}</strong><br>
+                                        <small>{{ $app->student->admission_number ?? 'N/A' }}</small>
+                                    </td>
+                                    <td>{{ $app->scholarship->name ?? 'N/A' }}</td>
+                                    <td>
+                                        @if($app->scholarship)
+                                            {{ $app->scholarship->discount_type === 'percentage' ? $app->scholarship->discount_value . '%' : '₹' . $app->scholarship->discount_value }}
+                                        @else
+                                            N/A
+                                        @endif
+                                    </td>
+                                    <td>{{ $app->created_at->format('d M Y') }}</td>
                                     <td><span class="badge bg-warning">Pending</span></td>
                                     <td>
-                                        <a href="#" class="btn btn-sm btn-success">
-                                            <i class="bi bi-check"></i>
-                                        </a>
-                                        <a href="#" class="btn btn-sm btn-danger">
+                                        <form action="{{ route('fees.scholarship-applications.approve', $app) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            <button type="submit" class="btn btn-sm btn-success" title="Approve" onclick="return confirm('Approve this application?')">
+                                                <i class="bi bi-check"></i>
+                                            </button>
+                                        </form>
+                                        <a href="{{ route('fees.scholarship-applications.index') }}" class="btn btn-sm btn-danger" title="Reject">
                                             <i class="bi bi-x"></i>
                                         </a>
                                     </td>
                                 </tr>
-                                <tr>
-                                    <td>Student B</td>
-                                    <td>SC/ST Scholarship</td>
-                                    <td>₹15,000</td>
-                                    <td>3 days ago</td>
-                                    <td><span class="badge bg-warning">Pending</span></td>
-                                    <td>
-                                        <a href="#" class="btn btn-sm btn-success">
-                                            <i class="bi bi-check"></i>
-                                        </a>
-                                        <a href="#" class="btn btn-sm btn-danger">
-                                            <i class="bi bi-x"></i>
-                                        </a>
-                                    </td>
-                                </tr>
+                                @endforeach
                             </tbody>
                         </table>
                     </div>
@@ -228,5 +255,6 @@
             </div>
         </div>
     </div>
+    @endif
 </div>
 @endsection

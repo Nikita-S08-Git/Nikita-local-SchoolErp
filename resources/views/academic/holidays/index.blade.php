@@ -2,6 +2,11 @@
 
 @section('title', 'Holiday Management')
 
+@php
+use Illuminate\Support\Facades\Auth;
+    $canManageHolidays = Auth::check() && in_array(Auth::user()->roles->first()->name ?? '', ['admin', 'principal', 'hod_commerce', 'hod_science', 'hod_management', 'hod_arts']);
+@endphp
+
 @section('content')
 <div class="container-fluid">
     <!-- Page Header -->
@@ -16,9 +21,11 @@
                     <a href="{{ route('academic.timetable.table') }}" class="btn btn-outline-secondary">
                         <i class="bi bi-table"></i> Timetable
                     </a>
+                    @if($canManageHolidays)
                     <a href="{{ route('academic.holidays.create') }}" class="btn btn-primary">
                         <i class="bi bi-plus-circle"></i> Add Holiday
                     </a>
+                    @endif
                 </div>
             </div>
         </div>
@@ -170,6 +177,7 @@
                                     @endif
                                 </td>
                                 <td>
+                                    @if($canManageHolidays)
                                     <div class="btn-group btn-group-sm">
                                         <a href="{{ route('academic.holidays.edit', $holiday) }}" 
                                            class="btn btn-outline-warning" title="Edit">
@@ -184,6 +192,9 @@
                                             </button>
                                         </form>
                                     </div>
+                                    @else
+                                    <span class="text-muted">View Only</span>
+                                    @endif
                                 </td>
                             </tr>
                         @empty
